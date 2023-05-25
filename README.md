@@ -1,5 +1,7 @@
 # Systems Integration: Project
 
+**Temat**: Zestawienie różnych globalnych danych statystycznych dotyczących pandemii, porównanie zachorowań i śmiertelności przed i po rozpoczęciu szczepień
+
 ## Wymagania
 
 -   eksport/import z pliku XML – 5 pkt
@@ -15,3 +17,5 @@
 ## Dokumentacja
 
 [Notowanie na bieżąco (według sugestii Głuchowskiego)](https://docs.google.com/document/d/1nVufnYzmMOklFIl-ZViPHp18eebJxU9x0i108niPMXA/edit?usp=sharing)
+
+![Diagram](./diagram.png)
