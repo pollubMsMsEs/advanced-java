@@ -12,15 +12,22 @@ class CountryController extends Controller
     {
         $countries = [];
 
-        if (($open = fopen(storage_path() . "/importData/locations.csv", "r")) !== false) {
-            while (($data = fgetcsv($open, 1000, ",")) !== false) {
-                $countries[$data[0]] = $data[1];
-            }
+        try {
+            if (($open = fopen(storage_path() . "/importData/locations.csv", "r")) !== false) {
+                while (($data = fgetcsv($open, 1000, ",")) !== false) {
+                    $countries[$data[0]] = $data[1];
+                }
+                unset($countries["location"]);
 
-            fclose($open);
+                fclose($open);
+
+            } else {
+                $countries = false;
+            }
+        } catch (\Exception $e) {
+            $countries = false;
         }
 
-        unset($countries["location"]);
 
         return $countries;
     }
@@ -30,8 +37,13 @@ class CountryController extends Controller
      */
     public function index()
     {
+        if (($countries = CountryController::getCountriesCSV()) !== false) {
+            return response()->json(["toast" => "Countries loaded succesfully", "data" => $countries]);
+        } else {
+            return response()->json(["toast" => "Couldn't load countries", "error" => true]);
+        }
 
-        return response()->json(CountryController::getCountriesCSV());
+
     }
 
     /**
