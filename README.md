@@ -11,3 +11,7 @@
 -   wykorzystanie kontenerów Docker – 5 pkt
 -   wykorzystanie mechanizmów uwierzytelnienia i autoryzacji przy użyciu tokenów JWT – 5 pkt
 -   wykorzystanie poziomów izolacji w bazie danych – 5 pkt
+
+## Dokumentacja
+
+[Notowanie na bieżąco (według sugestii Głuchowskiego)](https://docs.google.com/document/d/1nVufnYzmMOklFIl-ZViPHp18eebJxU9x0i108niPMXA/edit?usp=sharing)
