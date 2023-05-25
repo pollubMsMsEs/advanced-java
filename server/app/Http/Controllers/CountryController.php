@@ -8,12 +8,30 @@ use App\Http\Requests\UpdateCountryRequest;
 
 class CountryController extends Controller
 {
+    public static function getCountriesCSV()
+    {
+        $countries = [];
+
+        if (($open = fopen(storage_path() . "/importData/locations.csv", "r")) !== false) {
+            while (($data = fgetcsv($open, 1000, ",")) !== false) {
+                $countries[$data[0]] = $data[1];
+            }
+
+            fclose($open);
+        }
+
+        unset($countries["location"]);
+
+        return $countries;
+    }
+
     /**
      * Display a listing of the resource.
      */
     public function index()
     {
-        //
+
+        return response()->json(CountryController::getCountriesCSV());
     }
 
     /**
