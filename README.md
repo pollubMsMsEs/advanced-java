@@ -2,6 +2,23 @@
 
 **Temat**: Zestawienie różnych globalnych danych statystycznych dotyczących pandemii, porównanie zachorowań i śmiertelności przed i po rozpoczęciu szczepień
 
+## Jak uruchomić?
+
+### Serwer
+
+1. Zpullować projekt
+2. Uruchomić `composer install`
+3. Skopiować .env.example, zmienić nazwę na .env i wprowadzić brakujące dane
+4. Uruchomić `php artisan key:generate`
+5. Uruchomić `php artisan migrate`
+6. Uruchomić `php artisan serve`
+
+### Klient
+
+1. Zpullować projekt
+2. Uruchomić `npm i`
+3. Uruchomić `npm run dev`
+
 ## Wymagania
 
 -   eksport/import z pliku XML – 5 pkt
@@ -13,6 +30,12 @@
 -   wykorzystanie kontenerów Docker – 5 pkt
 -   wykorzystanie mechanizmów uwierzytelnienia i autoryzacji przy użyciu tokenów JWT – 5 pkt
 -   wykorzystanie poziomów izolacji w bazie danych – 5 pkt
+
+## Wykorzystywane dane
+
+-   [Przypadki i śmiertelność (według kraju i daty)](https://github.com/owid/covid-19-data/blob/master/public/data/cases_deaths/full_data.csv)
+-   [Całkowite szczepienia (według kraju, daty i producenta)](https://github.com/owid/covid-19-data/blob/master/public/data/vaccinations/vaccinations-by-manufacturer.csv)
+-   [Szczegóły dotyczące szczepień (według kraju i daty)](https://github.com/owid/covid-19-data/blob/master/public/data/vaccinations/vaccinations.csv)
 
 ## Dokumentacja
 
