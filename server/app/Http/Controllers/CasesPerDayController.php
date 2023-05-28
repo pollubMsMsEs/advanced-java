@@ -19,27 +19,26 @@ class CasesPerDayController extends Controller
 
             CasesPerDay::query()->delete();
             echo "<pre>";
-            while (($data = fgetcsv($open, 100, ",")) !== false && $count < 300) {
+            while (($data = fgetcsv($open, 200, ",")) !== false && $count < 3000) {
                 if ($data[0] === "date")
                     continue;
 
                 $countryName = $data[1];
-                $countryCode = array_key_exists($countryName, $countries) ? $countries[$countryName] : false;
-                if ($countryCode === false)
+
+                if (($countryCode = array_key_exists($countryName, $countries) ? $countries[$countryName] : false) === false) {
                     continue;
+                }
 
-                DB::transaction(function () use ($data, $countryName, $countryCode) {
-
-                    $country = Country::query()->firstOrCreate(["name" => $countryName, "alpha3_code" => $countryCode]);
-                    CasesPerDay::query()->create(
-                        [
-                            "day" => $data[0],
-                            "country_id" => $country["id"],
-                            "newCases" => intval($data[2]),
-                            "newDeaths" => intval($data[3])
-                        ]
-                    );
-                });
+                $country = Country::query()->firstOrCreate(["name" => $countryName, "alpha3_code" => $countryCode]);
+                CasesPerDay::query()->insert(
+                    [
+                        "day" => $data[0],
+                        "country_id" => $country["id"],
+                        "newCases" => intval($data[2]),
+                        "newDeaths" => intval($data[3])
+                    ]
+                );
+                //});
 
                 $count++;
             }
