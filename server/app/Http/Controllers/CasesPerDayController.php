@@ -15,11 +15,13 @@ class CasesPerDayController extends Controller
 
         if (($open = fopen(storage_path() . "/importData/casesAndDeaths.csv", "r")) !== false && $countries !== false) {
 
-            $count = 0;
+            $currentCountryName = null;
+            $currentCountryId = null;
+            $insert_data = [];
 
             CasesPerDay::query()->delete();
-            echo "<pre>";
-            while (($data = fgetcsv($open, 200, ",")) !== false && $count < 3000) {
+
+            while (($data = fgetcsv($open, 200, ",")) !== false) {
                 if ($data[0] === "date")
                     continue;
 
@@ -29,18 +31,28 @@ class CasesPerDayController extends Controller
                     continue;
                 }
 
-                $country = Country::query()->firstOrCreate(["name" => $countryName, "alpha3_code" => $countryCode]);
-                CasesPerDay::query()->insert(
-                    [
-                        "day" => $data[0],
-                        "country_id" => $country["id"],
-                        "newCases" => intval($data[2]),
-                        "newDeaths" => intval($data[3])
-                    ]
-                );
-                //});
+                if ($currentCountryName !== $countryName) {
+                    $currentCountryName = $countryName;
+                    $currentCountryId = Country::query()->firstOrCreate(["name" => $countryName, "alpha3_code" => $countryCode])["id"];
+                }
 
-                $count++;
+                $insert_data[] = [
+                    "day" => $data[0],
+                    "country_id" => $currentCountryId,
+                    "newCases" => intval($data[2]),
+                    "newDeaths" => intval($data[3])
+                ];
+            }
+
+            $insert_data = collect($insert_data);
+
+            $CHUNK_SIZE = 1000;
+            $chunks = $insert_data->chunk($CHUNK_SIZE);
+
+            $count = 0;
+            foreach ($chunks as $chunk) {
+                CasesPerDay::insert($chunk->toArray());
+                $count += $CHUNK_SIZE;
             }
 
             fclose($open);
