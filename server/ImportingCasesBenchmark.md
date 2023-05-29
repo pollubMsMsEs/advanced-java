@@ -23,7 +23,7 @@ Disk is working hard, you can hear it
 -   no transaction: 1.7s
 -   +db country index: 1.8s
 -   +db country firstOrCreate replaced with query-where-first and seperate create: 1.75s
--   +db cases insert instead of create: 1.67ms
+-   +db cases insert instead of create: 1.67s
 
 ### 3000 records
 
