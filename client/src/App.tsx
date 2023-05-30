@@ -3,6 +3,7 @@ import coronaLogo from "/corona.svg";
 import axios from "axios";
 import { ToastContainer, toast } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
+import failPromise from "./scripts/failPromise";
 //import './App.css'
 
 function App() {
@@ -10,18 +11,37 @@ function App() {
         useState(false);
     const [isImportingCases, setIsImportingCases] = useState(false);
 
+    async function sendImportRequest(url: string) {
+        const toastId = toast.loading("Importing...");
+
+        try {
+            const result = await axios.put(url);
+            console.log(result);
+
+            if (result.data.error) {
+                throw new Error(result.data.msg);
+            }
+
+            toast.update(toastId, {
+                render: "Import succedded!",
+                type: "success",
+                isLoading: false,
+                autoClose: 4000,
+            });
+        } catch (error: any) {
+            toast.update(toastId, {
+                render: `Import failed: ${error.message ?? ""}`,
+                type: "error",
+                isLoading: false,
+                autoClose: 4000,
+            });
+        }
+    }
+
     async function importCases() {
         setIsImportingCases(true);
 
-        const result = await toast
-            .promise(axios.put("http://localhost:8000/api/import/cases"), {
-                pending: "Importing cases...",
-                success: "Imported succesfully!",
-                error: "Import failed",
-            })
-            .catch();
-
-        console.log(result.data);
+        await sendImportRequest("http://localhost:8000/api/import/cases");
 
         setIsImportingCases(false);
     }
@@ -29,8 +49,8 @@ function App() {
     async function importVaccinations() {
         setIsImportingVaccinations(true);
 
-        const result = await axios.put(
-            "http://localhost:8000/api/import/cases"
+        await sendImportRequest(
+            "http://localhost:8000/api/import/vaccinations"
         );
 
         setIsImportingVaccinations(false);
