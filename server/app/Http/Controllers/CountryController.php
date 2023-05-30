@@ -38,7 +38,7 @@ class CountryController extends Controller
     public function index()
     {
         if (($countries = CountryController::getCountriesCSV()) !== false) {
-            return response()->json(["toast" => "Countries loaded succesfully", "data" => $countries]);
+            return response()->json(["toast" => "Countries loaded succesfully", "data" => $countries]); // @Skic Te toast chyba nie potrzebne, to powinna być raczej odpowiedzialność frontu
         } else {
             return response()->json(["toast" => "Couldn't load countries", "error" => true]);
         }

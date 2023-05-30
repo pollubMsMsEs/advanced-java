@@ -11,9 +11,12 @@ class CasesPerDayController extends Controller
 {
     public function importCasesCSV()
     {
-        $countries = CountryController::getCountriesCSV();
+        try {
+            if (($countries = CountryController::getCountriesCSV()) === false)
+                throw new \Exception("Couldn't open countries CSV", 333);
 
-        if (($open = fopen(storage_path() . "/importData/casesAndDeaths.csv", "r")) !== false && $countries !== false) {
+            if (($open = fopen(storage_path() . "/importData/casesAndDeaths.csv", "r")) === false)
+                throw new \Exception("Couldn't open cases CSV", 333);
 
             $currentCountryName = null;
             $currentCountryId = null;
@@ -57,7 +60,11 @@ class CasesPerDayController extends Controller
 
             fclose($open);
 
-            echo "Finished importing";
+            return response()->json(["acknowledged" => true]);
+
+        } catch (\Exception $error) {
+            return response()->json(["error" => true, "msg" => $error->getMessage(), "user_friendly_msg" => $error->getCode() === 333]);
         }
+
     }
 }

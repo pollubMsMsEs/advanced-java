@@ -65,7 +65,9 @@ class VaccinationsController extends Controller
 
             fclose($open);
 
-            echo "Finished importing";
+            return response()->json(["acknowledged" => true]);
+        } else {
+            return response()->json(["error" => true]);
         }
     }
 }
