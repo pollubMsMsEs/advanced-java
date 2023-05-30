@@ -22,5 +22,5 @@ Route::middleware('auth:sanctum')->get('/user', function (Request $request) {
 });
 
 Route::get("/countries", [CountryController::class, "index"]);
-Route::get("/import/cases", [CasesPerDayController::class, "importCasesCSV"]);
-Route::get("/import/vaccinations", [VaccinationsController::class, "importVaccinationsCSV"]);
+Route::put("/import/cases", [CasesPerDayController::class, "importCasesCSV"]);
+Route::put("/import/vaccinations", [VaccinationsController::class, "importVaccinationsCSV"]);
