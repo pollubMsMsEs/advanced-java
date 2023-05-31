@@ -4,7 +4,7 @@ import axios from "axios";
 import { ToastContainer, toast } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
 import failPromise from "./scripts/failPromise";
-//import './App.css'
+//import "./App.css";
 
 function App() {
     const [isImportingVaccinations, setIsImportingVaccinations] =
@@ -57,45 +57,70 @@ function App() {
     }
 
     return (
-        <>
-            <header style={{ display: "flex", gap: "20px" }}>
-                <h1>Covid visualizer</h1>
-                <img width="50px" src={coronaLogo} alt="Vite" />
-            </header>
-            <button
-                onClick={importCases}
-                disabled={isImportingCases || isImportingVaccinations}
-                className="button"
+        <div
+            style={{
+                display: "grid",
+                height: "100vh",
+                gridTemplateColumns: "250px 1fr",
+            }}
+        >
+            <aside
+                className="aside"
                 style={{
-                    color: "aliceblue",
-                    backgroundColor: isImportingCases ? "#a1a1aa" : "#0284c7",
-                    border: "none",
-                    padding: "10px",
-                    borderRadius: "5px",
+                    display: "flex",
+                    flexDirection: "column",
+                    alignItems: "center",
+                    gap: "10px",
                 }}
             >
-                Import Cases
-            </button>
-            <br />
-            <hr />
-            <button
-                onClick={importVaccinations}
-                disabled={isImportingCases || isImportingVaccinations}
-                className="button"
-                style={{
-                    color: "aliceblue",
-                    backgroundColor: isImportingVaccinations
-                        ? "#a1a1aa"
-                        : "#0284c7",
-                    border: "none",
-                    padding: "10px",
-                    borderRadius: "5px",
-                }}
-            >
-                Import Vaccinations
-            </button>
-            <ToastContainer position={toast.POSITION.BOTTOM_CENTER} />
-        </>
+                <header style={{ display: "flex", gap: "20px" }}>
+                    <h1>Covid visualizer</h1>
+                    <img width="50px" src={coronaLogo} alt="Vite" />
+                </header>
+                <div
+                    style={{
+                        alignSelf: "stretch",
+                        marginTop: "-20px",
+                    }}
+                >
+                    <hr />
+                </div>
+                <button
+                    onClick={importCases}
+                    disabled={isImportingCases || isImportingVaccinations}
+                    className="button"
+                    style={{
+                        color: "aliceblue",
+                        backgroundColor: isImportingCases
+                            ? "#a1a1aa"
+                            : "#0284c7",
+                        border: "none",
+                        padding: "10px",
+                        borderRadius: "5px",
+                    }}
+                >
+                    Import Cases
+                </button>
+
+                <button
+                    onClick={importVaccinations}
+                    disabled={isImportingCases || isImportingVaccinations}
+                    className="button"
+                    style={{
+                        color: "aliceblue",
+                        backgroundColor: isImportingVaccinations
+                            ? "#a1a1aa"
+                            : "#0284c7",
+                        border: "none",
+                        padding: "10px",
+                        borderRadius: "5px",
+                    }}
+                >
+                    Import Vaccinations
+                </button>
+                <ToastContainer position={toast.POSITION.BOTTOM_CENTER} />
+            </aside>
+        </div>
     );
 }
 
