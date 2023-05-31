@@ -11,9 +11,11 @@ class VaccinationsController extends Controller
 {
     public function importVaccinationsCSV()
     {
-        $countries = CountryController::getCountriesCSV();
-
-        if (($open = fopen(storage_path() . "/importData/vaccinations-by-manufacturer.csv", "r")) !== false && $countries !== false) {
+        try {
+            if (($countries = CountryController::getCountriesCSV()) === false)
+                throw new \Exception("Couldn't open countries CSV", 333);
+            if (($open = fopen(storage_path() . "/importData/vaccinations-by-manufacturer.csv", "r")) === false)
+                throw new \Exception("Couldn't open countries CSV", 333);
 
             $currentCountryName = null;
             $currentCountryId = null;
@@ -66,8 +68,10 @@ class VaccinationsController extends Controller
             fclose($open);
 
             return response()->json(["acknowledged" => true]);
-        } else {
-            return response()->json(["error" => true]);
+
+        } catch (\Exception $error) {
+            return response()->json(["error" => true, "msg" => $error->getMessage(), "user_friendly_msg" => $error->getCode() === 333]);
         }
     }
+
 }
