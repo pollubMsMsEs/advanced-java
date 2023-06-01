@@ -9,6 +9,13 @@ use Illuminate\Http\Request;
 
 class VaccinationsController extends Controller
 {
+    /*
+    public function __construct()
+    {
+        // Autoryzacja tylko dla ról admin i user
+        $this->middleware('auth.role:admin,user');
+    }
+    */
     public function importVaccinationsCSV()
     {
         try {

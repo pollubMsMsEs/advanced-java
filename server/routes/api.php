@@ -5,6 +5,7 @@ use App\Http\Controllers\CountryController;
 use App\Http\Controllers\VaccinationsController;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Route;
+use App\Http\Controllers\AuthController;
 
 /*
 |--------------------------------------------------------------------------
@@ -16,11 +17,24 @@ use Illuminate\Support\Facades\Route;
 | be assigned to the "api" middleware group. Make something great!
 |
 */
-
+/*
 Route::middleware('auth:sanctum')->get('/user', function (Request $request) {
     return $request->user();
 });
+*/
 
-Route::get("/countries", [CountryController::class, "index"]);
-Route::put("/import/cases", [CasesPerDayController::class, "importCasesCSV"]);
-Route::put("/import/vaccinations", [VaccinationsController::class, "importVaccinationsCSV"]);
+Route::controller(AuthController::class)->group(function () {
+    Route::post('login', 'login');
+    Route::post('register', 'register');
+    Route::post('logout', 'logout');
+    Route::post('refresh', 'refresh');
+});
+
+Route::middleware('auth.role:user,admin')->group(function () {
+    Route::get("/countries", [CountryController::class, "index"]);
+});
+
+Route::middleware('auth.role:admin')->group(function () {
+    Route::put("/import/cases", [CasesPerDayController::class, "importCasesCSV"]);
+    Route::put("/import/vaccinations", [VaccinationsController::class, "importVaccinationsCSV"]);
+});
