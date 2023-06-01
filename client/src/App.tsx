@@ -103,7 +103,7 @@ function App() {
                 datasets: [
                     {
                         label: "data 1",
-                        data: [5, 12, 7, 7, 6, 5, 4, 3, 43, 243, 43, 23, 4],
+                        data: [5, 12, 7, 7, 6, 5, 4, 3, 43, 243, 43, 23, 4,7,5,3,6,8,200],
                         borderColor: `#f0f257`,
                         backgroundColor: `#f0f257`,
                     },
