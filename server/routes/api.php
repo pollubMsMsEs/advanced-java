@@ -30,11 +30,11 @@ Route::controller(AuthController::class)->group(function () {
     Route::post('refresh', 'refresh');
 });
 
-Route::middleware('auth.role:user,admin')->group(function () {
-    Route::get("/countries", [CountryController::class, "index"]);
-});
+//Route::middleware('auth.role:user,admin')->group(function () {
+Route::get("/countries", [CountryController::class, "index"]);
+//});
 
-Route::middleware('auth.role:admin')->group(function () {
-    Route::put("/import/cases", [CasesPerDayController::class, "importCasesCSV"]);
-    Route::put("/import/vaccinations", [VaccinationsController::class, "importVaccinationsCSV"]);
-});
+//Route::middleware('auth.role:admin')->group(function () {
+Route::put("/import/cases", [CasesPerDayController::class, "importCasesCSV"]);
+Route::put("/import/vaccinations", [VaccinationsController::class, "importVaccinationsCSV"]);
+//});

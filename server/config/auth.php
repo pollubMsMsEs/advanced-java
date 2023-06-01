@@ -14,7 +14,7 @@ return [
     */
 
     'defaults' => [
-        'guard' => 'api',
+        'guard' => 'web',
         'passwords' => 'users',
     ],
 
@@ -62,7 +62,7 @@ return [
     | Supported: "database", "eloquent"
     |
     */
-    
+
     'providers' => [
         'users' => [
             'driver' => 'eloquent',
