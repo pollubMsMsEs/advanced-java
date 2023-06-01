@@ -94,6 +94,7 @@ function App() {
         "http://localhost:8000/api/countries"
       );
       const countryNames = Object.keys(countriesObj.data.data);
+      console.log(countryNames);
       const labels = countryNames.map((country) => `${country}`);
       const data = {
         labels: labels,
