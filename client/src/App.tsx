@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import coronaLogo from "/corona.svg";
 import axios from "axios";
 import { ToastContainer, toast } from "react-toastify";
@@ -60,6 +60,10 @@ function App() {
 
     const [countryList, setCountryList] = useState<string[] | null>([]);
 
+    useEffect(() => {
+        getCountriesList();
+    }, []);
+
     const data = {
         labels: ["label 1", "label 2", "label 3"],
         datasets: [
@@ -109,12 +113,15 @@ function App() {
                 "http://localhost:8000/api/countries"
             );
 
+            console.log(countriesObj);
+
             const temp: string[] = [];
-            for (const [name, _] of countriesObj.data) {
+            for (const [name, _] of Object.entries(countriesObj.data.data)) {
                 temp.push(name);
             }
             setCountryList(temp);
         } catch (error) {
+            console.log(error);
             setCountryList(null);
         }
     }
@@ -185,6 +192,7 @@ function App() {
             </aside>
             <main
                 style={{
+                    maxHeight: "100vh",
                     padding: "10px",
                     display: "grid",
                     gridTemplateColumns: "150px 1fr",
@@ -192,20 +200,14 @@ function App() {
                 }}
             >
                 <div>
-                    {countryList?.forEach((country) => (
-                        <div>
-                            <span>{country}</span>
-                            <input type="checkbox" name="" id="" />
-                        </div>
-                    )) ?? "Couldn't load countries"}
-
-                    <div>
-                        <span>Argentyna</span>
-                        <input type="checkbox" name="" id="" />
-                    </div>
-                    <div>
-                        <span>Armenia</span>
-                        <input type="checkbox" name="" id="" />
+                    <div>Countries</div>
+                    <div style={{ overflowY: "clip" }}>
+                        {countryList?.map((country) => (
+                            <div>
+                                <span>{country}</span>
+                                <input type="checkbox" name="" id="" />
+                            </div>
+                        )) ?? "Couldn't load countries"}
                     </div>
                 </div>
                 <div
