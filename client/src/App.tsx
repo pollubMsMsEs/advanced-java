@@ -3,40 +3,87 @@ import coronaLogo from "/corona.svg";
 import axios from "axios";
 import { ToastContainer, toast } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
+import { Line } from "react-chartjs-2";
+import {
+    Chart as ChartJS,
+    CategoryScale,
+    LinearScale,
+    PointElement,
+    LineElement,
+    Title,
+    Tooltip,
+    Legend,
+} from "chart.js";
 import failPromise from "./scripts/failPromise";
-//import "./App.css";
+
+ChartJS.register(
+    CategoryScale,
+    LinearScale,
+    PointElement,
+    LineElement,
+    Title,
+    Tooltip,
+    Legend
+);
+
+async function sendImportRequest(url: string) {
+    const toastId = toast.loading("Importing...");
+
+    try {
+        const result = await axios.put(url);
+        console.log(result);
+
+        if (result.data.error) {
+            throw new Error(result.data.msg);
+        }
+
+        toast.update(toastId, {
+            render: "Import succedded!",
+            type: "success",
+            isLoading: false,
+            autoClose: 4000,
+        });
+    } catch (error: any) {
+        toast.update(toastId, {
+            render: `Import failed: ${error.message ?? ""}`,
+            type: "error",
+            isLoading: false,
+            autoClose: 4000,
+        });
+    }
+}
 
 function App() {
     const [isImportingVaccinations, setIsImportingVaccinations] =
         useState(false);
     const [isImportingCases, setIsImportingCases] = useState(false);
 
-    async function sendImportRequest(url: string) {
-        const toastId = toast.loading("Importing...");
+    const [countryList, setCountryList] = useState<string[] | null>([]);
 
-        try {
-            const result = await axios.put(url);
-            console.log(result);
+    const data = {
+        labels: ["label 1", "label 2", "label 3"],
+        datasets: [
+            {
+                label: "data 1",
+                data: [5, 12, 7],
+                borderColor: `#f0f257`,
+                backgroundColor: `#f0f257`,
+            },
+        ],
+    };
 
-            if (result.data.error) {
-                throw new Error(result.data.msg);
-            }
-
-            toast.update(toastId, {
-                render: "Import succedded!",
-                type: "success",
-                isLoading: false,
-                autoClose: 4000,
-            });
-        } catch (error: any) {
-            toast.update(toastId, {
-                render: `Import failed: ${error.message ?? ""}`,
-                type: "error",
-                isLoading: false,
-                autoClose: 4000,
-            });
-        }
-    }
+    const options = {
+        responsive: true,
+        plugins: {
+            legend: {
+                position: "top" as const,
+            },
+            title: {
+                display: true,
+                text: "Chart",
+            },
+        },
+    };
 
     async function importCases() {
         setIsImportingCases(true);
@@ -54,6 +101,22 @@ function App() {
         );
 
         setIsImportingVaccinations(false);
+    }
+
+    async function getCountriesList() {
+        try {
+            const countriesObj = await axios.get(
+                "http://localhost:8000/api/countries"
+            );
+
+            const temp: string[] = [];
+            for (const [name, _] of countriesObj.data) {
+                temp.push(name);
+            }
+            setCountryList(temp);
+        } catch (error) {
+            setCountryList(null);
+        }
     }
 
     return (
@@ -120,6 +183,38 @@ function App() {
                 </button>
                 <ToastContainer position={toast.POSITION.BOTTOM_CENTER} />
             </aside>
+            <main
+                style={{
+                    padding: "10px",
+                    display: "grid",
+                    gridTemplateColumns: "150px 1fr",
+                    gridTemplateRows: "1fr 200px",
+                }}
+            >
+                <div>
+                    {countryList?.forEach((country) => (
+                        <div>
+                            <span>{country}</span>
+                            <input type="checkbox" name="" id="" />
+                        </div>
+                    )) ?? "Couldn't load countries"}
+
+                    <div>
+                        <span>Argentyna</span>
+                        <input type="checkbox" name="" id="" />
+                    </div>
+                    <div>
+                        <span>Armenia</span>
+                        <input type="checkbox" name="" id="" />
+                    </div>
+                </div>
+                <div
+                    className="chart-container"
+                    style={{ position: "relative", width: "95%" }} //@Skic Required for charts to scale properly
+                >
+                    <Line data={data} options={options} />
+                </div>
+            </main>
         </div>
     );
 }

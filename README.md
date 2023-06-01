@@ -26,10 +26,14 @@
 -   eksport/import z bazy danych – 5 pkt
 -   wykorzystanie ORM w celu dostępu do bazy danych– 5 pkt
 -   wykorzystanie usług typu SOAP – 5 pkt
+    -   Należy wysyłać dane, nie wystarczy odebranie samych informacji
 -   wykorzystanie usług typu REST – 5 pkt
 -   wykorzystanie kontenerów Docker – 5 pkt
 -   wykorzystanie mechanizmów uwierzytelnienia i autoryzacji przy użyciu tokenów JWT – 5 pkt
+    -   autoryzacja 2.5 pkt
+    -   uzyskanie tokena 2.5 pkt
 -   wykorzystanie poziomów izolacji w bazie danych – 5 pkt
+    -   2 transakcje z różnymi poziomami izolacji
 
 ## Wykorzystywane dane
 
