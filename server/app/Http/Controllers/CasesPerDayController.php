@@ -6,6 +6,7 @@ use App\Models\CasesPerDay;
 use App\Models\Country;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
+use Illuminate\Validation\ValidationException;
 
 class CasesPerDayController extends Controller
 {
@@ -66,5 +67,40 @@ class CasesPerDayController extends Controller
             return response()->json(["error" => true, "msg" => $error->getMessage(), "user_friendly_msg" => $error->getCode() === 333]);
         }
 
+    }
+
+    public function getCases(Request $request)
+    {
+        try {
+            $validated = $request->validate([
+                'begin_date' => "date",
+                "end_date" => "date|after:begin_date",
+                "countries" => "array"
+            ]);
+
+            $validated["begin_date"] = date('Y-m-d', strtotime($validated["begin_date"]));
+            $validated["end_date"] = date('Y-m-d', strtotime($validated["end_date"]));
+
+            // where country in
+            // where date between
+            // groupBy date
+            // sum new cases
+
+            $result = CasesPerDay::query()
+                ->whereIn("country_id", $validated["countries"])
+                ->whereBetween('day', [$validated["begin_date"], $validated["end_date"]])
+                ->groupBy("day")
+                ->selectRaw("sum(newCases) as sum, day")
+                ->pluck("sum", "day");
+
+            return response()->json($result);
+        } catch (ValidationException $e) {
+            return response()->json(["errors" => $e->errors()]);
+        }
+    }
+
+    protected function buildFailedValidationResponse(Request $request, array $errors)
+    {
+        return $this->setStatusCode(422)->respondWithError($errors);
     }
 }
