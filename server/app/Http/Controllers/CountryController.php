@@ -38,13 +38,12 @@ class CountryController extends Controller
     public function index()
     {
 
-        if (($countries = CountryController::getCountriesCSV()) !== false) {
+        try {
+            $countries = Country::query()->pluck("id", "name");
             return response()->json(["data" => $countries]);
-        } else {
-            return response()->json(["error" => true, "msg" => "Couldn't load countries"]);
+        } catch (\Exception $e) {
+            return response()->json(["error" => true, "msg" => "Couldn't get countries"]);
         }
-
-
     }
 
     /**
