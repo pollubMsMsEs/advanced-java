@@ -192,7 +192,7 @@ function App() {
         <div
             style={{
                 display: "grid",
-                height: "100vh",
+                maxHeight: "100vh",
                 gridTemplateColumns: "250px 1fr",
             }}
         >
@@ -257,41 +257,55 @@ function App() {
                     padding: "10px",
                     display: "grid",
                     gridTemplateColumns: "150px 1fr",
-                    gridTemplateRows: "1fr 200px",
+                    gridTemplateRows: "minmax(0,1fr) 200px",
+                    boxSizing: "border-box", // @Skic For padding to not create overflow
+                    maxHeight: "100vh",
                 }}
             >
-                <div>
-                    {countryList?.map((country) => (
-                        <div key={country}>
-                            <span>{country}</span>
-                            <input
-                                type="checkbox"
-                                name={country}
-                                id={country}
-                                onChange={handleCountryCheckboxChange}
-                            />
-                        </div>
-                    )) ?? "Couldn't load countries"}
+                <div
+                    style={{
+                        display: "flex",
+                        flexDirection: "column",
+                        maxHeight: "100%",
+                    }}
+                >
+                    <div style={{ overflowY: "auto" }}>
+                        {countryList?.map((country) => (
+                            <div key={country}>
+                                <span>{country}</span>
+                                <input
+                                    type="checkbox"
+                                    name={country}
+                                    id={country}
+                                    onChange={handleCountryCheckboxChange}
+                                />
+                            </div>
+                        )) ?? "Couldn't load countries"}
+                    </div>
                     <h3>Daty</h3>
-                    <label>Od:</label>
-                    <input
-                        type="date"
-                        id="date1"
-                        value={startDate}
-                        onChange={handleStartDateChange}
-                        min={"2020-01-03"}
-                        max={"2023-05-17"}
-                    />
-                    <br /> <br />
-                    <label>Do:</label>
-                    <input
-                        type="date"
-                        id="date2"
-                        value={endDate}
-                        onChange={handleEndDateChange}
-                        min={"2020-01-03"}
-                        max={"2023-05-17"}
-                    />
+                    <div>
+                        <label>Od: </label>
+                        <input
+                            type="date"
+                            id="date1"
+                            value={startDate}
+                            onChange={handleStartDateChange}
+                            min={"2020-01-03"}
+                            max={"2023-05-17"}
+                        />
+                    </div>
+                    <div>
+                        <label>Do: </label>
+                        <input
+                            type="date"
+                            id="date2"
+                            value={endDate}
+                            onChange={handleEndDateChange}
+                            min={"2020-01-03"}
+                            max={"2023-05-17"}
+                        />
+                    </div>
+
                     <br />
                     <br />
                     <button onClick={handleGenerateData}>Pokaż wykres</button>
