@@ -3,18 +3,17 @@ COPY . /app/
 #PRODUCTION: --prefer-dist --no-dev --optimize-autoloader
 RUN composer install --no-interaction
 
-FROM php:8.0-apache-buster as production
+FROM php:8.1-apache-buster as production
 
-#PRODUCITON: production
-ENV APP_ENV=local 
-ENV APP_DEBUG=true
+ENV APP_ENV=production
+ENV APP_DEBUG=false
 
 #PRODUCTION: docker-php-ext-configure opcache --enable-opcache
 RUN docker-php-ext-install pdo pdo_mysql
 
 #PRODUCTION: COPY docker/php/conf.d/opcache.ini /usr/local/etc/php/conf.d/opcache.ini
 COPY --from=build /app /var/www/html
-#PRODUCTION: COPY docker/000-default.conf /etc/apache2/sites-available/000-default.conf
+COPY docker/000-default.conf /etc/apache2/sites-available/000-default.conf
 
 RUN chmod 777 -R /var/www/html/storage/ && \
-    php artisan serve
+    a2enmod rewrite
