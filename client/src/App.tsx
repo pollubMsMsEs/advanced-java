@@ -54,8 +54,7 @@ async function sendImportRequest(url: string) {
 }
 
 function App() {
-    const [isImportingVaccinations, setIsImportingVaccinations] =
-        useState(false);
+    const [isImportingVaccinations, setIsImportingVaccinations] = useState(false);
     const [isImportingCases, setIsImportingCases] = useState(false);
 
     const [countryList, setCountryList] = useState<string[] | null>(null);
@@ -95,28 +94,27 @@ function App() {
 
     const handleGenerateData = async () => {
         try {
-            const countries = await axios.get(
-                "http://localhost:8000/api/countries"
-            );
-            const countryIds: number[] = selectedCountries.map(
-                (countryName) => {
+            const countries = await axios.get("http://localhost:8000/api/countries");
+            let countryIds: number[] = [];
+
+            if (selectedCountries.includes("all")) {
+                countryIds = Object.values(countries.data.data);
+              } else {
+                countryIds = selectedCountries.map((countryName) => {
                     const countryId = countries.data.data[countryName];
                     return countryId;
-                }
-            );
+                  });
+              }
 
             const labels = generateDateRange(startDate, endDate);
             console.log(countryIds);
-            const response = await axios.get(
-                "http://localhost:8000/api/cases",
-                {
-                    params: {
-                        begin_date: startDate,
-                        end_date: endDate,
-                        countries: countryIds,
-                    },
-                }
-            );
+            const response = await axios.get("http://localhost:8000/api/cases", {
+                params: {
+                    begin_date: startDate,
+                    end_date: endDate,
+                    countries: countryIds,
+                },
+            });
             console.log(response.data);
             const casesData = response.data;
             const cases = Object.values(casesData);
@@ -142,15 +140,19 @@ function App() {
         event: ChangeEvent<HTMLInputElement>
     ) => {
         const { name, checked } = event.target;
-        if (checked) {
-            setSelectedCountries((prevSelectedCountries) => [
-                ...prevSelectedCountries,
-                name,
-            ]);
+        if (name === "all") {
+            if (checked) {
+                setSelectedCountries(countryList ? [...countryList, "all"] : ["all"]);
+            } else {
+                setSelectedCountries([]);
+            }
         } else {
-            setSelectedCountries((prevSelectedCountries) =>
-                prevSelectedCountries.filter((country) => country !== name)
-            );
+            setSelectedCountries(prevSelectedCountries => {
+                const updatedSelectedCountries = checked
+                    ? [...prevSelectedCountries, name]
+                    : prevSelectedCountries.filter(country => country !== name);
+                return updatedSelectedCountries;
+            });
         }
     };
 
@@ -165,9 +167,7 @@ function App() {
     async function importVaccinations() {
         setIsImportingVaccinations(true);
 
-        await sendImportRequest(
-            "http://localhost:8000/api/import/vaccinations"
-        );
+        await sendImportRequest("http://localhost:8000/api/import/vaccinations");
 
         setIsImportingVaccinations(false);
     }
@@ -223,9 +223,7 @@ function App() {
                     className="button"
                     style={{
                         color: "aliceblue",
-                        backgroundColor: isImportingCases
-                            ? "#a1a1aa"
-                            : "#0284c7",
+                        backgroundColor: isImportingCases ? "#a1a1aa" : "#0284c7",
                         border: "none",
                         padding: "10px",
                         borderRadius: "5px",
@@ -240,9 +238,7 @@ function App() {
                     className="button"
                     style={{
                         color: "aliceblue",
-                        backgroundColor: isImportingVaccinations
-                            ? "#a1a1aa"
-                            : "#0284c7",
+                        backgroundColor: isImportingVaccinations ? "#a1a1aa" : "#0284c7",
                         border: "none",
                         padding: "10px",
                         borderRadius: "5px",
@@ -272,6 +268,15 @@ function App() {
                     }}
                 >
                     <div style={{ overflowY: "auto", flexShrink: 1 }}>
+                        <div key="all">
+                            <span>Cały świat</span>
+                            <input
+                                type="checkbox"
+                                name="all"
+                                id="all"
+                                onChange={handleCountryCheckboxChange}
+                            />
+                        </div>
                         {countryList?.map((country) => (
                             <div key={country}>
                                 <span>{country}</span>
