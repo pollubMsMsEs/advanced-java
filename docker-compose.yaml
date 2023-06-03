@@ -27,7 +27,6 @@ services:
             - "5173:5173"
         networks:
             - frontend
-
 networks:
     backend:
     frontend:
