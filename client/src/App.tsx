@@ -256,20 +256,22 @@ function App() {
                 style={{
                     padding: "10px",
                     display: "grid",
-                    gridTemplateColumns: "150px 1fr",
-                    gridTemplateRows: "minmax(0,1fr) 200px",
+                    gridTemplateColumns: "max-content 1fr",
+                    gridTemplateRows: "minmax(0,1fr) 200px", // @Skic minmax is necessary for maxHeight to work in children
                     boxSizing: "border-box", // @Skic For padding to not create overflow
                     maxHeight: "100vh",
                 }}
             >
                 <div
+                    className="data-picker"
                     style={{
                         display: "flex",
+                        gap: "5px",
                         flexDirection: "column",
                         maxHeight: "100%",
                     }}
                 >
-                    <div style={{ overflowY: "auto" }}>
+                    <div style={{ overflowY: "auto", flexShrink: 1 }}>
                         {countryList?.map((country) => (
                             <div key={country}>
                                 <span>{country}</span>
@@ -282,7 +284,7 @@ function App() {
                             </div>
                         )) ?? "Couldn't load countries"}
                     </div>
-                    <h3>Daty</h3>
+                    <h3 style={{ margin: "0" }}>Daty</h3>
                     <div>
                         <label>Od: </label>
                         <input
@@ -306,8 +308,6 @@ function App() {
                         />
                     </div>
 
-                    <br />
-                    <br />
                     <button onClick={handleGenerateData}>Pokaż wykres</button>
                 </div>
                 <div
