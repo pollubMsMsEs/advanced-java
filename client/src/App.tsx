@@ -1,9 +1,10 @@
-import { useState, useEffect } from "react";
+import { useState, useEffect, ChangeEvent } from "react";
 import coronaLogo from "/corona.svg";
 import axios from "axios";
 import { ToastContainer, toast } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
 import { Line } from "react-chartjs-2";
+import * as dayjs from "dayjs";
 import {
     Chart as ChartJS,
     CategoryScale,
@@ -14,7 +15,6 @@ import {
     Tooltip,
     Legend,
 } from "chart.js";
-import failPromise from "./scripts/failPromise";
 
 ChartJS.register(
     CategoryScale,
@@ -59,18 +59,99 @@ function App() {
     const [isImportingCases, setIsImportingCases] = useState(false);
 
     const [countryList, setCountryList] = useState<string[] | null>(null);
+
+    const [startDate, setStartDate] = useState(dayjs().format("YYYY-MM-DD"));
+    const [endDate, setEndDate] = useState(dayjs().format("YYYY-MM-DD"));
     const [chartData, setChartData] = useState<any | null>(null);
-    const options = {
-        responsive: true,
-        plugins: {
-            legend: {
-                position: "top" as const,
-            },
-            title: {
-                display: true,
-                text: "Chart",
-            },
-        },
+    const [selectedCountries, setSelectedCountries] = useState<string[]>([]);
+
+    const handleStartDateChange = (event: ChangeEvent<HTMLInputElement>) => {
+        if (new Date(event.target.value) <= new Date(endDate)) {
+            setStartDate(event.target.value);
+        } else {
+            toast.info("Start date must be before end date");
+        }
+    };
+
+    const handleEndDateChange = (event: ChangeEvent<HTMLInputElement>) => {
+        if (new Date(startDate) <= new Date(event.target.value)) {
+            setEndDate(event.target.value);
+        } else {
+            toast.info("End date must be after start date");
+        }
+    };
+
+    const generateDateRange = (startDate: string, endDate: string) => {
+        const labels: string[] = [];
+        const date1 = new Date(startDate);
+        const date2 = new Date(endDate);
+
+        while (date1 <= date2) {
+            labels.push(dayjs(date1).format("YY-MM-DD"));
+            date1.setDate(date1.getDate() + 1);
+        }
+        return labels;
+    };
+
+    const handleGenerateData = async () => {
+        try {
+            const countries = await axios.get(
+                "http://localhost:8000/api/countries"
+            );
+            const countryIds: number[] = selectedCountries.map(
+                (countryName) => {
+                    const countryId = countries.data.data[countryName];
+                    return countryId;
+                }
+            );
+
+            const labels = generateDateRange(startDate, endDate);
+            console.log(countryIds);
+            const response = await axios.get(
+                "http://localhost:8000/api/cases",
+                {
+                    params: {
+                        begin_date: startDate,
+                        end_date: endDate,
+                        countries: countryIds,
+                    },
+                }
+            );
+            console.log(response.data);
+            const casesData = response.data;
+            const cases = Object.values(casesData);
+            const data = {
+                labels: labels,
+                datasets: [
+                    {
+                        label: "New cases",
+                        data: cases,
+                        borderColor: "#f0f257",
+                        backgroundColor: "#f0f257",
+                    },
+                ],
+            };
+            setChartData(data);
+        } catch (error) {
+            console.error(error);
+            setChartData(null);
+        }
+    };
+
+    const handleCountryCheckboxChange = (
+        event: ChangeEvent<HTMLInputElement>
+    ) => {
+        const { name, checked } = event.target;
+        if (checked) {
+            setSelectedCountries((prevSelectedCountries) => [
+                ...prevSelectedCountries,
+                name,
+            ]);
+        } else {
+            setSelectedCountries((prevSelectedCountries) =>
+                prevSelectedCountries.filter((country) => country !== name)
+            );
+        }
     };
 
     async function importCases() {
@@ -97,26 +178,12 @@ function App() {
                 "http://localhost:8000/api/countries"
             );
             const countryNames = Object.keys(countriesObj.data.data);
-            const labels = countryNames.map((country) => `${country}`);
-            const data = {
-                labels: labels,
-                datasets: [
-                    {
-                        label: "data 1",
-                        data: [5, 12, 7, 7, 6, 5, 4, 3, 43, 243, 43, 23, 4,7,5,3,6,8,200],
-                        borderColor: `#f0f257`,
-                        backgroundColor: `#f0f257`,
-                    },
-                ],
-            };
             setCountryList(countryNames);
-            setChartData(data);
         } catch (error) {
             console.error(error);
             setCountryList(null);
         }
     }
-
     useEffect(() => {
         getCountriesList();
     }, []);
@@ -125,7 +192,7 @@ function App() {
         <div
             style={{
                 display: "grid",
-                height: "100vh",
+                maxHeight: "100vh",
                 gridTemplateColumns: "250px 1fr",
             }}
         >
@@ -189,21 +256,59 @@ function App() {
                 style={{
                     padding: "10px",
                     display: "grid",
-                    gridTemplateColumns: "150px 1fr",
-                    gridTemplateRows: "1fr 200px",
+                    gridTemplateColumns: "max-content 1fr",
+                    gridTemplateRows: "minmax(0,1fr) 200px", // @Skic minmax is necessary for maxHeight to work in children
+                    boxSizing: "border-box", // @Skic For padding to not create overflow
+                    maxHeight: "100vh",
                 }}
             >
-                <div>
-                    {countryList?.map((country) => (
-                        <div key={country}>
-                            <span>{country}</span>
-                            <input
-                                type="checkbox"
-                                name={country}
-                                id={country}
-                            />
-                        </div>
-                    )) ?? "Couldn't load countries"}
+                <div
+                    className="data-picker"
+                    style={{
+                        display: "flex",
+                        gap: "5px",
+                        flexDirection: "column",
+                        maxHeight: "100%",
+                    }}
+                >
+                    <div style={{ overflowY: "auto", flexShrink: 1 }}>
+                        {countryList?.map((country) => (
+                            <div key={country}>
+                                <span>{country}</span>
+                                <input
+                                    type="checkbox"
+                                    name={country}
+                                    id={country}
+                                    onChange={handleCountryCheckboxChange}
+                                />
+                            </div>
+                        )) ?? "Couldn't load countries"}
+                    </div>
+                    <h3 style={{ margin: "0" }}>Daty</h3>
+                    <div>
+                        <label>Od: </label>
+                        <input
+                            type="date"
+                            id="date1"
+                            value={startDate}
+                            onChange={handleStartDateChange}
+                            min={"2020-01-03"}
+                            max={"2023-05-17"}
+                        />
+                    </div>
+                    <div>
+                        <label>Do: </label>
+                        <input
+                            type="date"
+                            id="date2"
+                            value={endDate}
+                            onChange={handleEndDateChange}
+                            min={"2020-01-03"}
+                            max={"2023-05-17"}
+                        />
+                    </div>
+
+                    <button onClick={handleGenerateData}>Pokaż wykres</button>
                 </div>
                 <div
                     className="chart-container"
@@ -212,7 +317,7 @@ function App() {
                     {chartData ? (
                         <Line data={chartData} />
                     ) : (
-                        <p>Nie można załadować danych wykresu</p>
+                        <p>Podaj dane, aby wyświetlić wykres</p>
                     )}
                 </div>
             </main>
