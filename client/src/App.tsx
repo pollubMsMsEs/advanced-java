@@ -87,7 +87,7 @@ function App() {
         const date2 = new Date(endDate);
 
         while (date1 <= date2) {
-            labels.push(dayjs(date1).format("YY-MM-DD"));
+            labels.push(dayjs(date1).format("YYYY-MM-DD"));
             date1.setDate(date1.getDate() + 1);
         }
         return labels;
@@ -274,13 +274,13 @@ function App() {
                     <div style={{ overflowY: "auto", flexShrink: 1 }}>
                         {countryList?.map((country) => (
                             <div key={country}>
-                                <span>{country}</span>
                                 <input
                                     type="checkbox"
                                     name={country}
                                     id={country}
                                     onChange={handleCountryCheckboxChange}
                                 />
+                                <span>{country}</span>
                             </div>
                         )) ?? "Couldn't load countries"}
                     </div>
