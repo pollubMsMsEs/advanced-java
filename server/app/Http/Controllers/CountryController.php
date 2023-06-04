@@ -15,6 +15,9 @@ class CountryController extends Controller
         try {
             if (($open = fopen(storage_path() . "/importData/locations.csv", "r")) !== false) {
                 while (($data = fgetcsv($open, 1000, ",")) !== false) {
+                    if (strlen($data[1]) !== 3) {
+                        continue;
+                    }
                     $countries[$data[0]] = $data[1];
                 }
                 unset($countries["location"]);
