@@ -16,8 +16,9 @@ services:
             retries: 10
     server:
         build: ./server
-        volumes:
-            - ./server:/var/www/html
+        volumes: # volumes used during development
+            - ./server/app:/var/www/html/app
+            - ./server/routes:/var/www/html/routes
         ports:
             - "80:80"
         environment:
@@ -31,6 +32,8 @@ services:
                 condition: service_healthy
     client:
         build: ./client
+        volumes: # volumes used during development
+            - ./client/src:/app/src
         ports:
             - "8080:8080"
 networks:
