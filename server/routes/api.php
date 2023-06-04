@@ -33,6 +33,8 @@ Route::controller(AuthController::class)->group(function () {
 //Route::middleware('auth.role:user,admin')->group(function () {
 Route::get("/countries", [CountryController::class, "index"]);
 Route::get("/cases", [CasesPerDayController::class, "getCases"]);
+Route::get("/deaths", [CasesPerDayController::class, "getDeaths"]);
+Route::get("/vaccinations", [VaccinationsController::class, "getVaccinations"]);
 //});
 
 //Route::middleware('auth.role:admin')->group(function () {
