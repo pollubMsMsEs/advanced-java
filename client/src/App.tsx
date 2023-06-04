@@ -64,6 +64,12 @@ function App() {
     const [chartData, setChartData] = useState<any | null>(null);
     const [selectedCountries, setSelectedCountries] = useState<string[]>([]);
 
+    const [selectedOptions, setSelectedOptions] = useState({
+        vaccinations: false,
+        newCases: false,
+        deaths: false,
+    });
+
     const handleStartDateChange = (event: ChangeEvent<HTMLInputElement>) => {
         if (new Date(event.target.value) <= new Date(endDate)) {
             setStartDate(event.target.value);
@@ -92,42 +98,116 @@ function App() {
         return labels;
     };
 
+    const generateWeeklyDateRange = (startDate: string, endDate: string, delay: number) => {
+        const labels: string[] = [];
+        const date1 = dayjs(startDate).add(delay, 'day').toDate();
+        const date2 = new Date(endDate);
+
+        while (date1 <= date2) {
+            labels.push(dayjs(date1).format("YYYY-MM-DD"));
+            date1.setDate(date1.getDate() + 7);
+        }
+
+        return labels;
+    };
+
+    const handleCheckboxChange = (
+        event: ChangeEvent<HTMLInputElement>
+    ) => {
+        const { name, checked } = event.target;
+        setSelectedOptions((prevOptions) => ({
+            ...prevOptions,
+            [name]: checked,
+        }));
+    }
+
     const handleGenerateData = async () => {
         try {
             const countries = await axios.get("http://localhost:8000/api/countries");
             let countryIds: number[] = [];
+            const { vaccinations, newCases, deaths } = selectedOptions;
 
             if (selectedCountries.includes("all")) {
                 countryIds = Object.values(countries.data.data);
-              } else {
+            } else {
                 countryIds = selectedCountries.map((countryName) => {
                     const countryId = countries.data.data[countryName];
                     return countryId;
-                  });
-              }
+                });
+            }
 
-            const labels = generateDateRange(startDate, endDate);
-            console.log(countryIds);
-            const response = await axios.get("http://localhost:8000/api/cases", {
-                params: {
-                    begin_date: startDate,
-                    end_date: endDate,
-                    countries: countryIds,
-                },
-            });
-            console.log(response.data);
-            const casesData = response.data;
-            const cases = Object.values(casesData);
+            let labels;
+            const datasets = [];
+
+            if (deaths) {
+                const responseDeaths = await axios.get("http://localhost:8000/api/deaths", {
+                    params: {
+                        begin_date: startDate,
+                        end_date: endDate,
+                        countries: countryIds,
+                    },
+                });
+                const deathsData = responseDeaths.data;
+                const deaths = Object.values(deathsData);
+                datasets.push({
+                    label: "Deaths",
+                    data: deaths,
+                    borderColor: "#ff0000",
+                    backgroundColor: "#ff0000",
+                });
+                labels = generateDateRange(startDate, endDate);
+            }
+
+            if (newCases) {
+                const responseNewCases = await axios.get("http://localhost:8000/api/cases", {
+                    params: {
+                        begin_date: startDate,
+                        end_date: endDate,
+                        countries: countryIds,
+                    },
+                });
+                const newCasesData = responseNewCases.data;
+                const newCases = Object.values(newCasesData);
+                datasets.push({
+                    label: "New Cases",
+                    data: newCases,
+                    borderColor: "#f0f257",
+                    backgroundColor: "#f0f257",
+                });
+                labels = generateDateRange(startDate, endDate);
+            }
+
+            if (vaccinations) {
+                const responseVaccinations = await axios.get("http://localhost:8000/api/vaccinations", {
+                    params: {
+                        begin_date: startDate,
+                        end_date: endDate,
+                        countries: countryIds,
+                    },
+                });
+
+                const vaccinationsData = responseVaccinations.data;
+                const firstDateInData = Object.keys(vaccinationsData)[0];
+                const delay = dayjs(firstDateInData).diff(dayjs(startDate), 'day');
+
+                if (delay === 0) {
+                    labels = generateDateRange(startDate, endDate);
+                } else {
+                    labels = generateWeeklyDateRange(startDate, endDate, delay);
+                }
+
+                const vaccinations = Object.values(vaccinationsData);
+                datasets.push({
+                    label: "Vaccinations",
+                    data: vaccinations,
+                    borderColor: "#00ff00",
+                    backgroundColor: "#00ff00",
+                });
+            }
+
             const data = {
                 labels: labels,
-                datasets: [
-                    {
-                        label: "New cases",
-                        data: cases,
-                        borderColor: "#f0f257",
-                        backgroundColor: "#f0f257",
-                    },
-                ],
+                datasets: datasets,
             };
             setChartData(data);
         } catch (error) {
@@ -289,6 +369,7 @@ function App() {
                             </div>
                         )) ?? "Couldn't load countries"}
                     </div>
+                    <br />
                     <h3 style={{ margin: "0" }}>Daty</h3>
                     <div>
                         <label>Od: </label>
@@ -311,6 +392,35 @@ function App() {
                             min={"2020-01-03"}
                             max={"2023-05-17"}
                         />
+                    </div>
+                    <br />
+                    <div>
+                        <h3 style={{ margin: "0" }}>COVID-19 data</h3>
+                        <input
+                            type="checkbox"
+                            name="vaccinations"
+                            id="vaccinations"
+                            onChange={handleCheckboxChange}
+                        />
+                        <span>Vaccinations</span>
+                    </div>
+                    <div>
+                        <input
+                            type="checkbox"
+                            name="newCases"
+                            id="newCases"
+                            onChange={handleCheckboxChange}
+                        />
+                        <span>New Cases</span>
+                    </div>
+                    <div>
+                        <input
+                            type="checkbox"
+                            name="deaths"
+                            id="deaths"
+                            onChange={handleCheckboxChange}
+                        />
+                        <span>Deaths</span>
                     </div>
 
                     <button onClick={handleGenerateData}>Pokaż wykres</button>
