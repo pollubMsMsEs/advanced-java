@@ -6,6 +6,7 @@ use App\Models\Country;
 use App\Models\Vaccinations;
 use App\Models\VaccineManufacturer;
 use Illuminate\Http\Request;
+use Illuminate\Validation\ValidationException;
 
 class VaccinationsController extends Controller
 {
@@ -78,6 +79,42 @@ class VaccinationsController extends Controller
 
         } catch (\Exception $error) {
             return response()->json(["error" => true, "msg" => $error->getMessage(), "user_friendly_msg" => $error->getCode() === 333]);
+        }
+    }
+
+    public function getVaccinations(Request $request)
+    {
+        try {
+            $validated = $request->validate([
+                'begin_date' => "date",
+                "end_date" => "date|after:begin_date",
+                "countries" => "array",
+                "manufacturers" => "array"
+            ]);
+
+            $validated["begin_date"] = date('Y-m-d', strtotime($validated["begin_date"]));
+            $validated["end_date"] = date('Y-m-d', strtotime($validated["end_date"]));
+
+            // where country in
+            // where date between
+            // groupBy date
+            // sum new cases
+
+            $query = Vaccinations::query();
+
+            if (array_key_exists("manufacturers", $validated)) {
+                $query->whereIn("vaccine_manufacturer_id", $validated["manufacturers"]);
+            }
+
+            $result = $query
+                ->whereIn("country_id", $validated["countries"])
+                ->whereBetween('day', [$validated["begin_date"], $validated["end_date"]])
+                ->groupBy("day")
+                ->selectRaw("sum(total) as sum, day")
+                ->pluck("sum", "day");
+            return response()->json($result);
+        } catch (ValidationException $e) {
+            return response()->json(["errors" => $e->errors()]);
         }
     }
 
