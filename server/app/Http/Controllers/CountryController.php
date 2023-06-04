@@ -37,7 +37,6 @@ class CountryController extends Controller
      */
     public function index()
     {
-
         try {
             $countries = Country::query()->pluck("id", "name");
             return response()->json(["data" => $countries]);

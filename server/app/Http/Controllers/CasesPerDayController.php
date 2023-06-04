@@ -99,8 +99,33 @@ class CasesPerDayController extends Controller
         }
     }
 
-    protected function buildFailedValidationResponse(Request $request, array $errors)
+    public function getDeaths(Request $request)
     {
-        return $this->setStatusCode(422)->respondWithError($errors);
+        try {
+            $validated = $request->validate([
+                'begin_date' => "date",
+                "end_date" => "date|after:begin_date",
+                "countries" => "array"
+            ]);
+
+            $validated["begin_date"] = date('Y-m-d', strtotime($validated["begin_date"]));
+            $validated["end_date"] = date('Y-m-d', strtotime($validated["end_date"]));
+
+            // where country in
+            // where date between
+            // groupBy date
+            // sum new cases
+
+            $result = CasesPerDay::query()
+                ->whereIn("country_id", $validated["countries"])
+                ->whereBetween('day', [$validated["begin_date"], $validated["end_date"]])
+                ->groupBy("day")
+                ->selectRaw("sum(newDeaths) as sum, day")
+                ->pluck("sum", "day");
+
+            return response()->json($result);
+        } catch (ValidationException $e) {
+            return response()->json(["errors" => $e->errors()]);
+        }
     }
 }
