@@ -16,6 +16,8 @@ services:
             retries: 10
     server:
         build: ./server
+        volumes:
+            - ./server:/var/www/html
         ports:
             - "80:80"
         environment:
@@ -27,7 +29,6 @@ services:
         depends_on:
             db:
                 condition: service_healthy
-
     client:
         build: ./client
         ports:
