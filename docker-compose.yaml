@@ -12,7 +12,7 @@ services:
             - backend
         healthcheck:
             test: ["CMD", "mysqladmin", "ping", "-h", "localhost"]
-            timeout: 20s
+            timeout: 5s
             retries: 10
     server:
         build: ./server
@@ -22,7 +22,6 @@ services:
             - APP_ENV=local
             - APP_DEBUG=true
         networks:
-            - frontend
             - backend
         command: sh -c "php artisan migrate --force && apache2-foreground"
         depends_on:
@@ -33,10 +32,7 @@ services:
         build: ./client
         ports:
             - "8080:8080"
-        networks:
-            - frontend
 networks:
     backend:
-    frontend:
 volumes:
     data:
