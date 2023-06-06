@@ -96,7 +96,7 @@ function App() {
     const handleGenerateData = async () => {
         try {
             const countries = await axios.get(
-                "http://localhost:8000/api/countries"
+                "http://localhost:80/api/countries"
             );
             const countryIds: number[] = selectedCountries.map(
                 (countryName) => {
@@ -107,16 +107,13 @@ function App() {
 
             const labels = generateDateRange(startDate, endDate);
             console.log(countryIds);
-            const response = await axios.get(
-                "http://localhost:8000/api/cases",
-                {
-                    params: {
-                        begin_date: startDate,
-                        end_date: endDate,
-                        countries: countryIds,
-                    },
-                }
-            );
+            const response = await axios.get("http://localhost:80/api/cases", {
+                params: {
+                    begin_date: startDate,
+                    end_date: endDate,
+                    countries: countryIds,
+                },
+            });
             console.log(response.data);
             const casesData = response.data;
             const cases = Object.values(casesData);
@@ -157,7 +154,7 @@ function App() {
     async function importCases() {
         setIsImportingCases(true);
 
-        await sendImportRequest("http://localhost:8000/api/import/cases");
+        await sendImportRequest("http://localhost:80/api/import/cases");
 
         setIsImportingCases(false);
     }
@@ -165,9 +162,7 @@ function App() {
     async function importVaccinations() {
         setIsImportingVaccinations(true);
 
-        await sendImportRequest(
-            "http://localhost:8000/api/import/vaccinations"
-        );
+        await sendImportRequest("http://localhost:80/api/import/vaccinations");
 
         setIsImportingVaccinations(false);
     }
@@ -175,7 +170,7 @@ function App() {
     async function getCountriesList() {
         try {
             const countriesObj = await axios.get(
-                "http://localhost:8000/api/countries"
+                "http://localhost:80/api/countries"
             );
             const countryNames = Object.keys(countriesObj.data.data);
             setCountryList(countryNames);

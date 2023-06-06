@@ -1,6 +1,7 @@
 <?php
 
 use App\Http\Controllers\CasesPerDayController;
+use App\Http\Controllers\Controller;
 use App\Http\Controllers\CountryController;
 use App\Http\Controllers\VaccinationsController;
 use App\Http\Controllers\VaccineManufacturerController;
@@ -32,6 +33,7 @@ Route::controller(AuthController::class)->group(function () {
 });
 
 //Route::middleware('auth.role:user,admin')->group(function () {
+Route::get("/healthz", [Controller::class, "healthz"]);
 Route::get("/countries", [CountryController::class, "index"]);
 Route::get("/manufacturers", [VaccineManufacturerController::class, "index"]);
 Route::get("/cases", [CasesPerDayController::class, "getCases"]);

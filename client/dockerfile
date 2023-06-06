@@ -1,0 +1,15 @@
+FROM node:lts
+# Declaring env
+#ENV NODE_ENV development
+
+# Setting up the work directory
+WORKDIR /app
+
+# Copying all the files in our project
+COPY . .
+
+# Installing if any dependency is missing from copied node_modules
+RUN npm install
+
+# Starting application
+CMD ["npm", "run","dev"]
