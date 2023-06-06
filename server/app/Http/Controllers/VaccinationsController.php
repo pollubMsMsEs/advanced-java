@@ -109,26 +109,44 @@ class VaccinationsController extends Controller
             $queryResult = $query
                 ->whereIn("country_id", $validated["countries"])
                 ->whereBetween('day', [$validated["begin_date"], $validated["end_date"]])
+                ->groupBy("day", "vaccine_manufacturer_id")
+                ->selectRaw("day, vaccine_manufacturer_id, sum(total) as total")
                 ->orderBy("day")
                 ->orderBy("vaccine_manufacturer_id")
-                ->get(["day", "vaccine_manufacturer_id", "total"]);
+                ->get();
 
             // 1, 4, 5, 8, 9
             // 2022-04-29
             $lastDate = "1999-01-01";
             $finishedManufacturers = [];
-            $knownManufacturers = [];
             $totalPerManufacturer = [];
             $result = [];
 
             foreach ($queryResult as $row) {
                 extract($row->toArray());
 
-                if (!array_key_exists($row["day"], $result)) {
+                if (!array_key_exists($day, $result)) {
                     $result[$day] = 0;
+
+                    foreach ($totalPerManufacturer as $key => $value) {
+                        if (!key_exists($key, $finishedManufacturers)) {
+                            $result[$lastDate] += $value;
+                        }
+                    }
+
+                    $finishedManufacturers = [];
+                    $lastDate = $day;
                 }
 
+                $finishedManufacturers[$vaccine_manufacturer_id] = true;
+                $totalPerManufacturer[$vaccine_manufacturer_id] = $total;
                 $result[$day] += $total;
+            }
+
+            foreach ($totalPerManufacturer as $key => $value) {
+                if (!key_exists($key, $finishedManufacturers)) {
+                    $result[$lastDate] += $value;
+                }
             }
 
             return response()->json($result);
