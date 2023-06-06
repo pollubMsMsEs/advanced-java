@@ -118,38 +118,54 @@ class VaccinationsController extends Controller
             // 1, 4, 5, 8, 9
             // 2022-04-29
             $lastDate = "1999-01-01";
-            $finishedManufacturers = [];
+            $knownManufacturers = [];
             $totalPerManufacturer = [];
-            $result = [];
+            $tempResult = [];
 
             foreach ($queryResult as $row) {
                 extract($row->toArray());
 
-                if (!array_key_exists($day, $result)) {
-                    $result[$day] = 0;
-
-                    foreach ($totalPerManufacturer as $key => $value) {
-                        if (!key_exists($key, $finishedManufacturers)) {
-                            $result[$lastDate] += $value;
-                        }
-                    }
-
-                    $finishedManufacturers = [];
-                    $lastDate = $day;
+                if (!array_key_exists($day, $tempResult)) {
+                    $tempResult[$day] = [];
                 }
 
-                $finishedManufacturers[$vaccine_manufacturer_id] = true;
-                $totalPerManufacturer[$vaccine_manufacturer_id] = $total;
-                $result[$day] += $total;
+                $tempResult[$day][$vaccine_manufacturer_id] = $total;
+                $knownManufacturers[$vaccine_manufacturer_id] = true;
             }
 
-            foreach ($totalPerManufacturer as $key => $value) {
-                if (!key_exists($key, $finishedManufacturers)) {
-                    $result[$lastDate] += $value;
+            $result = [];
+            $log = [];
+            foreach ($tempResult as $day => $manufacturers) {
+                $daySum = 0;
+                $calc = "At day: ";
+                $calc .= "Added normally: ";
+
+                foreach ($manufacturers as $manufacturer => $total) {
+
+
+                    //if (!array_key_exists($manufacturer, $totalPerManufacturer) || $total >= $totalPerManufacturer[$manufacturer]) {
+                    $totalPerManufacturer[$manufacturer] = $total;
+                    $daySum += $total;
+                    $calc .= $manufacturer . ":" . $total . " + ";
+                    //}
                 }
+
+                $calc .= "Added extra: ";
+                foreach ($totalPerManufacturer as $manufacturer => $value) {
+                    if (!array_key_exists($manufacturer, $manufacturers)) {
+
+                        $daySum += $value;
+                        $calc .= $manufacturer . ":" . $value . " + ";
+                    }
+
+                }
+
+                array_push($log, $calc);
+                $result[$day] = $daySum;
             }
 
             return response()->json($result);
+            //return response()->json(["result" => $result, "temp_result" => $tempResult, "totalPerManufacturer" => $totalPerManufacturer, "log" => $log]);
         } catch (ValidationException $e) {
             return response()->json(["errors" => $e->errors()]);
         }
