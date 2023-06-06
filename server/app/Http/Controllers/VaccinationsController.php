@@ -106,12 +106,25 @@ class VaccinationsController extends Controller
                 $query->whereIn("vaccine_manufacturer_id", $validated["manufacturers"]);
             }
 
-            $result = $query
+            $queryResult = $query
                 ->whereIn("country_id", $validated["countries"])
                 ->whereBetween('day', [$validated["begin_date"], $validated["end_date"]])
-                ->groupBy("day")
-                ->selectRaw("sum(total) as sum, day")
-                ->pluck("sum", "day");
+                ->groupBy("day", "vaccine_manufacturer_id")
+                ->select("day", "vaccine_manufacturer_id", "total")
+                ->orderBy("day")
+                ->orderBy("vaccine_manufacturer_id")
+                ->get();
+
+            // 1, 4, 5, 8, 9
+            // 2022-04-29
+            $knownManufacturers = [];
+            $totalPerManufacturer = [];
+            $result = [];
+
+            foreach ($queryResult as $row) {
+
+            }
+
             return response()->json($result);
         } catch (ValidationException $e) {
             return response()->json(["errors" => $e->errors()]);
