@@ -239,7 +239,7 @@ function App() {
     async function importCases() {
         setIsImportingCases(true);
 
-        await sendImportRequest("http://localhost:8000/api/import/cases");
+        await sendImportRequest("http://localhost:80/api/import/cases");
 
         setIsImportingCases(false);
     }
@@ -255,7 +255,7 @@ function App() {
     async function getCountriesList() {
         try {
             const countriesObj = await axios.get(
-                "http://localhost:8000/api/countries"
+                "http://localhost:80/api/countries"
             );
             const countryNames = Object.keys(countriesObj.data.data);
             setCountryList(countryNames);
