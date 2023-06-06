@@ -54,7 +54,8 @@ async function sendImportRequest(url: string) {
 }
 
 function App() {
-    const [isImportingVaccinations, setIsImportingVaccinations] = useState(false);
+    const [isImportingVaccinations, setIsImportingVaccinations] =
+        useState(false);
     const [isImportingCases, setIsImportingCases] = useState(false);
 
     const [countryList, setCountryList] = useState<string[] | null>(null);
@@ -98,9 +99,13 @@ function App() {
         return labels;
     };
 
-    const generateWeeklyDateRange = (startDate: string, endDate: string, delay: number) => {
+    const generateWeeklyDateRange = (
+        startDate: string,
+        endDate: string,
+        delay: number
+    ) => {
         const labels: string[] = [];
-        const date1 = dayjs(startDate).add(delay, 'day').toDate();
+        const date1 = dayjs(startDate).add(delay, "day").toDate();
         const date2 = new Date(endDate);
 
         while (date1 <= date2) {
@@ -111,19 +116,19 @@ function App() {
         return labels;
     };
 
-    const handleCheckboxChange = (
-        event: ChangeEvent<HTMLInputElement>
-    ) => {
+    const handleCheckboxChange = (event: ChangeEvent<HTMLInputElement>) => {
         const { name, checked } = event.target;
         setSelectedOptions((prevOptions) => ({
             ...prevOptions,
             [name]: checked,
         }));
-    }
+    };
 
     const handleGenerateData = async () => {
         try {
-            const countries = await axios.get("http://localhost:8000/api/countries");
+            const countries = await axios.get(
+                "http://localhost:80/api/countries"
+            );
             let countryIds: number[] = [];
             const { vaccinations, newCases, deaths } = selectedOptions;
 
@@ -140,13 +145,16 @@ function App() {
             const datasets = [];
 
             if (deaths) {
-                const responseDeaths = await axios.get("http://localhost:8000/api/deaths", {
-                    params: {
-                        begin_date: startDate,
-                        end_date: endDate,
-                        countries: countryIds,
-                    },
-                });
+                const responseDeaths = await axios.get(
+                    "http://localhost:80/api/deaths",
+                    {
+                        params: {
+                            begin_date: startDate,
+                            end_date: endDate,
+                            countries: countryIds,
+                        },
+                    }
+                );
                 const deathsData = responseDeaths.data;
                 const deaths = Object.values(deathsData);
                 datasets.push({
@@ -159,13 +167,16 @@ function App() {
             }
 
             if (newCases) {
-                const responseNewCases = await axios.get("http://localhost:8000/api/cases", {
-                    params: {
-                        begin_date: startDate,
-                        end_date: endDate,
-                        countries: countryIds,
-                    },
-                });
+                const responseNewCases = await axios.get(
+                    "http://localhost:80/api/cases",
+                    {
+                        params: {
+                            begin_date: startDate,
+                            end_date: endDate,
+                            countries: countryIds,
+                        },
+                    }
+                );
                 const newCasesData = responseNewCases.data;
                 const newCases = Object.values(newCasesData);
                 datasets.push({
@@ -178,17 +189,23 @@ function App() {
             }
 
             if (vaccinations) {
-                const responseVaccinations = await axios.get("http://localhost:8000/api/vaccinations", {
-                    params: {
-                        begin_date: startDate,
-                        end_date: endDate,
-                        countries: countryIds,
-                    },
-                });
+                const responseVaccinations = await axios.get(
+                    "http://localhost:80/api/vaccinations",
+                    {
+                        params: {
+                            begin_date: startDate,
+                            end_date: endDate,
+                            countries: countryIds,
+                        },
+                    }
+                );
 
                 const vaccinationsData = responseVaccinations.data;
                 const firstDateInData = Object.keys(vaccinationsData)[0];
-                const delay = dayjs(firstDateInData).diff(dayjs(startDate), 'day');
+                const delay = dayjs(firstDateInData).diff(
+                    dayjs(startDate),
+                    "day"
+                );
 
                 if (delay === 0) {
                     labels = generateDateRange(startDate, endDate);
@@ -222,15 +239,19 @@ function App() {
         const { name, checked } = event.target;
         if (name === "all") {
             if (checked) {
-                setSelectedCountries(countryList ? [...countryList, "all"] : ["all"]);
+                setSelectedCountries(
+                    countryList ? [...countryList, "all"] : ["all"]
+                );
             } else {
                 setSelectedCountries([]);
             }
         } else {
-            setSelectedCountries(prevSelectedCountries => {
+            setSelectedCountries((prevSelectedCountries) => {
                 const updatedSelectedCountries = checked
                     ? [...prevSelectedCountries, name]
-                    : prevSelectedCountries.filter(country => country !== name);
+                    : prevSelectedCountries.filter(
+                          (country) => country !== name
+                      );
                 return updatedSelectedCountries;
             });
         }
@@ -247,7 +268,7 @@ function App() {
     async function importVaccinations() {
         setIsImportingVaccinations(true);
 
-        await sendImportRequest("http://localhost:8000/api/import/vaccinations");
+        await sendImportRequest("http://localhost:80/api/import/vaccinations");
 
         setIsImportingVaccinations(false);
     }
@@ -303,7 +324,9 @@ function App() {
                     className="button"
                     style={{
                         color: "aliceblue",
-                        backgroundColor: isImportingCases ? "#a1a1aa" : "#0284c7",
+                        backgroundColor: isImportingCases
+                            ? "#a1a1aa"
+                            : "#0284c7",
                         border: "none",
                         padding: "10px",
                         borderRadius: "5px",
@@ -318,7 +341,9 @@ function App() {
                     className="button"
                     style={{
                         color: "aliceblue",
-                        backgroundColor: isImportingVaccinations ? "#a1a1aa" : "#0284c7",
+                        backgroundColor: isImportingVaccinations
+                            ? "#a1a1aa"
+                            : "#0284c7",
                         border: "none",
                         padding: "10px",
                         borderRadius: "5px",
