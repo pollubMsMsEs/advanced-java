@@ -60,8 +60,8 @@ function App() {
 
     const [countryList, setCountryList] = useState<string[] | null>(null);
 
-    const [startDate, setStartDate] = useState(dayjs().format("YYYY-MM-DD"));
-    const [endDate, setEndDate] = useState(dayjs().format("YYYY-MM-DD"));
+    const [startDate, setStartDate] = useState("2020-01-03");
+    const [endDate, setEndDate] = useState("2023-05-17");
     const [chartData, setChartData] = useState<any | null>(null);
     const [selectedCountries, setSelectedCountries] = useState<string[]>([]);
 
