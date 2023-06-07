@@ -14,6 +14,9 @@ import {
     Title,
     Tooltip,
     Legend,
+    LineOptions,
+    LogarithmicScale,
+    ChartOptions,
 } from "chart.js";
 
 ChartJS.register(
@@ -23,6 +26,7 @@ ChartJS.register(
     LineElement,
     Title,
     Tooltip,
+    LogarithmicScale,
     Legend
 );
 
@@ -63,10 +67,24 @@ function App() {
     const [startDate, setStartDate] = useState("2021-06-18"); //2020-01-03
     const [endDate, setEndDate] = useState("2021-08-27"); //2023-05-17
     const [chartData, setChartData] = useState<any | null>(null);
-    const [chartOptions, setChartOptions] = useState<any | null>({
+    const [chartOptions, setChartOptions] = useState<
+        ChartOptions<"line"> | undefined
+    >({
         parsing: {
             xAxisKey: "x",
             yAxisKey: "y",
+        },
+        scales: {
+            y: {
+                axis: "y",
+                type: "logarithmic",
+                position: "left",
+            },
+            vaccinations: {
+                axis: "y",
+                type: "linear",
+                position: "right",
+            },
         },
     });
 
@@ -238,6 +256,7 @@ function App() {
 
                 datasets.push({
                     label: "Vaccinations",
+                    yAxisID: "vaccinations",
                     data: vaccinations,
                     borderColor: "#00ff00",
                     backgroundColor: "#00ff00",
