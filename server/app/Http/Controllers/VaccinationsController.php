@@ -117,8 +117,6 @@ class VaccinationsController extends Controller
 
             // 1, 4, 5, 8, 9
             // 2022-04-29
-            $lastDate = "1999-01-01";
-            $knownManufacturers = [];
             $totalPerManufacturer = [];
             $tempResult = [];
 
@@ -133,34 +131,45 @@ class VaccinationsController extends Controller
                 $knownManufacturers[$vaccine_manufacturer_id] = true;
             }
 
+            $lastDayUnix = strtotime(array_key_first($tempResult));
+
             $result = [];
             $log = [];
             foreach ($tempResult as $day => $manufacturers) {
                 $daySum = 0;
-                $calc = "At day: ";
-                $calc .= "Added normally: ";
 
                 foreach ($manufacturers as $manufacturer => $total) {
 
-
-                    //if (!array_key_exists($manufacturer, $totalPerManufacturer) || $total >= $totalPerManufacturer[$manufacturer]) {
+                    if (array_key_exists($manufacturer, $totalPerManufacturer)) {
+                        if ($totalPerManufacturer[$manufacturer] > $total) {
+                            $total = $totalPerManufacturer[$manufacturer];
+                        }
+                    }
                     $totalPerManufacturer[$manufacturer] = $total;
                     $daySum += $total;
-                    $calc .= $manufacturer . ":" . $total . " + ";
-                    //}
+
                 }
 
-                $calc .= "Added extra: ";
                 foreach ($totalPerManufacturer as $manufacturer => $value) {
                     if (!array_key_exists($manufacturer, $manufacturers)) {
 
                         $daySum += $value;
-                        $calc .= $manufacturer . ":" . $value . " + ";
                     }
 
                 }
 
-                array_push($log, $calc);
+                $dateDiff = strtotime($day) - $lastDayUnix;
+                $days = intval(round($dateDiff / (60 * 60 * 24)));
+                if ($days !== 0) {
+                    $lastDaySum = $result[date('Y-m-d', $lastDayUnix)];
+                    $diffPerDay = ($daySum - $lastDaySum) / $days;
+
+                    for ($i = 1; $i < $days - 1; $i++) {
+                        $missingDay = date('Y-m-d', strtotime($i === 1 ? "$i day" : "$i days", $lastDayUnix));
+                        $result[$missingDay] = $lastDaySum + $diffPerDay * $i;
+                    }
+                }
+
                 $result[$day] = $daySum;
             }
 
