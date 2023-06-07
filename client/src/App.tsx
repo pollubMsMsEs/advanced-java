@@ -1,4 +1,4 @@
-import { useState, useEffect, ChangeEvent } from "react";
+import { useState, useEffect, ChangeEvent, useRef } from "react";
 import coronaLogo from "/corona.svg";
 import axios from "axios";
 import { ToastContainer, toast } from "react-toastify";
@@ -17,6 +17,7 @@ import {
     LineOptions,
     LogarithmicScale,
     ChartOptions,
+    Chart,
 } from "chart.js";
 
 ChartJS.register(
@@ -58,6 +59,9 @@ async function sendImportRequest(url: string) {
 }
 
 function App() {
+    const chartRef: any /*React.RefObject<Chart> | null | undefined*/ =
+        useRef(null);
+
     const [isImportingVaccinations, setIsImportingVaccinations] =
         useState(false);
     const [isImportingCases, setIsImportingCases] = useState(false);
@@ -69,24 +73,7 @@ function App() {
     const [chartData, setChartData] = useState<any | null>(null);
     const [chartOptions, setChartOptions] = useState<
         ChartOptions<"line"> | undefined
-    >({
-        parsing: {
-            xAxisKey: "x",
-            yAxisKey: "y",
-        },
-        scales: {
-            y: {
-                axis: "y",
-                type: "logarithmic",
-                position: "left",
-            },
-            vaccinations: {
-                axis: "y",
-                type: "linear",
-                position: "right",
-            },
-        },
-    });
+    >();
 
     const [selectedCountries, setSelectedCountries] = useState<string[]>([]);
 
@@ -96,6 +83,14 @@ function App() {
         deaths: false,
     });
 
+    useEffect(() => {
+        getCountriesList();
+    }, []);
+
+    useEffect(() => {
+        createChartOptions();
+    }, [chartData]);
+
     const handleStartDateChange = (event: ChangeEvent<HTMLInputElement>) => {
         if (new Date(event.target.value) <= new Date(endDate)) {
             setStartDate(event.target.value);
@@ -103,6 +98,48 @@ function App() {
             toast.info("Start date must be before end date");
         }
     };
+
+    function createChartOptions() {
+        const ctx: CanvasRenderingContext2D | undefined =
+            chartRef?.current?.ctx;
+        if (ctx == null) return;
+
+        const gradient = ctx.createLinearGradient(
+            0,
+            0,
+            0,
+            chartRef?.current?.height ?? 200
+        );
+        gradient.addColorStop(0, "#ff0000D0");
+        gradient.addColorStop(1, "#f0f257");
+        setChartOptions({
+            parsing: {
+                xAxisKey: "x",
+                yAxisKey: "y",
+            },
+            scales: {
+                y: {
+                    axis: "y",
+                    type: "logarithmic",
+                    position: "left",
+                    border: {
+                        color: gradient,
+                        width: 2,
+                    },
+                    display: "auto",
+                },
+                vaccinations: {
+                    axis: "y",
+                    type: "linear",
+                    position: "right",
+                    border: {
+                        color: "#00ff00",
+                    },
+                    display: "auto",
+                },
+            },
+        });
+    }
 
     const handleEndDateChange = (event: ChangeEvent<HTMLInputElement>) => {
         if (new Date(startDate) <= new Date(event.target.value)) {
@@ -326,9 +363,6 @@ function App() {
             setCountryList(null);
         }
     }
-    useEffect(() => {
-        getCountriesList();
-    }, []);
 
     return (
         <div
@@ -496,7 +530,11 @@ function App() {
                     style={{ position: "relative", width: "95%" }} //@Skic Required for charts to scale properly
                 >
                     {chartData ? (
-                        <Line data={chartData} options={chartOptions} />
+                        <Line
+                            ref={chartRef}
+                            data={chartData}
+                            options={chartOptions}
+                        />
                     ) : (
                         <p>Podaj dane, aby wyświetlić wykres</p>
                     )}
