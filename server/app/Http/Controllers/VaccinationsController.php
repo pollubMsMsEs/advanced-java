@@ -158,7 +158,8 @@ class VaccinationsController extends Controller
 
                 }
 
-                $dateDiff = strtotime($day) - $lastDayUnix;
+                // I guess its useless now ¯\_(ツ)_/¯
+                /*$dateDiff = strtotime($day) - $lastDayUnix;
                 $days = intval(round($dateDiff / (60 * 60 * 24)));
                 if ($days !== 0) {
                     $lastDaySum = $result[date('Y-m-d', $lastDayUnix)];
@@ -168,7 +169,7 @@ class VaccinationsController extends Controller
                         $missingDay = date('Y-m-d', strtotime($i === 1 ? "$i day" : "$i days", $lastDayUnix));
                         $result[$missingDay] = $lastDaySum + $diffPerDay * $i;
                     }
-                }
+                }*/
 
                 $result[$day] = $daySum;
             }

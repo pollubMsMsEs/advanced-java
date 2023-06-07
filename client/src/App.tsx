@@ -60,9 +60,16 @@ function App() {
 
     const [countryList, setCountryList] = useState<string[] | null>(null);
 
-    const [startDate, setStartDate] = useState("2020-01-03");
-    const [endDate, setEndDate] = useState("2023-05-17");
+    const [startDate, setStartDate] = useState("2021-06-18"); //2020-01-03
+    const [endDate, setEndDate] = useState("2021-08-27"); //2023-05-17
     const [chartData, setChartData] = useState<any | null>(null);
+    const [chartOptions, setChartOptions] = useState<any | null>({
+        parsing: {
+            xAxisKey: "x",
+            yAxisKey: "y",
+        },
+    });
+
     const [selectedCountries, setSelectedCountries] = useState<string[]>([]);
 
     const [selectedOptions, setSelectedOptions] = useState({
@@ -156,7 +163,11 @@ function App() {
                     }
                 );
                 const deathsData = responseDeaths.data;
-                const deaths = Object.values(deathsData);
+                const deaths = [];
+                for (const [x, y] of Object.entries(deathsData)) {
+                    deaths.push({ x, y });
+                }
+
                 datasets.push({
                     label: "Deaths",
                     data: deaths,
@@ -178,7 +189,11 @@ function App() {
                     }
                 );
                 const newCasesData = responseNewCases.data;
-                const newCases = Object.values(newCasesData);
+                const newCases = [];
+                for (const [x, y] of Object.entries(newCasesData)) {
+                    newCases.push({ x, y });
+                }
+
                 datasets.push({
                     label: "New Cases",
                     data: newCases,
@@ -200,8 +215,9 @@ function App() {
                     }
                 );
 
-                const vaccinationsData = responseVaccinations.data;
+                const vaccinationsData: object = responseVaccinations.data;
                 const firstDateInData = Object.keys(vaccinationsData)[0];
+
                 const delay = dayjs(firstDateInData).diff(
                     dayjs(startDate),
                     "day"
@@ -213,7 +229,13 @@ function App() {
                     labels = generateWeeklyDateRange(startDate, endDate, delay);
                 }
 
-                const vaccinations = Object.values(vaccinationsData);
+                labels = Object.keys(vaccinationsData);
+
+                const vaccinations = [];
+                for (const [x, y] of Object.entries(vaccinationsData)) {
+                    vaccinations.push({ x, y });
+                }
+
                 datasets.push({
                     label: "Vaccinations",
                     data: vaccinations,
@@ -223,9 +245,9 @@ function App() {
             }
 
             const data = {
-                labels: labels,
                 datasets: datasets,
             };
+            console.log(data);
             setChartData(data);
         } catch (error) {
             console.error(error);
@@ -455,7 +477,7 @@ function App() {
                     style={{ position: "relative", width: "95%" }} //@Skic Required for charts to scale properly
                 >
                     {chartData ? (
-                        <Line data={chartData} />
+                        <Line data={chartData} options={chartOptions} />
                     ) : (
                         <p>Podaj dane, aby wyświetlić wykres</p>
                     )}
