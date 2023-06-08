@@ -19,6 +19,7 @@ import {
     ChartOptions,
     Chart,
 } from "chart.js";
+import ImportBar from "./components/ImportBar";
 
 ChartJS.register(
     CategoryScale,
@@ -31,40 +32,9 @@ ChartJS.register(
     Legend
 );
 
-async function sendImportRequest(url: string) {
-    const toastId = toast.loading("Importing...");
-
-    try {
-        const result = await axios.put(url);
-        console.log(result);
-
-        if (result.data.error) {
-            throw new Error(result.data.msg);
-        }
-
-        toast.update(toastId, {
-            render: "Import succedded!",
-            type: "success",
-            isLoading: false,
-            autoClose: 4000,
-        });
-    } catch (error: any) {
-        toast.update(toastId, {
-            render: `Import failed: ${error.message ?? ""}`,
-            type: "error",
-            isLoading: false,
-            autoClose: 4000,
-        });
-    }
-}
-
 function App() {
     const chartRef: any /*React.RefObject<Chart> | null | undefined*/ =
         useRef(null);
-
-    const [isImportingVaccinations, setIsImportingVaccinations] =
-        useState(false);
-    const [isImportingCases, setIsImportingCases] = useState(false);
 
     const [countryList, setCountryList] = useState<string[] | null>(null);
 
@@ -346,22 +316,6 @@ function App() {
         }
     };
 
-    async function importCases() {
-        setIsImportingCases(true);
-
-        await sendImportRequest("http://localhost:80/api/import/cases");
-
-        setIsImportingCases(false);
-    }
-
-    async function importVaccinations() {
-        setIsImportingVaccinations(true);
-
-        await sendImportRequest("http://localhost:80/api/import/vaccinations");
-
-        setIsImportingVaccinations(false);
-    }
-
     async function getCountriesList() {
         try {
             const countriesObj = await axios.get(
@@ -376,182 +330,132 @@ function App() {
     }
 
     return (
-        <div
-            style={{
-                display: "grid",
-                maxHeight: "100vh",
-                gridTemplateColumns: "250px 1fr",
-            }}
-        >
-            <aside
-                className="aside"
+        <>
+            <div
                 style={{
-                    display: "flex",
-                    flexDirection: "column",
-                    alignItems: "center",
-                    gap: "10px",
-                }}
-            >
-                <header style={{ display: "flex", gap: "20px" }}>
-                    <h1>Covid visualizer</h1>
-                    <img width="50px" src={coronaLogo} alt="Vite" />
-                </header>
-                <div
-                    style={{
-                        alignSelf: "stretch",
-                        marginTop: "-20px",
-                    }}
-                >
-                    <hr />
-                </div>
-                <button
-                    onClick={importCases}
-                    disabled={isImportingCases || isImportingVaccinations}
-                    className="button"
-                    style={{
-                        color: "aliceblue",
-                        backgroundColor: isImportingCases
-                            ? "#a1a1aa"
-                            : "#0284c7",
-                        border: "none",
-                        padding: "10px",
-                        borderRadius: "5px",
-                    }}
-                >
-                    Import Cases
-                </button>
-
-                <button
-                    onClick={importVaccinations}
-                    disabled={isImportingCases || isImportingVaccinations}
-                    className="button"
-                    style={{
-                        color: "aliceblue",
-                        backgroundColor: isImportingVaccinations
-                            ? "#a1a1aa"
-                            : "#0284c7",
-                        border: "none",
-                        padding: "10px",
-                        borderRadius: "5px",
-                    }}
-                >
-                    Import Vaccinations
-                </button>
-                <ToastContainer position={toast.POSITION.BOTTOM_CENTER} />
-            </aside>
-            <main
-                style={{
-                    padding: "10px",
                     display: "grid",
-                    gridTemplateColumns: "max-content 1fr",
-                    gridTemplateRows: "minmax(0,1fr) 200px", // @Skic minmax is necessary for maxHeight to work in children
-                    boxSizing: "border-box", // @Skic For padding to not create overflow
                     maxHeight: "100vh",
+                    gridTemplateColumns: "250px 1fr",
                 }}
             >
-                <div
-                    className="data-picker"
+                <ImportBar />
+                <main
                     style={{
-                        display: "flex",
-                        gap: "5px",
-                        flexDirection: "column",
-                        maxHeight: "100%",
+                        padding: "10px",
+                        display: "grid",
+                        gridTemplateColumns: "max-content 1fr",
+                        gridTemplateRows: "minmax(0,1fr) 200px", // @Skic minmax is necessary for maxHeight to work in children
+                        boxSizing: "border-box", // @Skic For padding to not create overflow
+                        maxHeight: "100vh",
                     }}
                 >
-                    <div style={{ overflowY: "auto", flexShrink: 1 }}>
-                        <div key="all">
-                            <span>Cały świat</span>
-                            <input
-                                type="checkbox"
-                                name="all"
-                                id="all"
-                                onChange={handleCountryCheckboxChange}
-                            />
-                        </div>
-                        {countryList?.map((country) => (
-                            <div key={country}>
+                    <div
+                        className="data-picker"
+                        style={{
+                            display: "flex",
+                            gap: "5px",
+                            flexDirection: "column",
+                            maxHeight: "100%",
+                        }}
+                    >
+                        <div style={{ overflowY: "auto", flexShrink: 1 }}>
+                            <div key="all">
+                                <span>Cały świat</span>
                                 <input
                                     type="checkbox"
-                                    name={country}
-                                    id={country}
+                                    name="all"
+                                    id="all"
                                     onChange={handleCountryCheckboxChange}
                                 />
-                                <span>{country}</span>
                             </div>
-                        )) ?? "Couldn't load countries"}
-                    </div>
-                    <br />
-                    <h3 style={{ margin: "0" }}>Daty</h3>
-                    <div>
-                        <label>Od: </label>
-                        <input
-                            type="date"
-                            id="date1"
-                            value={startDate}
-                            onChange={handleStartDateChange}
-                            min={"2020-01-03"}
-                            max={"2023-05-17"}
-                        />
-                    </div>
-                    <div>
-                        <label>Do: </label>
-                        <input
-                            type="date"
-                            id="date2"
-                            value={endDate}
-                            onChange={handleEndDateChange}
-                            min={"2020-01-03"}
-                            max={"2023-05-17"}
-                        />
-                    </div>
-                    <br />
-                    <div>
-                        <h3 style={{ margin: "0" }}>COVID-19 data</h3>
-                        <input
-                            type="checkbox"
-                            name="vaccinations"
-                            id="vaccinations"
-                            onChange={handleCheckboxChange}
-                        />
-                        <span>Vaccinations</span>
-                    </div>
-                    <div>
-                        <input
-                            type="checkbox"
-                            name="newCases"
-                            id="newCases"
-                            onChange={handleCheckboxChange}
-                        />
-                        <span>New Cases</span>
-                    </div>
-                    <div>
-                        <input
-                            type="checkbox"
-                            name="deaths"
-                            id="deaths"
-                            onChange={handleCheckboxChange}
-                        />
-                        <span>Deaths</span>
-                    </div>
+                            {countryList?.map((country) => (
+                                <div key={country}>
+                                    <input
+                                        type="checkbox"
+                                        name={country}
+                                        id={country}
+                                        onChange={handleCountryCheckboxChange}
+                                    />
+                                    <span>{country}</span>
+                                </div>
+                            )) ?? "Couldn't load countries"}
+                        </div>
+                        <br />
+                        <h3 style={{ margin: "0" }}>Daty</h3>
+                        <div>
+                            <label>Od: </label>
+                            <input
+                                type="date"
+                                id="date1"
+                                value={startDate}
+                                onChange={handleStartDateChange}
+                                min={"2020-01-03"}
+                                max={"2023-05-17"}
+                            />
+                        </div>
+                        <div>
+                            <label>Do: </label>
+                            <input
+                                type="date"
+                                id="date2"
+                                value={endDate}
+                                onChange={handleEndDateChange}
+                                min={"2020-01-03"}
+                                max={"2023-05-17"}
+                            />
+                        </div>
+                        <br />
+                        <div>
+                            <h3 style={{ margin: "0" }}>COVID-19 data</h3>
+                            <input
+                                type="checkbox"
+                                name="vaccinations"
+                                id="vaccinations"
+                                onChange={handleCheckboxChange}
+                            />
+                            <span>Vaccinations</span>
+                        </div>
+                        <div>
+                            <input
+                                type="checkbox"
+                                name="newCases"
+                                id="newCases"
+                                onChange={handleCheckboxChange}
+                            />
+                            <span>New Cases</span>
+                        </div>
+                        <div>
+                            <input
+                                type="checkbox"
+                                name="deaths"
+                                id="deaths"
+                                onChange={handleCheckboxChange}
+                            />
+                            <span>Deaths</span>
+                        </div>
 
-                    <button onClick={handleGenerateData}>Pokaż wykres</button>
-                </div>
-                <div
-                    className="chart-container"
-                    style={{ position: "relative", width: "95%" }} //@Skic Required for charts to scale properly
-                >
-                    {chartData ? (
-                        <Line
-                            ref={chartRef}
-                            data={chartData}
-                            options={chartOptions}
-                        />
-                    ) : (
-                        <p>Podaj dane, aby wyświetlić wykres</p>
-                    )}
-                </div>
-            </main>
-        </div>
+                        <button onClick={handleGenerateData}>
+                            Pokaż wykres
+                        </button>
+                    </div>
+                    <div
+                        className="chart-container"
+                        style={{ position: "relative", width: "95%" }} //@Skic Required for charts to scale properly
+                    >
+                        {chartData ? (
+                            <Line
+                                ref={chartRef}
+                                data={chartData}
+                                options={chartOptions}
+                            />
+                        ) : (
+                            <p>Podaj dane, aby wyświetlić wykres</p>
+                        )}
+                    </div>
+                </main>
+            </div>
+            <ToastContainer position={toast.POSITION.BOTTOM_CENTER} />
+        </>
     );
 }
 
