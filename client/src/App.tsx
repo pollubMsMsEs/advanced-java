@@ -56,7 +56,7 @@ function App() {
 
     const [selectedOptions, setSelectedOptions] = useState({
         vaccinations: false,
-        newCases: false,
+        newCases: true, //DEVTEMP
         deaths: false,
     });
 
@@ -166,7 +166,9 @@ function App() {
         return labels;
     };
 
-    const handleCheckboxChange = (event: ChangeEvent<HTMLInputElement>) => {
+    const handleOptionCheckboxChange = (
+        event: ChangeEvent<HTMLInputElement>
+    ) => {
         const { name, checked } = event.target;
         setSelectedOptions((prevOptions) => ({
             ...prevOptions,
@@ -307,10 +309,9 @@ function App() {
         checked: boolean;
     }) => {
         setSelectedCountries((prevSelectedCountries) => {
-            const updatedSelectedCountries = checked
+            return checked
                 ? [...prevSelectedCountries, id]
                 : prevSelectedCountries.filter((countryId) => countryId !== id);
-            return updatedSelectedCountries;
         });
     };
 
@@ -325,6 +326,11 @@ function App() {
             const countries: CountryData[] = [];
             for (const [name, id] of Object.entries(countriesObj)) {
                 countries.push({ id: id, name });
+
+                // DEVTEMP
+                if (name === "Poland") {
+                    setSelectedCountries([id]);
+                }
             }
             setCountryList(countries);
         } catch (error) {
@@ -357,7 +363,7 @@ function App() {
                         className="data-picker"
                         style={{
                             display: "flex",
-                            gap: "5px",
+                            gap: "20px",
                             flexDirection: "column",
                             maxHeight: "100%",
                         }}
@@ -387,7 +393,6 @@ function App() {
                                 />
                             )) ?? "Couldn't load countries"}
                         </div>
-                        <br />
                         <h3 style={{ margin: "0" }}>Daty</h3>
                         <div>
                             <label>Od: </label>
@@ -411,14 +416,14 @@ function App() {
                                 max={"2023-05-17"}
                             />
                         </div>
-                        <br />
+                        <h3 style={{ margin: "0" }}>COVID-19 data</h3>
                         <div>
-                            <h3 style={{ margin: "0" }}>COVID-19 data</h3>
                             <input
                                 type="checkbox"
                                 name="vaccinations"
                                 id="vaccinations"
-                                onChange={handleCheckboxChange}
+                                onChange={handleOptionCheckboxChange}
+                                checked={selectedOptions.vaccinations}
                             />
                             <span>Vaccinations</span>
                         </div>
@@ -427,7 +432,8 @@ function App() {
                                 type="checkbox"
                                 name="newCases"
                                 id="newCases"
-                                onChange={handleCheckboxChange}
+                                onChange={handleOptionCheckboxChange}
+                                checked={selectedOptions.newCases}
                             />
                             <span>New Cases</span>
                         </div>
@@ -436,7 +442,8 @@ function App() {
                                 type="checkbox"
                                 name="deaths"
                                 id="deaths"
-                                onChange={handleCheckboxChange}
+                                onChange={handleOptionCheckboxChange}
+                                checked={selectedOptions.deaths}
                             />
                             <span>Deaths</span>
                         </div>
