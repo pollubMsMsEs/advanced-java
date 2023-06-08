@@ -1,8 +1,7 @@
-import { useState, useEffect, ChangeEvent, useRef } from "react";
+import { useState, useEffect, ChangeEvent } from "react";
 import axios from "axios";
 import { ToastContainer, toast } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
-import { Line } from "react-chartjs-2";
 import * as dayjs from "dayjs";
 import {
     Chart as ChartJS,
@@ -14,13 +13,14 @@ import {
     Tooltip,
     Legend,
     LogarithmicScale,
-    ChartOptions,
+    ChartData,
 } from "chart.js";
 import ImportBar from "./components/ImportBar";
 import CountryCheckbox from "./components/CountryCheckbox";
 import DateRangePicker from "@wojtekmaj/react-daterange-picker";
 import "@wojtekmaj/react-daterange-picker/dist/DateRangePicker.css";
 import "react-calendar/dist/Calendar.css";
+import ChartContainer from "./components/ChartContainer";
 ChartJS.register(
     CategoryScale,
     LinearScale,
@@ -38,140 +38,33 @@ interface CountryData {
 }
 
 function App() {
-    const chartRef: any /*React.RefObject<Chart> | null | undefined*/ =
-        useRef(null);
-
     const [countryList, setCountryList] = useState<
         { id: number; name: string }[] | null
     >(null);
 
     const [startDate, setStartDate] = useState("2021-06-18"); //DEVTEMP 2020-01-03
     const [endDate, setEndDate] = useState("2021-08-27"); //DEVTEMP 2023-05-17
-    const [chartData, setChartData] = useState<any | null>(null);
-    const [chartOptions, setChartOptions] = useState<
-        ChartOptions<"line"> | undefined
-    >();
-
     const [selectedCountries, setSelectedCountries] = useState<number[]>([]);
     const allCountriesChecked =
         selectedCountries.length === countryList?.length ?? 0;
-
     const [selectedOptions, setSelectedOptions] = useState({
         vaccinations: false,
         newCases: true, //DEVTEMP
         deaths: false,
     });
 
+    const [chartQuery, setChartQuery] = useState({});
+
+    const [chartData, setChartData] = useState<ChartData<"line"> | null>(null);
     useEffect(() => {
         getCountriesList();
     }, []);
 
-    useEffect(() => {
-        createChartOptions();
-    }, [chartData]);
-
-    function createChartOptions() {
-        const ctx: CanvasRenderingContext2D | undefined =
-            chartRef?.current?.ctx;
-        if (ctx == null) return;
-
-        console.log(chartRef);
-
-        const gradient = ctx.createLinearGradient(
-            0,
-            0,
-            0,
-            chartRef?.current?.height ?? 200
-        );
-        gradient.addColorStop(0, "#ff0000D0");
-        gradient.addColorStop(1, "#f0f257");
-        setChartOptions({
-            parsing: {
-                xAxisKey: "x",
-                yAxisKey: "y",
-            },
-            scales: {
-                y: {
-                    axis: "y",
-                    type: "logarithmic",
-                    position: "left",
-                    border: {
-                        color: gradient,
-                        width: 2,
-                    },
-                    display: "auto",
-                    title: {
-                        text: "Cases & Deaths",
-                        display: true,
-                    },
-                },
-                sum: {
-                    axis: "y",
-                    type: "linear",
-                    position: "right",
-                    border: {
-                        color: "#00ff00",
-                        width: 2,
-                    },
-                    display: "auto",
-                    title: {
-                        text: "Vaccinations",
-                        display: true,
-                    },
-                },
-            },
-        });
-    }
-
     function handleDateChange([startDate, endDate]: any) {
         setStartDate(dayjs(startDate).format("YYYY-MM-DD"));
         setEndDate(dayjs(endDate).format("YYYY-MM-DD"));
+        //setChartQuery((prevQuery) => {});
     }
-
-    const handleStartDateChange = (event: ChangeEvent<HTMLInputElement>) => {
-        if (new Date(event.target.value) <= new Date(endDate)) {
-            setStartDate(event.target.value);
-        } else {
-            toast.info("Start date must be before end date");
-        }
-    };
-
-    const handleEndDateChange = (event: ChangeEvent<HTMLInputElement>) => {
-        if (new Date(startDate) <= new Date(event.target.value)) {
-            setEndDate(event.target.value);
-        } else {
-            toast.info("End date must be after start date");
-        }
-    };
-
-    const generateDateRange = (startDate: string, endDate: string) => {
-        const labels: string[] = [];
-        const date1 = new Date(startDate);
-        const date2 = new Date(endDate);
-
-        while (date1 <= date2) {
-            labels.push(dayjs(date1).format("YYYY-MM-DD"));
-            date1.setDate(date1.getDate() + 1);
-        }
-        return labels;
-    };
-
-    const generateWeeklyDateRange = (
-        startDate: string,
-        endDate: string,
-        delay: number
-    ) => {
-        const labels: string[] = [];
-        const date1 = dayjs(startDate).add(delay, "day").toDate();
-        const date2 = new Date(endDate);
-
-        while (date1 <= date2) {
-            labels.push(dayjs(date1).format("YYYY-MM-DD"));
-            date1.setDate(date1.getDate() + 7);
-        }
-
-        return labels;
-    };
 
     const handleOptionCheckboxChange = (
         event: ChangeEvent<HTMLInputElement>
@@ -187,9 +80,7 @@ function App() {
         try {
             const { vaccinations, newCases, deaths } = selectedOptions;
 
-            let labels;
-            const datasets = [];
-            console.log(selectedCountries);
+            const datasets: any[] = [];
 
             if (deaths) {
                 const responseDeaths = await axios.get(
@@ -214,7 +105,6 @@ function App() {
                     borderColor: "#ff0000",
                     backgroundColor: "#ff0000",
                 });
-                labels = generateDateRange(startDate, endDate);
             }
 
             if (newCases) {
@@ -240,7 +130,6 @@ function App() {
                     borderColor: "#f0f257",
                     backgroundColor: "#f0f257",
                 });
-                labels = generateDateRange(startDate, endDate);
             }
 
             if (vaccinations) {
@@ -256,20 +145,6 @@ function App() {
                 );
 
                 const vaccinationsData: object = responseVaccinations.data;
-                const firstDateInData = Object.keys(vaccinationsData)[0];
-
-                const delay = dayjs(firstDateInData).diff(
-                    dayjs(startDate),
-                    "day"
-                );
-
-                if (delay === 0) {
-                    labels = generateDateRange(startDate, endDate);
-                } else {
-                    labels = generateWeeklyDateRange(startDate, endDate, delay);
-                }
-
-                labels = Object.keys(vaccinationsData);
 
                 const vaccinations = [];
                 for (const [x, y] of Object.entries(vaccinationsData)) {
@@ -440,20 +315,7 @@ function App() {
                             Pokaż wykres
                         </button>
                     </div>
-                    <div
-                        className="chart-container"
-                        style={{ position: "relative", width: "95%" }} //@Skic Required for charts to scale properly
-                    >
-                        {chartData ? (
-                            <Line
-                                ref={chartRef}
-                                data={chartData}
-                                options={chartOptions}
-                            />
-                        ) : (
-                            <p>Podaj dane, aby wyświetlić wykres</p>
-                        )}
-                    </div>
+                    <ChartContainer data={chartData} />
                 </main>
             </div>
             <ToastContainer position={toast.POSITION.BOTTOM_CENTER} />
