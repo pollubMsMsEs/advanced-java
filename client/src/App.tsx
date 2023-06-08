@@ -104,6 +104,8 @@ function App() {
             chartRef?.current?.ctx;
         if (ctx == null) return;
 
+        console.log(chartRef);
+
         const gradient = ctx.createLinearGradient(
             0,
             0,
@@ -127,15 +129,24 @@ function App() {
                         width: 2,
                     },
                     display: "auto",
+                    title: {
+                        text: "Cases & Deaths",
+                        display: true,
+                    },
                 },
-                vaccinations: {
+                sum: {
                     axis: "y",
                     type: "linear",
                     position: "right",
                     border: {
                         color: "#00ff00",
+                        width: 2,
                     },
                     display: "auto",
+                    title: {
+                        text: "Vaccinations",
+                        display: true,
+                    },
                 },
             },
         });
@@ -293,7 +304,7 @@ function App() {
 
                 datasets.push({
                     label: "Vaccinations",
-                    yAxisID: "vaccinations",
+                    yAxisID: "sum",
                     data: vaccinations,
                     borderColor: "#00ff00",
                     backgroundColor: "#00ff00",
