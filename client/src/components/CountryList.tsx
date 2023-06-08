@@ -23,32 +23,32 @@ export default function CountryList({
         selectedCountries.length === countryList?.length ?? 0;
 
     useEffect(() => {
-        getCountriesList();
-    }, []); // eslint-disable-line react-hooks/exhaustive-deps
+        async function getCountriesList() {
+            try {
+                const countriesResponse = await axios.get(
+                    "http://localhost:80/api/countries"
+                );
+                const countriesObj: { [name: string]: number } =
+                    countriesResponse.data.data;
 
-    async function getCountriesList() {
-        try {
-            const countriesResponse = await axios.get(
-                "http://localhost:80/api/countries"
-            );
-            const countriesObj: { [name: string]: number } =
-                countriesResponse.data.data;
+                const countries: CountryData[] = [];
+                for (const [name, id] of Object.entries(countriesObj)) {
+                    countries.push({ id: id, name });
 
-            const countries: CountryData[] = [];
-            for (const [name, id] of Object.entries(countriesObj)) {
-                countries.push({ id: id, name });
-
-                // DEVTEMP
-                if (name === "Poland") {
-                    handleSelectedCountries([id]);
+                    // DEVTEMP
+                    if (name === "Poland") {
+                        handleSelectedCountries([id]);
+                    }
                 }
+                setCountryList(countries);
+            } catch (error) {
+                console.error(error);
+                setCountryList(null);
             }
-            setCountryList(countries);
-        } catch (error) {
-            console.error(error);
-            setCountryList(null);
         }
-    }
+
+        getCountriesList();
+    }, [handleSelectedCountries]);
 
     const handleAllCountriesCheckboxChange = ({
         checked,

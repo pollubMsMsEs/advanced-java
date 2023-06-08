@@ -1,4 +1,4 @@
-import { useState, ChangeEvent, useEffect, useRef } from "react";
+import { useState, ChangeEvent, useEffect, useRef, useMemo } from "react";
 import axios from "axios";
 import { ToastContainer, toast } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
@@ -67,14 +67,16 @@ function App() {
         }));
     };
 
-    function handleSelectedCountries(countries: number[]) {
-        setChartQuery((prevQuery) => {
-            return {
-                ...prevQuery,
-                countries,
-            };
-        });
-    }
+    const handleSelectedCountries = useMemo(() => {
+        return function (countries: number[]) {
+            setChartQuery((prevQuery) => {
+                return {
+                    ...prevQuery,
+                    countries,
+                };
+            });
+        };
+    }, []);
 
     const chartTimeout: any = useRef();
 
