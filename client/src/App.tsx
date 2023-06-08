@@ -18,7 +18,9 @@ import {
 } from "chart.js";
 import ImportBar from "./components/ImportBar";
 import CountryCheckbox from "./components/CountryCheckbox";
-
+import DateRangePicker from "@wojtekmaj/react-daterange-picker";
+import "@wojtekmaj/react-daterange-picker/dist/DateRangePicker.css";
+import "react-calendar/dist/Calendar.css";
 ChartJS.register(
     CategoryScale,
     LinearScale,
@@ -67,14 +69,6 @@ function App() {
     useEffect(() => {
         createChartOptions();
     }, [chartData]);
-
-    const handleStartDateChange = (event: ChangeEvent<HTMLInputElement>) => {
-        if (new Date(event.target.value) <= new Date(endDate)) {
-            setStartDate(event.target.value);
-        } else {
-            toast.info("Start date must be before end date");
-        }
-    };
 
     function createChartOptions() {
         const ctx: CanvasRenderingContext2D | undefined =
@@ -128,6 +122,19 @@ function App() {
             },
         });
     }
+
+    function handleDateChange([startDate, endDate]: any) {
+        setStartDate(dayjs(startDate).format("YYYY-MM-DD"));
+        setEndDate(dayjs(endDate).format("YYYY-MM-DD"));
+    }
+
+    const handleStartDateChange = (event: ChangeEvent<HTMLInputElement>) => {
+        if (new Date(event.target.value) <= new Date(endDate)) {
+            setStartDate(event.target.value);
+        } else {
+            toast.info("Start date must be before end date");
+        }
+    };
 
     const handleEndDateChange = (event: ChangeEvent<HTMLInputElement>) => {
         if (new Date(startDate) <= new Date(event.target.value)) {
@@ -393,29 +400,10 @@ function App() {
                                 />
                             )) ?? "Couldn't load countries"}
                         </div>
-                        <h3 style={{ margin: "0" }}>Daty</h3>
-                        <div>
-                            <label>Od: </label>
-                            <input
-                                type="date"
-                                id="date1"
-                                value={startDate}
-                                onChange={handleStartDateChange}
-                                min={"2020-01-03"}
-                                max={"2023-05-17"}
-                            />
-                        </div>
-                        <div>
-                            <label>Do: </label>
-                            <input
-                                type="date"
-                                id="date2"
-                                value={endDate}
-                                onChange={handleEndDateChange}
-                                min={"2020-01-03"}
-                                max={"2023-05-17"}
-                            />
-                        </div>
+                        <DateRangePicker
+                            onChange={handleDateChange}
+                            value={[new Date(startDate), new Date(endDate)]}
+                        />
                         <h3 style={{ margin: "0" }}>COVID-19 data</h3>
                         <div>
                             <input
