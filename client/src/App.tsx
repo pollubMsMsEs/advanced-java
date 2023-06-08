@@ -1,5 +1,4 @@
 import { useState, useEffect, ChangeEvent, useRef } from "react";
-import coronaLogo from "/corona.svg";
 import axios from "axios";
 import { ToastContainer, toast } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
@@ -14,12 +13,11 @@ import {
     Title,
     Tooltip,
     Legend,
-    LineOptions,
     LogarithmicScale,
     ChartOptions,
-    Chart,
 } from "chart.js";
 import ImportBar from "./components/ImportBar";
+import CountryCheckbox from "./components/CountryCheckbox";
 
 ChartJS.register(
     CategoryScale,
@@ -32,20 +30,29 @@ ChartJS.register(
     Legend
 );
 
+interface CountryData {
+    id: number;
+    name: string;
+}
+
 function App() {
     const chartRef: any /*React.RefObject<Chart> | null | undefined*/ =
         useRef(null);
 
-    const [countryList, setCountryList] = useState<string[] | null>(null);
+    const [countryList, setCountryList] = useState<
+        { id: number; name: string }[] | null
+    >(null);
 
-    const [startDate, setStartDate] = useState("2021-06-18"); //2020-01-03
-    const [endDate, setEndDate] = useState("2021-08-27"); //2023-05-17
+    const [startDate, setStartDate] = useState("2021-06-18"); //DEVTEMP 2020-01-03
+    const [endDate, setEndDate] = useState("2021-08-27"); //DEVTEMP 2023-05-17
     const [chartData, setChartData] = useState<any | null>(null);
     const [chartOptions, setChartOptions] = useState<
         ChartOptions<"line"> | undefined
     >();
 
-    const [selectedCountries, setSelectedCountries] = useState<string[]>([]);
+    const [selectedCountries, setSelectedCountries] = useState<number[]>([]);
+    const allCountriesChecked =
+        selectedCountries.length === countryList?.length ?? 0;
 
     const [selectedOptions, setSelectedOptions] = useState({
         vaccinations: false,
@@ -169,23 +176,11 @@ function App() {
 
     const handleGenerateData = async () => {
         try {
-            const countries = await axios.get(
-                "http://localhost:80/api/countries"
-            );
-            let countryIds: number[] = [];
             const { vaccinations, newCases, deaths } = selectedOptions;
-
-            if (selectedCountries.includes("all")) {
-                countryIds = Object.values(countries.data.data);
-            } else {
-                countryIds = selectedCountries.map((countryName) => {
-                    const countryId = countries.data.data[countryName];
-                    return countryId;
-                });
-            }
 
             let labels;
             const datasets = [];
+            console.log(selectedCountries);
 
             if (deaths) {
                 const responseDeaths = await axios.get(
@@ -194,7 +189,7 @@ function App() {
                         params: {
                             begin_date: startDate,
                             end_date: endDate,
-                            countries: countryIds,
+                            countries: selectedCountries,
                         },
                     }
                 );
@@ -220,7 +215,7 @@ function App() {
                         params: {
                             begin_date: startDate,
                             end_date: endDate,
-                            countries: countryIds,
+                            countries: selectedCountries,
                         },
                     }
                 );
@@ -246,7 +241,7 @@ function App() {
                         params: {
                             begin_date: startDate,
                             end_date: endDate,
-                            countries: countryIds,
+                            countries: selectedCountries,
                         },
                     }
                 );
@@ -292,37 +287,46 @@ function App() {
         }
     };
 
-    const handleCountryCheckboxChange = (
-        event: ChangeEvent<HTMLInputElement>
-    ) => {
-        const { name, checked } = event.target;
-        if (name === "all") {
-            if (checked) {
-                setSelectedCountries(
-                    countryList ? [...countryList, "all"] : ["all"]
-                );
-            } else {
-                setSelectedCountries([]);
-            }
+    const handleAllCountriesCheckboxChange = ({
+        checked,
+    }: {
+        checked: boolean;
+    }) => {
+        if (checked) {
+            setSelectedCountries(countryList?.map((c) => c.id) ?? []);
         } else {
-            setSelectedCountries((prevSelectedCountries) => {
-                const updatedSelectedCountries = checked
-                    ? [...prevSelectedCountries, name]
-                    : prevSelectedCountries.filter(
-                          (country) => country !== name
-                      );
-                return updatedSelectedCountries;
-            });
+            setSelectedCountries([]);
         }
+    };
+
+    const handleCountryCheckboxChange = ({
+        id,
+        checked,
+    }: {
+        id: number;
+        checked: boolean;
+    }) => {
+        setSelectedCountries((prevSelectedCountries) => {
+            const updatedSelectedCountries = checked
+                ? [...prevSelectedCountries, id]
+                : prevSelectedCountries.filter((countryId) => countryId !== id);
+            return updatedSelectedCountries;
+        });
     };
 
     async function getCountriesList() {
         try {
-            const countriesObj = await axios.get(
+            const countriesResponse = await axios.get(
                 "http://localhost:80/api/countries"
             );
-            const countryNames = Object.keys(countriesObj.data.data);
-            setCountryList(countryNames);
+            const countriesObj: { [name: string]: number } =
+                countriesResponse.data.data;
+
+            const countries: CountryData[] = [];
+            for (const [name, id] of Object.entries(countriesObj)) {
+                countries.push({ id: id, name });
+            }
+            setCountryList(countries);
         } catch (error) {
             console.error(error);
             setCountryList(null);
@@ -359,25 +363,28 @@ function App() {
                         }}
                     >
                         <div style={{ overflowY: "auto", flexShrink: 1 }}>
-                            <div key="all">
-                                <span>Cały świat</span>
-                                <input
-                                    type="checkbox"
-                                    name="all"
-                                    id="all"
-                                    onChange={handleCountryCheckboxChange}
+                            {countryList && (
+                                <CountryCheckbox
+                                    country={{
+                                        id: -1,
+                                        name: "Whole world",
+                                    }}
+                                    updateSelected={
+                                        handleAllCountriesCheckboxChange
+                                    }
+                                    style={{ fontWeight: "bold" }}
+                                    checked={allCountriesChecked}
                                 />
-                            </div>
+                            )}
                             {countryList?.map((country) => (
-                                <div key={country}>
-                                    <input
-                                        type="checkbox"
-                                        name={country}
-                                        id={country}
-                                        onChange={handleCountryCheckboxChange}
-                                    />
-                                    <span>{country}</span>
-                                </div>
+                                <CountryCheckbox
+                                    key={country.id}
+                                    country={country}
+                                    updateSelected={handleCountryCheckboxChange}
+                                    checked={selectedCountries.some(
+                                        (v) => v === country.id
+                                    )}
+                                />
                             )) ?? "Couldn't load countries"}
                         </div>
                         <br />
