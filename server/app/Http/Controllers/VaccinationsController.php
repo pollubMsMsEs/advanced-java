@@ -106,13 +106,76 @@ class VaccinationsController extends Controller
                 $query->whereIn("vaccine_manufacturer_id", $validated["manufacturers"]);
             }
 
-            $result = $query
+            $queryResult = $query
                 ->whereIn("country_id", $validated["countries"])
                 ->whereBetween('day', [$validated["begin_date"], $validated["end_date"]])
-                ->groupBy("day")
-                ->selectRaw("sum(total) as sum, day")
-                ->pluck("sum", "day");
+                ->groupBy("day", "vaccine_manufacturer_id")
+                ->selectRaw("day, vaccine_manufacturer_id, sum(total) as total")
+                ->orderBy("day")
+                ->orderBy("vaccine_manufacturer_id")
+                ->get();
+
+            // 1, 4, 5, 8, 9
+            // 2022-04-29
+            $totalPerManufacturer = [];
+            $tempResult = [];
+
+            foreach ($queryResult as $row) {
+                extract($row->toArray());
+
+                if (!array_key_exists($day, $tempResult)) {
+                    $tempResult[$day] = [];
+                }
+
+                $tempResult[$day][$vaccine_manufacturer_id] = $total;
+                $knownManufacturers[$vaccine_manufacturer_id] = true;
+            }
+
+            $lastDayUnix = strtotime(array_key_first($tempResult));
+
+            $result = [];
+            $log = [];
+            foreach ($tempResult as $day => $manufacturers) {
+                $daySum = 0;
+
+                foreach ($manufacturers as $manufacturer => $total) {
+
+                    if (array_key_exists($manufacturer, $totalPerManufacturer)) {
+                        if ($totalPerManufacturer[$manufacturer] > $total) {
+                            $total = $totalPerManufacturer[$manufacturer];
+                        }
+                    }
+                    $totalPerManufacturer[$manufacturer] = $total;
+                    $daySum += $total;
+
+                }
+
+                foreach ($totalPerManufacturer as $manufacturer => $value) {
+                    if (!array_key_exists($manufacturer, $manufacturers)) {
+
+                        $daySum += $value;
+                    }
+
+                }
+
+                // I guess its useless now ¯\_(ツ)_/¯
+                /*$dateDiff = strtotime($day) - $lastDayUnix;
+                $days = intval(round($dateDiff / (60 * 60 * 24)));
+                if ($days !== 0) {
+                    $lastDaySum = $result[date('Y-m-d', $lastDayUnix)];
+                    $diffPerDay = ($daySum - $lastDaySum) / $days;
+
+                    for ($i = 1; $i < $days - 1; $i++) {
+                        $missingDay = date('Y-m-d', strtotime($i === 1 ? "$i day" : "$i days", $lastDayUnix));
+                        $result[$missingDay] = $lastDaySum + $diffPerDay * $i;
+                    }
+                }*/
+
+                $result[$day] = $daySum;
+            }
+
             return response()->json($result);
+            //return response()->json(["result" => $result, "temp_result" => $tempResult, "totalPerManufacturer" => $totalPerManufacturer, "log" => $log]);
         } catch (ValidationException $e) {
             return response()->json(["errors" => $e->errors()]);
         }
