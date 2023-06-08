@@ -1,4 +1,4 @@
-import { useState, ChangeEvent } from "react";
+import { useState, ChangeEvent, useEffect, useRef } from "react";
 import axios from "axios";
 import { ToastContainer, toast } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
@@ -76,88 +76,99 @@ function App() {
         });
     }
 
-    const handleGenerateData = async () => {
-        try {
-            const { vaccinations, newCases, deaths } = selectedOptions;
+    const chartTimeout: any = useRef();
 
-            const datasets: any[] = [];
+    useEffect(() => {
+        const handleGenerateData = async () => {
+            try {
+                const { vaccinations, newCases, deaths } = selectedOptions;
 
-            if (deaths) {
-                const responseDeaths = await axios.get(
-                    "http://localhost:80/api/deaths",
-                    {
-                        params: chartQuery,
+                const datasets: any[] = [];
+
+                if (deaths) {
+                    const responseDeaths = await axios.get(
+                        "http://localhost:80/api/deaths",
+                        {
+                            params: chartQuery,
+                        }
+                    );
+                    const deathsData = responseDeaths.data;
+                    const deaths = [];
+                    for (const [x, y] of Object.entries(deathsData)) {
+                        deaths.push({ x, y });
                     }
-                );
-                const deathsData = responseDeaths.data;
-                const deaths = [];
-                for (const [x, y] of Object.entries(deathsData)) {
-                    deaths.push({ x, y });
+
+                    datasets.push({
+                        label: "Deaths",
+                        data: deaths,
+                        borderColor: "#ff0000",
+                        backgroundColor: "#ff0000",
+                    });
                 }
 
-                datasets.push({
-                    label: "Deaths",
-                    data: deaths,
-                    borderColor: "#ff0000",
-                    backgroundColor: "#ff0000",
-                });
-            }
-
-            if (newCases) {
-                const responseNewCases = await axios.get(
-                    "http://localhost:80/api/cases",
-                    {
-                        params: chartQuery,
+                if (newCases) {
+                    const responseNewCases = await axios.get(
+                        "http://localhost:80/api/cases",
+                        {
+                            params: chartQuery,
+                        }
+                    );
+                    const newCasesData = responseNewCases.data;
+                    const newCases = [];
+                    for (const [x, y] of Object.entries(newCasesData)) {
+                        newCases.push({ x, y });
                     }
-                );
-                const newCasesData = responseNewCases.data;
-                const newCases = [];
-                for (const [x, y] of Object.entries(newCasesData)) {
-                    newCases.push({ x, y });
+
+                    datasets.push({
+                        label: "New Cases",
+                        data: newCases,
+                        borderColor: "#f0f257",
+                        backgroundColor: "#f0f257",
+                    });
                 }
 
-                datasets.push({
-                    label: "New Cases",
-                    data: newCases,
-                    borderColor: "#f0f257",
-                    backgroundColor: "#f0f257",
-                });
-            }
+                if (vaccinations) {
+                    const responseVaccinations = await axios.get(
+                        "http://localhost:80/api/vaccinations",
+                        {
+                            params: chartQuery,
+                        }
+                    );
 
-            if (vaccinations) {
-                const responseVaccinations = await axios.get(
-                    "http://localhost:80/api/vaccinations",
-                    {
-                        params: chartQuery,
+                    const vaccinationsData: object = responseVaccinations.data;
+
+                    const vaccinations = [];
+                    for (const [x, y] of Object.entries(vaccinationsData)) {
+                        vaccinations.push({ x, y });
                     }
-                );
 
-                const vaccinationsData: object = responseVaccinations.data;
-
-                const vaccinations = [];
-                for (const [x, y] of Object.entries(vaccinationsData)) {
-                    vaccinations.push({ x, y });
+                    datasets.push({
+                        label: "Vaccinations",
+                        yAxisID: "sum",
+                        data: vaccinations,
+                        borderColor: "#00ff00",
+                        backgroundColor: "#00ff00",
+                    });
                 }
 
-                datasets.push({
-                    label: "Vaccinations",
-                    yAxisID: "sum",
-                    data: vaccinations,
-                    borderColor: "#00ff00",
-                    backgroundColor: "#00ff00",
-                });
+                const data = {
+                    datasets: datasets,
+                };
+                console.log(data);
+                setChartData(data);
+            } catch (error) {
+                console.error(error);
+                setChartData(null);
             }
+        };
 
-            const data = {
-                datasets: datasets,
-            };
-            console.log(data);
-            setChartData(data);
-        } catch (error) {
-            console.error(error);
-            setChartData(null);
-        }
-    };
+        clearTimeout(chartTimeout.current);
+
+        chartTimeout.current = setTimeout(() => {
+            handleGenerateData();
+            console.log("hej");
+        }, 500);
+    }, [chartQuery, selectedOptions]);
 
     return (
         <>
@@ -231,10 +242,6 @@ function App() {
                             />
                             <span>Deaths</span>
                         </div>
-
-                        <button onClick={handleGenerateData}>
-                            Pokaż wykres
-                        </button>
                     </div>
                     <ChartContainer data={chartData} />
                 </main>

@@ -80,7 +80,7 @@ export default function ChartContainer({
                 <Line ref={chartRef} data={data} options={options} />
             ) : (
                 <p style={{ placeSelf: "center" }}>
-                    Podaj dane, aby wyświetlić wykres
+                    Edit data to generate chart
                 </p>
             )}
         </div>
