@@ -1,9 +1,6 @@
-import { useState, useEffect, ChangeEvent, useRef } from "react";
-import coronaLogo from "/corona.svg";
-import axios from "axios";
+import { useState, useMemo } from "react";
 import { ToastContainer, toast } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
-import { Line } from "react-chartjs-2";
 import * as dayjs from "dayjs";
 import {
     Chart as ChartJS,
@@ -14,12 +11,19 @@ import {
     Title,
     Tooltip,
     Legend,
-    LineOptions,
     LogarithmicScale,
-    ChartOptions,
-    Chart,
 } from "chart.js";
-
+import ImportBar from "./components/ImportBar";
+import DateRangePicker from "@wojtekmaj/react-daterange-picker";
+import "@wojtekmaj/react-daterange-picker/dist/DateRangePicker.css";
+import "react-calendar/dist/Calendar.css";
+import ChartContainer from "./components/ChartContainer";
+import CountryList from "./components/CountryList";
+import {
+    ChartQuery,
+    SelectableOptions as SelectableOptionsType,
+} from "./types";
+import SelectableOptions from "./components/SelectableOptions";
 ChartJS.register(
     CategoryScale,
     LinearScale,
@@ -31,527 +35,108 @@ ChartJS.register(
     Legend
 );
 
-async function sendImportRequest(url: string) {
-    const toastId = toast.loading("Importing...");
-
-    try {
-        const result = await axios.put(url);
-        console.log(result);
-
-        if (result.data.error) {
-            throw new Error(result.data.msg);
-        }
-
-        toast.update(toastId, {
-            render: "Import succedded!",
-            type: "success",
-            isLoading: false,
-            autoClose: 4000,
-        });
-    } catch (error: any) {
-        toast.update(toastId, {
-            render: `Import failed: ${error.message ?? ""}`,
-            type: "error",
-            isLoading: false,
-            autoClose: 4000,
-        });
-    }
-}
-
 function App() {
-    const chartRef: any /*React.RefObject<Chart> | null | undefined*/ =
-        useRef(null);
-
-    const [isImportingVaccinations, setIsImportingVaccinations] =
-        useState(false);
-    const [isImportingCases, setIsImportingCases] = useState(false);
-
-    const [countryList, setCountryList] = useState<string[] | null>(null);
-
-    const [startDate, setStartDate] = useState("2021-06-18"); //2020-01-03
-    const [endDate, setEndDate] = useState("2021-08-27"); //2023-05-17
-    const [chartData, setChartData] = useState<any | null>(null);
-    const [chartOptions, setChartOptions] = useState<
-        ChartOptions<"line"> | undefined
-    >();
-
-    const [selectedCountries, setSelectedCountries] = useState<string[]>([]);
-
-    const [selectedOptions, setSelectedOptions] = useState({
-        vaccinations: false,
-        newCases: false,
-        deaths: false,
+    const [chartQuery, setChartQuery] = useState<ChartQuery>({
+        begin_date: "2021-06-18",
+        end_date: "2021-08-27",
+        countries: [],
     });
 
-    useEffect(() => {
-        getCountriesList();
-    }, []);
+    const [selectedOptions, setSelectedOptions] =
+        useState<SelectableOptionsType>({
+            vaccinations: false,
+            newCases: true, //DEVTEMP
+            deaths: false,
+        });
 
-    useEffect(() => {
-        createChartOptions();
-    }, [chartData]);
-
-    const handleStartDateChange = (event: ChangeEvent<HTMLInputElement>) => {
-        if (new Date(event.target.value) <= new Date(endDate)) {
-            setStartDate(event.target.value);
-        } else {
-            toast.info("Start date must be before end date");
-        }
-    };
-
-    function createChartOptions() {
-        const ctx: CanvasRenderingContext2D | undefined =
-            chartRef?.current?.ctx;
-        if (ctx == null) return;
-
-        console.log(chartRef);
-
-        const gradient = ctx.createLinearGradient(
-            0,
-            0,
-            0,
-            chartRef?.current?.height ?? 200
-        );
-        gradient.addColorStop(0, "#ff0000D0");
-        gradient.addColorStop(1, "#f0f257");
-        setChartOptions({
-            parsing: {
-                xAxisKey: "x",
-                yAxisKey: "y",
-            },
-            scales: {
-                y: {
-                    axis: "y",
-                    type: "logarithmic",
-                    position: "left",
-                    border: {
-                        color: gradient,
-                        width: 2,
-                    },
-                    display: "auto",
-                    title: {
-                        text: "Cases & Deaths",
-                        display: true,
-                    },
-                },
-                sum: {
-                    axis: "y",
-                    type: "linear",
-                    position: "right",
-                    border: {
-                        color: "#00ff00",
-                        width: 2,
-                    },
-                    display: "auto",
-                    title: {
-                        text: "Vaccinations",
-                        display: true,
-                    },
-                },
-            },
+    function handleDateChange([startDate, endDate]: any) {
+        setChartQuery((prevQuery) => {
+            return {
+                ...prevQuery,
+                begin_date: dayjs(startDate).format("YYYY-MM-DD"),
+                end_date: dayjs(endDate).format("YYYY-MM-DD"),
+            };
         });
     }
 
-    const handleEndDateChange = (event: ChangeEvent<HTMLInputElement>) => {
-        if (new Date(startDate) <= new Date(event.target.value)) {
-            setEndDate(event.target.value);
-        } else {
-            toast.info("End date must be after start date");
-        }
-    };
-
-    const generateDateRange = (startDate: string, endDate: string) => {
-        const labels: string[] = [];
-        const date1 = new Date(startDate);
-        const date2 = new Date(endDate);
-
-        while (date1 <= date2) {
-            labels.push(dayjs(date1).format("YYYY-MM-DD"));
-            date1.setDate(date1.getDate() + 1);
-        }
-        return labels;
-    };
-
-    const generateWeeklyDateRange = (
-        startDate: string,
-        endDate: string,
-        delay: number
-    ) => {
-        const labels: string[] = [];
-        const date1 = dayjs(startDate).add(delay, "day").toDate();
-        const date2 = new Date(endDate);
-
-        while (date1 <= date2) {
-            labels.push(dayjs(date1).format("YYYY-MM-DD"));
-            date1.setDate(date1.getDate() + 7);
-        }
-
-        return labels;
-    };
-
-    const handleCheckboxChange = (event: ChangeEvent<HTMLInputElement>) => {
-        const { name, checked } = event.target;
+    function handleOptionsChange({
+        name,
+        checked,
+    }: {
+        name: string;
+        checked: boolean;
+    }) {
         setSelectedOptions((prevOptions) => ({
             ...prevOptions,
             [name]: checked,
         }));
-    };
+    }
 
-    const handleGenerateData = async () => {
-        try {
-            const countries = await axios.get(
-                "http://localhost:80/api/countries"
-            );
-            let countryIds: number[] = [];
-            const { vaccinations, newCases, deaths } = selectedOptions;
-
-            if (selectedCountries.includes("all")) {
-                countryIds = Object.values(countries.data.data);
-            } else {
-                countryIds = selectedCountries.map((countryName) => {
-                    const countryId = countries.data.data[countryName];
-                    return countryId;
-                });
-            }
-
-            let labels;
-            const datasets = [];
-
-            if (deaths) {
-                const responseDeaths = await axios.get(
-                    "http://localhost:80/api/deaths",
-                    {
-                        params: {
-                            begin_date: startDate,
-                            end_date: endDate,
-                            countries: countryIds,
-                        },
-                    }
-                );
-                const deathsData = responseDeaths.data;
-                const deaths = [];
-                for (const [x, y] of Object.entries(deathsData)) {
-                    deaths.push({ x, y });
-                }
-
-                datasets.push({
-                    label: "Deaths",
-                    data: deaths,
-                    borderColor: "#ff0000",
-                    backgroundColor: "#ff0000",
-                });
-                labels = generateDateRange(startDate, endDate);
-            }
-
-            if (newCases) {
-                const responseNewCases = await axios.get(
-                    "http://localhost:80/api/cases",
-                    {
-                        params: {
-                            begin_date: startDate,
-                            end_date: endDate,
-                            countries: countryIds,
-                        },
-                    }
-                );
-                const newCasesData = responseNewCases.data;
-                const newCases = [];
-                for (const [x, y] of Object.entries(newCasesData)) {
-                    newCases.push({ x, y });
-                }
-
-                datasets.push({
-                    label: "New Cases",
-                    data: newCases,
-                    borderColor: "#f0f257",
-                    backgroundColor: "#f0f257",
-                });
-                labels = generateDateRange(startDate, endDate);
-            }
-
-            if (vaccinations) {
-                const responseVaccinations = await axios.get(
-                    "http://localhost:80/api/vaccinations",
-                    {
-                        params: {
-                            begin_date: startDate,
-                            end_date: endDate,
-                            countries: countryIds,
-                        },
-                    }
-                );
-
-                const vaccinationsData: object = responseVaccinations.data;
-                const firstDateInData = Object.keys(vaccinationsData)[0];
-
-                const delay = dayjs(firstDateInData).diff(
-                    dayjs(startDate),
-                    "day"
-                );
-
-                if (delay === 0) {
-                    labels = generateDateRange(startDate, endDate);
-                } else {
-                    labels = generateWeeklyDateRange(startDate, endDate, delay);
-                }
-
-                labels = Object.keys(vaccinationsData);
-
-                const vaccinations = [];
-                for (const [x, y] of Object.entries(vaccinationsData)) {
-                    vaccinations.push({ x, y });
-                }
-
-                datasets.push({
-                    label: "Vaccinations",
-                    yAxisID: "sum",
-                    data: vaccinations,
-                    borderColor: "#00ff00",
-                    backgroundColor: "#00ff00",
-                });
-            }
-
-            const data = {
-                datasets: datasets,
-            };
-            console.log(data);
-            setChartData(data);
-        } catch (error) {
-            console.error(error);
-            setChartData(null);
-        }
-    };
-
-    const handleCountryCheckboxChange = (
-        event: ChangeEvent<HTMLInputElement>
-    ) => {
-        const { name, checked } = event.target;
-        if (name === "all") {
-            if (checked) {
-                setSelectedCountries(
-                    countryList ? [...countryList, "all"] : ["all"]
-                );
-            } else {
-                setSelectedCountries([]);
-            }
-        } else {
-            setSelectedCountries((prevSelectedCountries) => {
-                const updatedSelectedCountries = checked
-                    ? [...prevSelectedCountries, name]
-                    : prevSelectedCountries.filter(
-                          (country) => country !== name
-                      );
-                return updatedSelectedCountries;
+    const handleSelectedCountries = useMemo(() => {
+        return function (countries: number[]) {
+            setChartQuery((prevQuery) => {
+                return {
+                    ...prevQuery,
+                    countries,
+                };
             });
-        }
-    };
-
-    async function importCases() {
-        setIsImportingCases(true);
-
-        await sendImportRequest("http://localhost:80/api/import/cases");
-
-        setIsImportingCases(false);
-    }
-
-    async function importVaccinations() {
-        setIsImportingVaccinations(true);
-
-        await sendImportRequest("http://localhost:80/api/import/vaccinations");
-
-        setIsImportingVaccinations(false);
-    }
-
-    async function getCountriesList() {
-        try {
-            const countriesObj = await axios.get(
-                "http://localhost:80/api/countries"
-            );
-            const countryNames = Object.keys(countriesObj.data.data);
-            setCountryList(countryNames);
-        } catch (error) {
-            console.error(error);
-            setCountryList(null);
-        }
-    }
+        };
+    }, []);
 
     return (
-        <div
-            style={{
-                display: "grid",
-                maxHeight: "100vh",
-                gridTemplateColumns: "250px 1fr",
-            }}
-        >
-            <aside
-                className="aside"
+        <>
+            <div
                 style={{
-                    display: "flex",
-                    flexDirection: "column",
-                    alignItems: "center",
-                    gap: "10px",
-                }}
-            >
-                <header style={{ display: "flex", gap: "20px" }}>
-                    <h1>Covid visualizer</h1>
-                    <img width="50px" src={coronaLogo} alt="Vite" />
-                </header>
-                <div
-                    style={{
-                        alignSelf: "stretch",
-                        marginTop: "-20px",
-                    }}
-                >
-                    <hr />
-                </div>
-                <button
-                    onClick={importCases}
-                    disabled={isImportingCases || isImportingVaccinations}
-                    className="button"
-                    style={{
-                        color: "aliceblue",
-                        backgroundColor: isImportingCases
-                            ? "#a1a1aa"
-                            : "#0284c7",
-                        border: "none",
-                        padding: "10px",
-                        borderRadius: "5px",
-                    }}
-                >
-                    Import Cases
-                </button>
-
-                <button
-                    onClick={importVaccinations}
-                    disabled={isImportingCases || isImportingVaccinations}
-                    className="button"
-                    style={{
-                        color: "aliceblue",
-                        backgroundColor: isImportingVaccinations
-                            ? "#a1a1aa"
-                            : "#0284c7",
-                        border: "none",
-                        padding: "10px",
-                        borderRadius: "5px",
-                    }}
-                >
-                    Import Vaccinations
-                </button>
-                <ToastContainer position={toast.POSITION.BOTTOM_CENTER} />
-            </aside>
-            <main
-                style={{
-                    padding: "10px",
                     display: "grid",
-                    gridTemplateColumns: "max-content 1fr",
-                    gridTemplateRows: "minmax(0,1fr) 200px", // @Skic minmax is necessary for maxHeight to work in children
-                    boxSizing: "border-box", // @Skic For padding to not create overflow
                     maxHeight: "100vh",
+                    gridTemplateColumns: "250px 1fr",
                 }}
             >
-                <div
-                    className="data-picker"
+                <ImportBar />
+                <main
                     style={{
-                        display: "flex",
-                        gap: "5px",
-                        flexDirection: "column",
-                        maxHeight: "100%",
+                        padding: "10px",
+                        display: "grid",
+                        gridTemplateColumns: "max-content 1fr",
+                        gridTemplateRows: "minmax(0,1fr) 200px", // @Skic minmax is necessary for maxHeight to work in children
+                        boxSizing: "border-box", // @Skic For padding to not create overflow
+                        maxHeight: "100vh",
                     }}
                 >
-                    <div style={{ overflowY: "auto", flexShrink: 1 }}>
-                        <div key="all">
-                            <span>Cały świat</span>
-                            <input
-                                type="checkbox"
-                                name="all"
-                                id="all"
-                                onChange={handleCountryCheckboxChange}
-                            />
-                        </div>
-                        {countryList?.map((country) => (
-                            <div key={country}>
-                                <input
-                                    type="checkbox"
-                                    name={country}
-                                    id={country}
-                                    onChange={handleCountryCheckboxChange}
-                                />
-                                <span>{country}</span>
-                            </div>
-                        )) ?? "Couldn't load countries"}
-                    </div>
-                    <br />
-                    <h3 style={{ margin: "0" }}>Daty</h3>
-                    <div>
-                        <label>Od: </label>
-                        <input
-                            type="date"
-                            id="date1"
-                            value={startDate}
-                            onChange={handleStartDateChange}
-                            min={"2020-01-03"}
-                            max={"2023-05-17"}
+                    <div
+                        className="data-picker"
+                        style={{
+                            display: "flex",
+                            gap: "20px",
+                            flexDirection: "column",
+                            maxHeight: "100%",
+                        }}
+                    >
+                        <CountryList
+                            selectedCountries={chartQuery.countries}
+                            handleSelectedCountries={handleSelectedCountries}
+                            style={{ overflowY: "auto", flexShrink: 1 }}
+                        />
+                        <DateRangePicker
+                            onChange={handleDateChange}
+                            value={[
+                                new Date(chartQuery.begin_date),
+                                new Date(chartQuery.end_date),
+                            ]}
+                        />
+                        <SelectableOptions
+                            selectedOptions={selectedOptions}
+                            handleOptionsUpdate={handleOptionsChange}
                         />
                     </div>
-                    <div>
-                        <label>Do: </label>
-                        <input
-                            type="date"
-                            id="date2"
-                            value={endDate}
-                            onChange={handleEndDateChange}
-                            min={"2020-01-03"}
-                            max={"2023-05-17"}
-                        />
-                    </div>
-                    <br />
-                    <div>
-                        <h3 style={{ margin: "0" }}>COVID-19 data</h3>
-                        <input
-                            type="checkbox"
-                            name="vaccinations"
-                            id="vaccinations"
-                            onChange={handleCheckboxChange}
-                        />
-                        <span>Vaccinations</span>
-                    </div>
-                    <div>
-                        <input
-                            type="checkbox"
-                            name="newCases"
-                            id="newCases"
-                            onChange={handleCheckboxChange}
-                        />
-                        <span>New Cases</span>
-                    </div>
-                    <div>
-                        <input
-                            type="checkbox"
-                            name="deaths"
-                            id="deaths"
-                            onChange={handleCheckboxChange}
-                        />
-                        <span>Deaths</span>
-                    </div>
-
-                    <button onClick={handleGenerateData}>Pokaż wykres</button>
-                </div>
-                <div
-                    className="chart-container"
-                    style={{ position: "relative", width: "95%" }} //@Skic Required for charts to scale properly
-                >
-                    {chartData ? (
-                        <Line
-                            ref={chartRef}
-                            data={chartData}
-                            options={chartOptions}
-                        />
-                    ) : (
-                        <p>Podaj dane, aby wyświetlić wykres</p>
-                    )}
-                </div>
-            </main>
-        </div>
+                    <ChartContainer
+                        query={chartQuery}
+                        selectedOptions={selectedOptions}
+                    />
+                </main>
+            </div>
+            <ToastContainer position={toast.POSITION.BOTTOM_CENTER} />
+        </>
     );
 }
 

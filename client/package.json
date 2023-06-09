@@ -11,6 +11,7 @@
   },
   "dependencies": {
     "@faker-js/faker": "^8.0.2",
+    "@wojtekmaj/react-daterange-picker": "^5.2.0",
     "axios": "^1.4.0",
     "chart.js": "^4.3.0",
     "dayjs": "^1.11.8",

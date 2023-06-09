@@ -30,3 +30,7 @@ body {
         flex-shrink: 0;
     }
 }
+
+.react-daterange-picker__wrapper {
+    gap: 2px;
+}
