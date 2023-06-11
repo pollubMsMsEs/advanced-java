@@ -1,4 +1,4 @@
-import { useState, useMemo } from "react";
+import { useState, useMemo, useEffect } from "react";
 import { ToastContainer, toast } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
 import * as dayjs from "dayjs";
@@ -13,17 +13,17 @@ import {
     Legend,
     LogarithmicScale,
 } from "chart.js";
-import ImportBar from "./components/ImportBar";
+import ImportBar from "../components/ImportBar";
 import DateRangePicker from "@wojtekmaj/react-daterange-picker";
 import "@wojtekmaj/react-daterange-picker/dist/DateRangePicker.css";
 import "react-calendar/dist/Calendar.css";
-import ChartContainer from "./components/ChartContainer";
-import CountryList from "./components/CountryList";
+import ChartContainer from "../components/ChartContainer";
+import CountryList from "../components/CountryList";
 import {
     ChartQuery,
     SelectableOptions as SelectableOptionsType,
-} from "./types";
-import SelectableOptions from "./components/SelectableOptions";
+} from "../types";
+import SelectableOptions from "../components/SelectableOptions";
 ChartJS.register(
     CategoryScale,
     LinearScale,
@@ -81,6 +81,10 @@ function App() {
                 };
             });
         };
+    }, []);
+
+    useEffect(() => {
+        document.title = "Covid Visualizer";
     }, []);
 
     return (
