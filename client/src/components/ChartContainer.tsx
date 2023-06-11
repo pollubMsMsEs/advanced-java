@@ -108,7 +108,6 @@ export default function ChartContainer({
                     for (const [x, y] of Object.entries(newCasesData)) {
                         newCases.push({ x, y });
                     }
-
                     datasets.push({
                         label: "New Cases",
                         data: newCases,

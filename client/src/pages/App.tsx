@@ -23,6 +23,7 @@ import {
     ChartQuery,
     SelectableOptions as SelectableOptionsType,
 } from "../types";
+import coronaLogo from "/corona.svg";
 import SelectableOptions from "../components/SelectableOptions";
 import { useAuthenticationContext } from "../stateContext";
 import axiosClient from "../axiosClient";
@@ -50,6 +51,8 @@ function App() {
             newCases: true, //DEVTEMP
             deaths: false,
         });
+
+    const [isTabOpen, setIsTabOpen] = useState(false);
 
     const context = useAuthenticationContext();
 
@@ -98,23 +101,146 @@ function App() {
                     display: "grid",
                     maxHeight: "100vh",
                     gridTemplateColumns: "250px 1fr",
+                    gridTemplateRows: "80px minmax(0,1fr)", // @Skic minmax is necessary for maxHeight to work in grid cells
                 }}
             >
-                {context.user?.role && context.user.role === "admin" ? (
-                    <ImportBar />
-                ) : (
-                    <div></div>
-                )}
+                <header
+                    style={{
+                        gridColumn: "1 / -1",
+                        gridRow: "1 / 2",
+                        display: "grid",
+                        gridAutoFlow: "column",
+                        gridAutoColumns: "minmax(0,1fr)",
+                        alignItems: "center",
+                        gap: "100px",
+                        padding: "0 20px",
+                        borderBottom: "1px solid black",
+                    }}
+                >
+                    <h1
+                        style={{
+                            display: "flex",
+                            gap: "20px",
+                            alignItems: "center",
+                        }}
+                    >
+                        <span>Covid visualizer</span>
+                        <img width="50px" src={coronaLogo} alt="Vite" />
+                    </h1>
+                    {context.user?.role && context.user.role === "admin" && (
+                        <div
+                            style={{
+                                position: "relative",
+                                display: "flex",
+                                flexDirection: "column",
+                                alignItems: "center",
+                            }}
+                        >
+                            <span
+                                style={{
+                                    fontWeight: "bold",
+                                    height: "50%",
+                                    display: "flex",
+                                    alignItems: "center",
+                                    borderBottom: "2px solid black",
+                                }}
+                                onClick={() => {
+                                    setIsTabOpen((t) => !t);
+                                }}
+                            >
+                                Imports
+                            </span>
+                        </div>
+                    )}
+                    <div
+                        style={{
+                            display: "flex",
+                            alignItems: "center",
+                            gap: "20px",
+                            justifySelf: "end",
+                        }}
+                    >
+                        <div>{context.user.name}</div>
+                        <button
+                            style={{
+                                color: "aliceblue",
+                                backgroundColor: "#0284c7",
+                                border: "none",
+                                padding: "12px 30px",
+                                borderRadius: "5px",
+                                justifySelf: "end",
+                            }}
+                            onClick={async () => {
+                                await axiosClient.post("/logout");
+                                context.setToken(null);
+                                context.setUser({});
+                            }}
+                        >
+                            Logout
+                        </button>
+                    </div>
+                </header>
                 <main
                     style={{
                         padding: "10px",
                         display: "grid",
+                        gridColumn: "1 / -1",
                         gridTemplateColumns: "max-content 1fr",
-                        gridTemplateRows: "minmax(0,1fr) 200px", // @Skic minmax is necessary for maxHeight to work in children
+                        gridTemplateRows: "minmax(0,1fr) 100px", // @Skic minmax is necessary for maxHeight to work in grid cells
                         boxSizing: "border-box", // @Skic For padding to not create overflow
                         maxHeight: "100vh",
                     }}
                 >
+                    <div
+                        style={{
+                            position: "absolute",
+                            right: "10px",
+                            left: "10px",
+                            marginTop: "-11px",
+                            display: "grid",
+                            placeItems: "center",
+                        }}
+                    >
+                        <div
+                            style={{
+                                backgroundColor: "white",
+                                boxShadow: "0px 8px 24px -20px black",
+                                zIndex: "2",
+                                display: "flex",
+                                justifyContent: "space-evenly",
+                                width: "min(80%,1000px)",
+                                height: isTabOpen ? "130px" : "0",
+                                padding: isTabOpen ? "10px 0" : "0",
+                                border: "1px solid black",
+                                borderTop: "none",
+                                transition: "all 1s",
+                                overflow: "hidden",
+                            }}
+                        >
+                            <div
+                                className="buttons"
+                                style={{
+                                    display: "flex",
+                                    flexDirection: "column",
+                                    alignItems: "stretch",
+                                    gap: "10px",
+                                }}
+                            >
+                                <h3
+                                    style={{ margin: "0", textAlign: "center" }}
+                                >
+                                    CSV
+                                </h3>
+                                <ImportBar />
+                            </div>
+                            <div>
+                                <h3 style={{ margin: "0" }}>XML</h3>
+                            </div>
+                            <div>
+                                <h3 style={{ margin: "0" }}>JSON</h3>
+                            </div>
+                        </div>
+                    </div>
                     <div
                         className="data-picker"
                         style={{
@@ -146,15 +272,6 @@ function App() {
                         selectedOptions={selectedOptions}
                     />
                 </main>
-                <button
-                    onClick={async () => {
-                        await axiosClient.post("/logout");
-                        context.setToken(null);
-                        context.setUser({});
-                    }}
-                >
-                    Logout
-                </button>
             </div>
             <ToastContainer position={toast.POSITION.BOTTOM_CENTER} />
         </>
