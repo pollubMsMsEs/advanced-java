@@ -1,6 +1,6 @@
 import React, { useEffect, useState } from "react";
 import CountryCheckbox from "./CountryCheckbox";
-import axios from "axios";
+import axiosClient from "../axiosClient";
 
 interface CountryData {
     id: number;
@@ -25,9 +25,7 @@ export default function CountryList({
     useEffect(() => {
         async function getCountriesList() {
             try {
-                const countriesResponse = await axios.get(
-                    "http://localhost:80/api/countries"
-                );
+                const countriesResponse = await axiosClient.get("/countries");
                 const countriesObj: { [name: string]: number } =
                     countriesResponse.data.data;
 

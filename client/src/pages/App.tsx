@@ -24,6 +24,8 @@ import {
     SelectableOptions as SelectableOptionsType,
 } from "../types";
 import SelectableOptions from "../components/SelectableOptions";
+import { useAuthenticationContext } from "../stateContext";
+import axiosClient from "../axiosClient";
 ChartJS.register(
     CategoryScale,
     LinearScale,
@@ -48,6 +50,8 @@ function App() {
             newCases: true, //DEVTEMP
             deaths: false,
         });
+
+    const context = useAuthenticationContext();
 
     function handleDateChange([startDate, endDate]: any) {
         setChartQuery((prevQuery) => {
@@ -96,7 +100,11 @@ function App() {
                     gridTemplateColumns: "250px 1fr",
                 }}
             >
-                <ImportBar />
+                {context.user?.role && context.user.role === "admin" ? (
+                    <ImportBar />
+                ) : (
+                    <div></div>
+                )}
                 <main
                     style={{
                         padding: "10px",
@@ -138,6 +146,15 @@ function App() {
                         selectedOptions={selectedOptions}
                     />
                 </main>
+                <button
+                    onClick={async () => {
+                        await axiosClient.post("/logout");
+                        context.setToken(null);
+                        context.setUser({});
+                    }}
+                >
+                    Logout
+                </button>
             </div>
             <ToastContainer position={toast.POSITION.BOTTOM_CENTER} />
         </>

@@ -1,14 +1,42 @@
 import { useEffect, useState } from "react";
-import { Link, useNavigate } from "react-router-dom";
-export function Login() {
+import { Link } from "react-router-dom";
+import axiosClient from "../axiosClient";
+import { useAuthenticationContext } from "../stateContext";
+export default function Login() {
     const [user, setUser] = useState({
         email: "",
         password: "",
     });
 
+    const [errors, setErrors] = useState<{ [key: string]: string[] }>({});
+
     useEffect(() => {
         document.title = "Login | Covid Visualizer";
     }, []);
+
+    const context = useAuthenticationContext();
+
+    async function onSubmit() {
+        try {
+            const result = await axiosClient.post("/login", user);
+            console.log(result);
+            const returnedUser = {
+                name: result.data.user.name,
+                email: result.data.user.email,
+                role: result.data.user.role,
+            };
+
+            context.setToken(result.data.authorisation.token);
+            context.setUser(returnedUser);
+        } catch (error: any) {
+            if (error.response.status === 422) {
+                setErrors(error.response.data.errors);
+            } else if (error.response.status === 401) {
+                setErrors({ login: ["Bad credentials"] });
+            }
+            console.error(error.response);
+        }
+    }
 
     return (
         <div
@@ -67,6 +95,13 @@ export function Login() {
                     >
                         Login
                     </h1>
+                    <div>
+                        {Object.entries(errors).map(([field, values]: any) =>
+                            values.map((v: any) => (
+                                <div key={`${field}${v}`}>{v}</div>
+                            ))
+                        )}
+                    </div>
                     <input
                         type="email"
                         placeholder="Enter your email"
@@ -94,6 +129,7 @@ export function Login() {
                         }}
                     />
                     <button
+                        type="button"
                         style={{
                             padding: "10px",
                             borderRadius: "4px",
@@ -102,7 +138,7 @@ export function Login() {
                             border: "none",
                             cursor: "pointer",
                         }}
-                        onClick={Login}
+                        onClick={onSubmit}
                     >
                         Login
                     </button>
@@ -122,5 +158,3 @@ export function Login() {
         </div>
     );
 }
-
-export default Login;

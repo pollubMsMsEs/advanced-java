@@ -1,13 +1,13 @@
 import { useState } from "react";
 import coronaLogo from "/corona.svg";
 import { toast } from "react-toastify";
-import axios from "axios";
+import axiosClient from "../axiosClient";
 
 async function sendImportRequest(url: string) {
     const toastId = toast.loading("Importing...");
 
     try {
-        const result = await axios.put(url);
+        const result = await axiosClient.put(url);
         console.log(result);
 
         if (result.data.error) {
@@ -38,7 +38,7 @@ export default function ImportBar() {
     async function importCases() {
         setIsImportingCases(true);
 
-        await sendImportRequest("http://localhost:80/api/import/cases");
+        await sendImportRequest("/import/cases");
 
         setIsImportingCases(false);
     }
@@ -46,7 +46,7 @@ export default function ImportBar() {
     async function importVaccinations() {
         setIsImportingVaccinations(true);
 
-        await sendImportRequest("http://localhost:80/api/import/vaccinations");
+        await sendImportRequest("/import/vaccinations");
 
         setIsImportingVaccinations(false);
     }

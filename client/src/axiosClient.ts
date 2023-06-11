@@ -15,8 +15,12 @@ axiosClient.interceptors.response.use(
         return response;
     },
     (error) => {
-        const { response } = error;
-        if (response.status === 401) {
+        const { response, request } = error;
+        if (
+            response.status === 401 &&
+            !request.responseURL.includes("login") &&
+            !request.responseURL.includes("register")
+        ) {
             localStorage.removeItem("JWT_TOKEN");
             location.reload();
         }

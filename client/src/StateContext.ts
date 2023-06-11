@@ -1,12 +1,12 @@
 import { createContext, useContext } from "react";
 
 export const AuthenticationContext = createContext<{
-    user: { email: string } | null;
+    user: { name: string; email: string; role: string };
     token: string | null;
     setUser: any;
     setToken: any;
 }>({
-    user: null,
+    user: { name: "", email: "", role: "" },
     token: null,
     setUser: () => {
         console.error("setUser: Implement me!");

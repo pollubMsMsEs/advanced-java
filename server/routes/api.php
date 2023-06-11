@@ -32,16 +32,16 @@ Route::controller(AuthController::class)->group(function () {
     Route::post('refresh', 'refresh');
 });
 
-//Route::middleware('auth.role:user,admin')->group(function () {
-Route::get("/healthz", [Controller::class, "healthz"]);
-Route::get("/countries", [CountryController::class, "index"]);
-Route::get("/manufacturers", [VaccineManufacturerController::class, "index"]);
-Route::get("/cases", [CasesPerDayController::class, "getCases"]);
-Route::get("/deaths", [CasesPerDayController::class, "getDeaths"]);
-Route::get("/vaccinations", [VaccinationsController::class, "getVaccinations"]);
-//});
+Route::middleware('auth.role:user,admin')->group(function () {
+    Route::get("/healthz", [Controller::class, "healthz"]);
+    Route::get("/countries", [CountryController::class, "index"]);
+    Route::get("/manufacturers", [VaccineManufacturerController::class, "index"]);
+    Route::get("/cases", [CasesPerDayController::class, "getCases"]);
+    Route::get("/deaths", [CasesPerDayController::class, "getDeaths"]);
+    Route::get("/vaccinations", [VaccinationsController::class, "getVaccinations"]);
+});
 
-//Route::middleware('auth.role:admin')->group(function () {
-Route::put("/import/cases", [CasesPerDayController::class, "importCasesCSV"]);
-Route::put("/import/vaccinations", [VaccinationsController::class, "importVaccinationsCSV"]);
-//});
+Route::middleware('auth.role:admin')->group(function () {
+    Route::put("/import/cases", [CasesPerDayController::class, "importCasesCSV"]);
+    Route::put("/import/vaccinations", [VaccinationsController::class, "importVaccinationsCSV"]);
+});

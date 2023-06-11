@@ -2,7 +2,7 @@ import { ChartData, ChartOptions } from "chart.js";
 import { useEffect, useRef, useState } from "react";
 import { Line } from "react-chartjs-2";
 import { ChartQuery, SelectableOptions } from "../types";
-import axios from "axios";
+import axiosClient from "../axiosClient";
 
 export default function ChartContainer({
     query,
@@ -82,12 +82,9 @@ export default function ChartContainer({
                 const datasets: any[] = [];
 
                 if (deaths) {
-                    const responseDeaths = await axios.get(
-                        "http://localhost:80/api/deaths",
-                        {
-                            params: query,
-                        }
-                    );
+                    const responseDeaths = await axiosClient.get("/deaths", {
+                        params: query,
+                    });
                     const deathsData = responseDeaths.data;
                     const deaths = [];
                     for (const [x, y] of Object.entries(deathsData)) {
@@ -103,12 +100,9 @@ export default function ChartContainer({
                 }
 
                 if (newCases) {
-                    const responseNewCases = await axios.get(
-                        "http://localhost:80/api/cases",
-                        {
-                            params: query,
-                        }
-                    );
+                    const responseNewCases = await axiosClient.get("/cases", {
+                        params: query,
+                    });
                     const newCasesData = responseNewCases.data;
                     const newCases = [];
                     for (const [x, y] of Object.entries(newCasesData)) {
@@ -124,8 +118,8 @@ export default function ChartContainer({
                 }
 
                 if (vaccinations) {
-                    const responseVaccinations = await axios.get(
-                        "http://localhost:80/api/vaccinations",
+                    const responseVaccinations = await axiosClient.get(
+                        "/vaccinations",
                         {
                             params: query,
                         }
