@@ -1,13 +1,12 @@
 import { useState } from "react";
-import coronaLogo from "/corona.svg";
 import { toast } from "react-toastify";
-import axios from "axios";
+import axiosClient from "../axiosClient";
 
 async function sendImportRequest(url: string) {
     const toastId = toast.loading("Importing...");
 
     try {
-        const result = await axios.put(url);
+        const result = await axiosClient.put(url);
         console.log(result);
 
         if (result.data.error) {
@@ -38,7 +37,7 @@ export default function ImportBar() {
     async function importCases() {
         setIsImportingCases(true);
 
-        await sendImportRequest("http://localhost:80/api/import/cases");
+        await sendImportRequest("/import/cases");
 
         setIsImportingCases(false);
     }
@@ -46,33 +45,13 @@ export default function ImportBar() {
     async function importVaccinations() {
         setIsImportingVaccinations(true);
 
-        await sendImportRequest("http://localhost:80/api/import/vaccinations");
+        await sendImportRequest("/import/vaccinations");
 
         setIsImportingVaccinations(false);
     }
 
     return (
-        <aside
-            className="aside"
-            style={{
-                display: "flex",
-                flexDirection: "column",
-                alignItems: "center",
-                gap: "10px",
-            }}
-        >
-            <header style={{ display: "flex", gap: "20px" }}>
-                <h1>Covid visualizer</h1>
-                <img width="50px" src={coronaLogo} alt="Vite" />
-            </header>
-            <div
-                style={{
-                    alignSelf: "stretch",
-                    marginTop: "-20px",
-                }}
-            >
-                <hr />
-            </div>
+        <>
             <button
                 onClick={importCases}
                 disabled={isImportingCases || isImportingVaccinations}
@@ -87,7 +66,6 @@ export default function ImportBar() {
             >
                 Import Cases
             </button>
-
             <button
                 onClick={importVaccinations}
                 disabled={isImportingCases || isImportingVaccinations}
@@ -104,6 +82,6 @@ export default function ImportBar() {
             >
                 Import Vaccinations
             </button>
-        </aside>
+        </>
     );
 }
