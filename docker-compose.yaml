@@ -26,7 +26,7 @@ services:
             - APP_DEBUG=true
         networks:
             - backend
-        command: sh -c "php artisan key:generate && php artisan migrate --force && apache2-foreground"
+        command: sh -c "php artisan migrate --force && apache2-foreground"
         depends_on:
             db:
                 condition: service_healthy
