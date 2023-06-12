@@ -3,6 +3,7 @@
 use App\Http\Controllers\CasesPerDayController;
 use App\Http\Controllers\Controller;
 use App\Http\Controllers\CountryController;
+use App\Http\Controllers\jsonController;
 use App\Http\Controllers\VaccinationsController;
 use App\Http\Controllers\VaccineManufacturerController;
 use Illuminate\Http\Request;
@@ -45,3 +46,6 @@ Route::middleware('auth.role:admin')->group(function () {
     Route::put("/import/cases", [CasesPerDayController::class, "importCasesCSV"]);
     Route::put("/import/vaccinations", [VaccinationsController::class, "importVaccinationsCSV"]);
 });
+
+Route::get("/export/json", [jsonController::class, "export"]);
+Route::get("/import/json", [jsonController::class, "import"]);
