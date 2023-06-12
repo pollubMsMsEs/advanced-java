@@ -1,5 +1,5 @@
 import { useState } from "react";
-import { AuthenticationContext } from "../stateContext";
+import { AuthenticationContext } from "../StateContext.js";
 
 export function AuthenticationContextProvider({ children }: any) {
     const [user, _setUser] = useState(

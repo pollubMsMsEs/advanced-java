@@ -1,7 +1,7 @@
 import { useState, useEffect } from "react";
 import { Link } from "react-router-dom";
 import axiosClient from "../axiosClient";
-import { useAuthenticationContext } from "../StateContext";
+import { useAuthenticationContext } from "../StateContext.js";
 import Logo from "../components/Logo";
 
 export function Register() {

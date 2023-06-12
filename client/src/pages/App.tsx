@@ -24,7 +24,7 @@ import {
     SelectableOptions as SelectableOptionsType,
 } from "../types";
 import SelectableOptions from "../components/SelectableOptions";
-import { useAuthenticationContext } from "../StateContext";
+import { useAuthenticationContext } from "../StateContext.js";
 import axiosClient from "../axiosClient";
 import Logo from "../components/Logo";
 ChartJS.register(

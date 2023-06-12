@@ -1,5 +1,5 @@
 import { Navigate, Outlet } from "react-router-dom";
-import { useAuthenticationContext } from "../../stateContext";
+import { useAuthenticationContext } from "../../StateContext.js";
 
 export default function DefaultLayout() {
     const { token } = useAuthenticationContext();
