@@ -1,7 +1,8 @@
 import { useState, useEffect } from "react";
 import { Link } from "react-router-dom";
 import axiosClient from "../axiosClient";
-import { useAuthenticationContext } from "../stateContext";
+import { useAuthenticationContext } from "../StateContext";
+import Logo from "../components/Logo";
 
 export function Register() {
     const [user, setUser] = useState({
@@ -48,7 +49,6 @@ export function Register() {
                 justifyContent: "center",
                 alignItems: "center",
                 minHeight: "100vh",
-                backgroundColor: "#d6ccc2",
             }}
         >
             <div
@@ -58,25 +58,20 @@ export function Register() {
                     alignItems: "center",
                     marginBottom: "20px",
                 }}
-            ></div>
-            <h1
-                style={{
-                    fontSize: "32px",
-                    fontWeight: "bold",
-                    textTransform: "uppercase",
-                    margin: "0",
-                    color: "#780000",
-                }}
             >
-                Covid Visualizer
-            </h1>
-            <div
+                <Logo />
+            </div>
+            <form
                 style={{
                     backgroundColor: "white",
                     padding: "20px",
                     width: "500px",
                     borderRadius: "8px",
-                    boxShadow: "0px 2px 4px rgba(0, 0, 0, 0.1)",
+                    boxShadow: "0px 2px 20px 5px rgba(0, 0, 0, 0.1)",
+                }}
+                onSubmit={(e) => {
+                    e.preventDefault();
+                    onSubmit();
                 }}
             >
                 <div
@@ -96,7 +91,11 @@ export function Register() {
                     >
                         Register
                     </h1>
-                    <div>
+                    <div
+                        style={{
+                            color: "#e63946",
+                        }}
+                    >
                         {Object.entries(errors).map(([field, values]: any) =>
                             values.map((v: any) => (
                                 <div key={`${field}${v}`}>{v}</div>
@@ -142,20 +141,35 @@ export function Register() {
                             border: "1px solid #ccc",
                         }}
                     />
+                    <div>
+                        <input
+                            type="checkbox"
+                            name="role"
+                            id="role"
+                            checked={user.role === "admin"}
+                            onChange={(e) => {
+                                const { checked } = e.target;
+                                setUser({
+                                    ...user,
+                                    role: checked ? "admin" : "user",
+                                });
+                            }}
+                        />
+                        <label htmlFor="role">Is admin</label>
+                    </div>
                     <button
-                        type="button"
                         style={{
                             padding: "10px",
                             borderRadius: "4px",
-                            backgroundColor: "#a78a7f",
+                            backgroundColor: "#0284c7",
                             color: "white",
                             border: "none",
                             cursor: "pointer",
                         }}
-                        onClick={onSubmit}
                     >
                         Register
                     </button>
+
                     <Link
                         to="/login"
                         style={{
@@ -168,7 +182,7 @@ export function Register() {
                         Already have an account? Login
                     </Link>
                 </div>
-            </div>
+            </form>
         </div>
     );
 }

@@ -23,10 +23,10 @@ import {
     ChartQuery,
     SelectableOptions as SelectableOptionsType,
 } from "../types";
-import coronaLogo from "/corona.svg";
 import SelectableOptions from "../components/SelectableOptions";
-import { useAuthenticationContext } from "../stateContext";
+import { useAuthenticationContext } from "../StateContext";
 import axiosClient from "../axiosClient";
+import Logo from "../components/Logo";
 ChartJS.register(
     CategoryScale,
     LinearScale,
@@ -117,16 +117,7 @@ function App() {
                         borderBottom: "1px solid black",
                     }}
                 >
-                    <h1
-                        style={{
-                            display: "flex",
-                            gap: "20px",
-                            alignItems: "center",
-                        }}
-                    >
-                        <span>Covid visualizer</span>
-                        <img width="50px" src={coronaLogo} alt="Vite" />
-                    </h1>
+                    <Logo />
                     {context.user?.role && context.user.role === "admin" && (
                         <div
                             style={{

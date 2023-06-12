@@ -1,7 +1,8 @@
 import { useEffect, useState } from "react";
 import { Link } from "react-router-dom";
 import axiosClient from "../axiosClient";
-import { useAuthenticationContext } from "../stateContext";
+import { useAuthenticationContext } from "../StateContext";
+import Logo from "../components/Logo";
 export default function Login() {
     const [user, setUser] = useState({
         email: "",
@@ -46,7 +47,6 @@ export default function Login() {
                 justifyContent: "center",
                 alignItems: "center",
                 minHeight: "100vh",
-                backgroundColor: "#d6ccc2",
             }}
         >
             <div
@@ -57,25 +57,19 @@ export default function Login() {
                     marginBottom: "20px",
                 }}
             >
-                <h1
-                    style={{
-                        fontSize: "32px",
-                        fontWeight: "bold",
-                        textTransform: "uppercase",
-                        margin: "0",
-                        color: "#780000",
-                    }}
-                >
-                    Covid Visualizer
-                </h1>
+                <Logo />
             </div>
-            <div
+            <form
                 style={{
                     backgroundColor: "white",
                     padding: "20px",
                     width: "500px",
                     borderRadius: "8px",
-                    boxShadow: "0px 2px 4px rgba(0, 0, 0, 0.1)",
+                    boxShadow: "0px 2px 20px 5px rgba(0, 0, 0, 0.1)",
+                }}
+                onSubmit={(e) => {
+                    e.preventDefault();
+                    onSubmit();
                 }}
             >
                 <div
@@ -85,7 +79,7 @@ export default function Login() {
                         gap: "10px",
                     }}
                 >
-                    <h1
+                    <h2
                         style={{
                             fontSize: "24px",
                             fontWeight: "bold",
@@ -94,8 +88,12 @@ export default function Login() {
                         }}
                     >
                         Login
-                    </h1>
-                    <div>
+                    </h2>
+                    <div
+                        style={{
+                            color: "#e63946",
+                        }}
+                    >
                         {Object.entries(errors).map(([field, values]: any) =>
                             values.map((v: any) => (
                                 <div key={`${field}${v}`}>{v}</div>
@@ -129,16 +127,14 @@ export default function Login() {
                         }}
                     />
                     <button
-                        type="button"
                         style={{
                             padding: "10px",
                             borderRadius: "4px",
-                            backgroundColor: "#a78a7f",
+                            backgroundColor: "#0284c7",
                             color: "white",
                             border: "none",
                             cursor: "pointer",
                         }}
-                        onClick={onSubmit}
                     >
                         Login
                     </button>
@@ -154,7 +150,7 @@ export default function Login() {
                         Don't have an account? Register
                     </Link>
                 </div>
-            </div>
+            </form>
         </div>
     );
 }
