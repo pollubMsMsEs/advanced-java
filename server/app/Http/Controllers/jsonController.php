@@ -3,8 +3,11 @@
 namespace App\Http\Controllers;
 
 use App\Models\CasesPerDay;
+use App\Models\Country;
 use App\Models\Vaccinations;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\DB;
+use PhpParser\Error;
 
 class jsonController extends Controller
 {
@@ -31,7 +34,7 @@ class jsonController extends Controller
 
             array_push($data["cases"], $temp);
 
-            $cases -= 200;
+            $cases--;
             if ($cases <= 0) {
                 break;
             }
@@ -48,7 +51,7 @@ class jsonController extends Controller
 
             array_push($data["vaccinations"], $temp);
 
-            $vaccinations -= 200;
+            $vaccinations--;
             if ($vaccinations <= 0) {
                 break;
             }
@@ -62,9 +65,63 @@ class jsonController extends Controller
 
     public function import(Request $request)
     {
+        $filepath = storage_path() . "/imported";
+        $filename = "data.json";
+        $filefull = $filepath . "/" . $filename;
         if ($request->file("data") && $request->file("data")->isValid() && $request->file("data")->getMimeType() === "application/json") {
+            $request->file("data")->move($filepath, $filename);
+            $content = json_decode(file_get_contents($filefull), true);
 
-            return response()->json(["acknowledged" => true]);
+            try {
+                DB::transaction(function () use ($content) {
+                    if (($countries = CountryController::getCountriesCSV()) === false)
+                        throw new \Exception("Couldn't open countries CSV", 333);
+
+                    $currentCountryName = null;
+                    $currentCountryId = null;
+                    $insert_data = [];
+
+                    CasesPerDay::query()->delete();
+
+                    foreach ($content["cases"] as $data) {
+                        $countryName = $data["country"];
+
+                        if (($countryCode = array_key_exists($countryName, $countries) ? $countries[$countryName] : false) === false) {
+                            continue;
+                        }
+
+                        if ($currentCountryName !== $countryName) {
+                            $currentCountryName = $countryName;
+                            $currentCountryId = Country::query()->firstOrCreate(["name" => $countryName, "alpha3_code" => $countryCode])["id"];
+                        }
+
+                        $insert_data[] = [
+                            "day" => $data["day"],
+                            "country_id" => $currentCountryId,
+                            "newCases" => intval($data["new_cases"]),
+                            "newDeaths" => intval($data["new_deaths"])
+                        ];
+                    }
+
+                    //throw new Error("Rollback test");
+
+                    $insert_data = collect($insert_data);
+
+                    $CHUNK_SIZE = 1000;
+                    $chunks = $insert_data->chunk($CHUNK_SIZE);
+
+                    $count = 0;
+                    foreach ($chunks as $chunk) {
+                        CasesPerDay::insert($chunk->toArray());
+                        $count += $CHUNK_SIZE;
+                    }
+                });
+            } catch (\Exception $error) {
+                return response()->json(["error" => true, "msg" => $error->getMessage()]);
+            }
+
+
+            return response()->json(["acknowledged" => true, "data" => $content]);
         } else {
             return response()->json(["error" => true, "msg" => "Incorrect file"]);
         }

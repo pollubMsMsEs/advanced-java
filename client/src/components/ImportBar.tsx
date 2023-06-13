@@ -26,6 +26,7 @@ export default function ImportBar() {
                     type="Import"
                     target="Cases"
                     url="/import/cases"
+                    withFile={false}
                 />
                 <ImportExportButton
                     isLocked={isLocked}
@@ -33,6 +34,7 @@ export default function ImportBar() {
                     type="Import"
                     target="Vaccinations"
                     url="/import/vaccinations"
+                    withFile={false}
                 />
             </div>
             <div
@@ -51,6 +53,7 @@ export default function ImportBar() {
                     type="Import"
                     target="JSON"
                     url="/import/json"
+                    withFile={true}
                 />
                 <ImportExportButton
                     isLocked={isLocked}
@@ -58,6 +61,7 @@ export default function ImportBar() {
                     type="Export"
                     target="JSON"
                     url="/export/json"
+                    withFile={false}
                 />
             </div>
             <div
