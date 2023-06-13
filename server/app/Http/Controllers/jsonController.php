@@ -10,7 +10,15 @@ class jsonController extends Controller
 {
     public function export()
     {
-        unlink(storage_path() . "/exported/data.json");
+        $filename = storage_path() . "/exported/data.json";
+        $cases = 1000;
+        $vaccinations = 1000;
+
+
+        if (file_exists($filename)) {
+            unlink($filename);
+        }
+
         $data = ["cases" => [], "vaccinations" => []];
 
         foreach (CasesPerDay::with('country')->lazy(200) as $case) {
@@ -22,7 +30,13 @@ class jsonController extends Controller
             ];
 
             array_push($data["cases"], $temp);
+
+            $cases -= 200;
+            if ($cases <= 0) {
+                break;
+            }
         }
+
 
         foreach (Vaccinations::with('country')->with('vaccineManufacturer')->lazy(200) as $vaccination) {
             $temp = [
@@ -33,11 +47,16 @@ class jsonController extends Controller
             ];
 
             array_push($data["vaccinations"], $temp);
+
+            $vaccinations -= 200;
+            if ($vaccinations <= 0) {
+                break;
+            }
         }
 
-        file_put_contents(storage_path() . "/exported/data.json", json_encode($data), FILE_APPEND | LOCK_EX);
+        file_put_contents($filename, json_encode($data), FILE_APPEND | LOCK_EX);
         return response()->download(
-            storage_path() . "/exported/data.json",
+            $filename,
         );
     }
 
