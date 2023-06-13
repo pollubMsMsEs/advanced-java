@@ -208,28 +208,7 @@ function App() {
                                 overflow: "hidden",
                             }}
                         >
-                            <div
-                                className="buttons"
-                                style={{
-                                    display: "flex",
-                                    flexDirection: "column",
-                                    alignItems: "stretch",
-                                    gap: "10px",
-                                }}
-                            >
-                                <h3
-                                    style={{ margin: "0", textAlign: "center" }}
-                                >
-                                    CSV
-                                </h3>
-                                <ImportBar />
-                            </div>
-                            <div>
-                                <h3 style={{ margin: "0" }}>XML</h3>
-                            </div>
-                            <div>
-                                <h3 style={{ margin: "0" }}>JSON</h3>
-                            </div>
+                            <ImportBar />
                         </div>
                     </div>
                     <div

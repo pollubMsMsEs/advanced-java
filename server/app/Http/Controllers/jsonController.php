@@ -38,25 +38,16 @@ class jsonController extends Controller
         file_put_contents(storage_path() . "/exported/data.json", json_encode($data), FILE_APPEND | LOCK_EX);
         return response()->download(
             storage_path() . "/exported/data.json",
-            'data.json',
-            array(
-                'Content-Type: application/json',
-            )
         );
     }
 
-    public function import()
+    public function import(Request $request)
     {
-        $data = ["cases" => [], "vaccinations" => []];
-        $temp = ["new_cases" => 0];
-        array_push($data["cases"], $temp);
-        array_push($data["cases"], "da");
-        array_push($data["cases"], "da");
+        if ($request->file("data") && $request->file("data")->isValid() && $request->file("data")->getMimeType() === "application/json") {
 
-        array_push($data["cases"], "da");
-        array_push($data["cases"], "da");
-
-
-        return response()->json($data);
+            return response()->json(["acknowledged" => true]);
+        } else {
+            return response()->json(["error" => true, "msg" => "Incorrect file"]);
+        }
     }
 }

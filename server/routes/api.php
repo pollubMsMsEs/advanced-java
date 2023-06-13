@@ -48,4 +48,4 @@ Route::middleware('auth.role:admin')->group(function () {
 });
 
 Route::get("/export/json", [jsonController::class, "export"]);
-Route::get("/import/json", [jsonController::class, "import"]);
+Route::post("/import/json", [jsonController::class, "import"]);
