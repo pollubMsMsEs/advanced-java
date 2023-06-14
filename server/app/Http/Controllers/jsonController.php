@@ -72,7 +72,9 @@ class jsonController extends Controller
             $request->file("data")->move($filepath, $filename);
             $content = json_decode(file_get_contents($filefull), true);
 
+            $transactionLvl = 2;
             try {
+                $transactionLvl = DB::transactionLevel();
                 DB::transaction(function () use ($content) {
                     if (($countries = CountryController::getCountriesCSV()) === false)
                         throw new \Exception("Couldn't open countries CSV", 333);
@@ -121,7 +123,7 @@ class jsonController extends Controller
             }
 
 
-            return response()->json(["acknowledged" => true, "data" => $content]);
+            return response()->json(["acknowledged" => true, "transactionLvl" => $transactionLvl]);
         } else {
             return response()->json(["error" => true, "msg" => "Incorrect file"]);
         }

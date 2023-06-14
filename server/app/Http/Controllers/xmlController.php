@@ -100,7 +100,10 @@ class xmlController extends Controller
             $request->file("data")->move($filepath, $filename);
             $content = json_decode(json_encode(simplexml_load_file($filefull)), true);
 
+            $transactionLvl = 2;
             try {
+                DB::statement('SET SESSION TRANSACTION ISOLATION LEVEL SERIALIZED');
+                $transactionLvl = DB::transactionLevel();
                 DB::transaction(function () use ($content) {
                     if (($countries = CountryController::getCountriesCSV()) === false)
                         throw new \Exception("Couldn't open countries CSV", 333);
@@ -146,9 +149,11 @@ class xmlController extends Controller
                 });
             } catch (\Exception $error) {
                 return response()->json(["error" => true, "msg" => $error->getMessage()]);
+            } finally {
+                DB::statement('SET SESSION TRANSACTION ISOLATION REPEATABLE READ');
             }
 
-            return response()->json(["acknowledged" => true, "data" => $content]);
+            return response()->json(["acknowledged" => true, "transactionLvl" => $transactionLvl]);
         } else {
             return response()->json(["error" => true, "msg" => "Incorrect file"]);
         }
