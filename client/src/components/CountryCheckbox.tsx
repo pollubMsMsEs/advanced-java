@@ -1,3 +1,6 @@
+import { useEffect, useState } from "react";
+import axiosClient from "../axiosClient";
+
 export default function CountryCheckbox({
     country,
     checked,
@@ -9,6 +12,19 @@ export default function CountryCheckbox({
     updateSelected: (updateData: { id: number; checked: boolean }) => void;
     style?: React.CSSProperties;
 }) {
+    const [flagURL, setFlagURL] = useState(null);
+
+    async function getFlag() {
+        try {
+            const response = await axiosClient.get(
+                `http://localhost:80/api/country/flag/${country.id}`
+            );
+            return response.data.data;
+        } catch (e: any) {
+            console.error(`NO FLAG IN  BCS: ${country.name}` + e);
+        }
+    }
+
     return (
         <div style={style}>
             <input
@@ -18,9 +34,18 @@ export default function CountryCheckbox({
                 onChange={(e) => {
                     const { checked } = e.target;
                     updateSelected({ id: country.id, checked });
+
+                    getFlag().then(setFlagURL);
                 }}
             />
             <span>{country.name}</span>
+            {flagURL && (
+                <img
+                    src={flagURL}
+                    alt={`${country.name} flag`}
+                    style={{ width: "30px", height: "20px" }}
+                />
+            )}
         </div>
     );
 }
