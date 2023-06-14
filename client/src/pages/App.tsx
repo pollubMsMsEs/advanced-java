@@ -200,7 +200,7 @@ function App() {
                                 display: "flex",
                                 justifyContent: "space-evenly",
                                 width: "min(80%,1000px)",
-                                height: isTabOpen ? "130px" : "0",
+                                height: isTabOpen ? "150px" : "0",
                                 padding: isTabOpen ? "10px 0" : "0",
                                 border: "1px solid black",
                                 borderTop: "none",
@@ -208,28 +208,7 @@ function App() {
                                 overflow: "hidden",
                             }}
                         >
-                            <div
-                                className="buttons"
-                                style={{
-                                    display: "flex",
-                                    flexDirection: "column",
-                                    alignItems: "stretch",
-                                    gap: "10px",
-                                }}
-                            >
-                                <h3
-                                    style={{ margin: "0", textAlign: "center" }}
-                                >
-                                    CSV
-                                </h3>
-                                <ImportBar />
-                            </div>
-                            <div>
-                                <h3 style={{ margin: "0" }}>XML</h3>
-                            </div>
-                            <div>
-                                <h3 style={{ margin: "0" }}>JSON</h3>
-                            </div>
+                            <ImportBar />
                         </div>
                     </div>
                     <div
