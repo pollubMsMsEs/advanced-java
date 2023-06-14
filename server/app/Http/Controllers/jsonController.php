@@ -74,7 +74,7 @@ class jsonController extends Controller
 
             $transactionLvl = 2;
             try {
-                $transactionLvl = DB::transactionLevel();
+                $transactionLvl = DB::select("SHOW VARIABLES LIKE 'transaction_isolation'");
                 DB::transaction(function () use ($content) {
                     if (($countries = CountryController::getCountriesCSV()) === false)
                         throw new \Exception("Couldn't open countries CSV", 333);
