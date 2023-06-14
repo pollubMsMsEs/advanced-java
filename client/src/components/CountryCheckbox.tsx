@@ -1,4 +1,4 @@
-import { useEffect, useState } from "react";
+import { useState } from "react";
 import axiosClient from "../axiosClient";
 
 export default function CountryCheckbox({
@@ -38,7 +38,6 @@ export default function CountryCheckbox({
                     getFlag().then(setFlagURL);
                 }}
             />
-            <span>{country.name}</span>
             {flagURL && (
                 <img
                     src={flagURL}
@@ -46,6 +45,7 @@ export default function CountryCheckbox({
                     style={{ width: "30px", height: "20px" }}
                 />
             )}
+            <span>{country.name}</span>
         </div>
     );
 }

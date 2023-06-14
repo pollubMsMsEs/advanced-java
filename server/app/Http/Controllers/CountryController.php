@@ -296,41 +296,6 @@ class CountryController extends Controller
      */
     public function index()
     {
-        // try {
-        //     $countries = Country::query()->get(["id", "name", "alpha3_code"]);
-
-        //     $countriesWithFlags = [];
-
-        //     foreach ($countries as $country) {
-        //         $countryCode = $country["alpha3_code"];
-
-        //         $code2 = $this->code3to2[$countryCode];
-
-        //         $body =
-
-        //         $response = Http::withBody($body, "text/xml")->post("http://webservices.oorsprong.org/websamples.countryinfo/CountryInfoService.wso");
-
-
-        //         $xml = simplexml_load_string($response);
-        //         $xml->registerXPathNamespace("soap", "http://schemas.xmlsoap.org/soap/envelope/");
-        //         $xml->registerXPathNamespace("m", "http://www.oorsprong.org/websamples.countryinfo");
-        //         $found = $xml->xpath("//soap:Body/m:CountryFlagResponse/m:CountryFlagResult");
-
-        //         $flagLink = json_decode(json_encode($found), true)[0][0];
-        //         $countriesWithFlags[$country["name"]] =
-        //             [
-        //                 "id" => $country["id"],
-        //                 "flag" => $flagLink
-        //             ];
-
-        //     }
-
-
-        //     return response()->json(["data" => $countriesWithFlags]);
-        // } catch (\Exception $e) {
-        //     return response()->json(["error" => true, "msg" => $e->getMessage()]);
-        // }
-
         try {
             $countries = Country::query()->pluck("id", "name");
             return response()->json(["data" => $countries]);

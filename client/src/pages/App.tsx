@@ -223,7 +223,13 @@ function App() {
                         <CountryList
                             selectedCountries={chartQuery.countries}
                             handleSelectedCountries={handleSelectedCountries}
-                            style={{ overflowY: "auto", flexShrink: 1 }}
+                            style={{
+                                overflowY: "auto",
+                                flexShrink: 1,
+                                display: "flex",
+                                flexDirection: "column",
+                                gap: "1px",
+                            }}
                         />
                         <DateRangePicker
                             onChange={handleDateChange}

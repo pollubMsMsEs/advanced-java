@@ -92,6 +92,7 @@ export default function CountryList({
                     key={country.id}
                     country={country}
                     updateSelected={handleCountryCheckboxChange}
+                    style={{ display: "flex", gap: "5px" }}
                     checked={selectedCountries.some((v) => v === country.id)}
                 />
             )) ?? "Couldn't load countries"}
