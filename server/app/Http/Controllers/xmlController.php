@@ -51,6 +51,33 @@ class xmlController extends Controller
             }
         }
 
+        foreach (Vaccinations::with('country')->with('vaccineManufacturer')->lazy(200) as $vaccination) {
+            xmlwriter_start_element($xw, 'vaccinations');
+
+            xmlwriter_start_element($xw, 'day');
+            xmlwriter_text($xw, $vaccination->day);
+            xmlwriter_end_element($xw);
+
+            xmlwriter_start_element($xw, 'country');
+            xmlwriter_text($xw, $vaccination->country->name);
+            xmlwriter_end_element($xw);
+
+            xmlwriter_start_element($xw, 'vaccine_manufacturer');
+            xmlwriter_text($xw, $vaccination->vaccineManufacturer->name);
+            xmlwriter_end_element($xw);
+
+            xmlwriter_start_element($xw, 'total');
+            xmlwriter_text($xw, $vaccination->total);
+            xmlwriter_end_element($xw);
+
+            xmlwriter_end_element($xw);
+
+            $vaccinations--;
+            if ($vaccinations <= 0) {
+                break;
+            }
+        }
+
         xmlwriter_end_document($xw);
 
         file_put_contents($filename, xmlwriter_output_memory($xw), LOCK_EX);
