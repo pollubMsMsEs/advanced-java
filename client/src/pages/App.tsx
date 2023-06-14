@@ -200,7 +200,7 @@ function App() {
                                 display: "flex",
                                 justifyContent: "space-evenly",
                                 width: "min(80%,1000px)",
-                                height: isTabOpen ? "130px" : "0",
+                                height: isTabOpen ? "150px" : "0",
                                 padding: isTabOpen ? "10px 0" : "0",
                                 border: "1px solid black",
                                 borderTop: "none",

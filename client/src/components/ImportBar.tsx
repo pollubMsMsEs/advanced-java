@@ -50,18 +50,18 @@ export default function ImportBar() {
                 <ImportExportButton
                     isLocked={isLocked}
                     doLock={doLock}
-                    type="Import"
-                    target="JSON"
-                    url="/import/json"
-                    withFile={true}
-                />
-                <ImportExportButton
-                    isLocked={isLocked}
-                    doLock={doLock}
                     type="Export"
                     target="JSON"
                     url="/export/json"
                     withFile={false}
+                />
+                <ImportExportButton
+                    isLocked={isLocked}
+                    doLock={doLock}
+                    type="Import"
+                    target="JSON"
+                    url="/import/json"
+                    withFile={true}
                 />
             </div>
             <div
