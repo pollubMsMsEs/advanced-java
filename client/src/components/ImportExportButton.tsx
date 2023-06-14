@@ -23,9 +23,14 @@ export default function ImportButton({
 
         if (withFile) {
             console.log(fileRef);
-            await sendImportExportRequest(type, url, fileRef);
+            await sendImportExportRequest(
+                type,
+                url,
+                target.toLowerCase(),
+                fileRef
+            );
         } else {
-            await sendImportExportRequest(type, url);
+            await sendImportExportRequest(type, url, target.toLowerCase());
         }
 
         doLock(false);

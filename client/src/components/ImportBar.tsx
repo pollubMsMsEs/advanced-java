@@ -74,6 +74,22 @@ export default function ImportBar() {
                 }}
             >
                 <h3 style={{ margin: "0", textAlign: "center" }}>XML</h3>
+                <ImportExportButton
+                    isLocked={isLocked}
+                    doLock={doLock}
+                    type="Export"
+                    target="XML"
+                    url="/export/xml"
+                    withFile={false}
+                />
+                <ImportExportButton
+                    isLocked={isLocked}
+                    doLock={doLock}
+                    type="Import"
+                    target="XML"
+                    url="/import/xml"
+                    withFile={true}
+                />
             </div>
         </>
     );

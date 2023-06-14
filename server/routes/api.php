@@ -6,6 +6,7 @@ use App\Http\Controllers\CountryController;
 use App\Http\Controllers\jsonController;
 use App\Http\Controllers\VaccinationsController;
 use App\Http\Controllers\VaccineManufacturerController;
+use App\Http\Controllers\xmlController;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\AuthController;
@@ -49,3 +50,6 @@ Route::middleware('auth.role:admin')->group(function () {
 
 Route::get("/export/json", [jsonController::class, "export"]);
 Route::post("/import/json", [jsonController::class, "import"]);
+
+Route::get("/export/xml", [xmlController::class, "export"]);
+Route::post("/import/xml", [xmlController::class, "import"]);

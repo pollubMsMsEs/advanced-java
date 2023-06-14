@@ -4,6 +4,7 @@ import axiosClient from "./axiosClient";
 export async function sendImportExportRequest(
     operation: "Import" | "Export",
     url: string,
+    extension: string,
     fileRef?: any
 ) {
     const toastId = toast.loading(`${operation}ing...`);
@@ -32,7 +33,7 @@ export async function sendImportExportRequest(
                 result = await axiosClient.get(url, { responseType: "blob" });
                 // eslint-disable-next-line no-case-declarations
                 const aElement = document.createElement("a");
-                aElement.setAttribute("download", `data.${"json"}`);
+                aElement.setAttribute("download", `data.${extension}`);
                 // eslint-disable-next-line no-case-declarations
                 const href = URL.createObjectURL(result.data);
                 aElement.href = href;
