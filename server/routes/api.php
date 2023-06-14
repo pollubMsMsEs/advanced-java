@@ -36,7 +36,8 @@ Route::controller(AuthController::class)->group(function () {
 
 Route::middleware('auth.role:user,admin')->group(function () {
     Route::get("/healthz", [Controller::class, "healthz"]);
-
+    Route::get("/countries", [CountryController::class, "index"]);
+    Route::get("/country/flag/{id}", [CountryController::class, "getFlag"]);
     Route::get("/manufacturers", [VaccineManufacturerController::class, "index"]);
     Route::get("/cases", [CasesPerDayController::class, "getCases"]);
     Route::get("/deaths", [CasesPerDayController::class, "getDeaths"]);
@@ -46,13 +47,10 @@ Route::middleware('auth.role:user,admin')->group(function () {
 Route::middleware('auth.role:admin')->group(function () {
     Route::put("/import/cases", [CasesPerDayController::class, "importCasesCSV"]);
     Route::put("/import/vaccinations", [VaccinationsController::class, "importVaccinationsCSV"]);
+
+    Route::get("/export/json", [jsonController::class, "export"]);
+    Route::post("/import/json", [jsonController::class, "import"]);
+
+    Route::get("/export/xml", [xmlController::class, "export"]);
+    Route::post("/import/xml", [xmlController::class, "import"]);
 });
-
-Route::get("/countries", [CountryController::class, "index"]);
-Route::get("/country/flag/{id}", [CountryController::class, "getFlag"]);
-
-Route::get("/export/json", [jsonController::class, "export"]);
-Route::post("/import/json", [jsonController::class, "import"]);
-
-Route::get("/export/xml", [xmlController::class, "export"]);
-Route::post("/import/xml", [xmlController::class, "import"]);
