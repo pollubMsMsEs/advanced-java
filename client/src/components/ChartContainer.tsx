@@ -75,16 +75,36 @@ export default function ChartContainer({
     const chartTimeout: any = useRef();
 
     useEffect(() => {
+        let ignore = false;
+
         const handleGenerateData = async () => {
             try {
                 const { vaccinations, newCases, deaths } = selectedOptions;
 
                 const datasets: any[] = [];
 
-                if (deaths) {
-                    const responseDeaths = await axiosClient.get("/deaths", {
-                        params: query,
-                    });
+                const [responseDeaths, responseNewCases, responseVaccinations] =
+                    await Promise.all([
+                        deaths
+                            ? axiosClient.get("/deaths", {
+                                  params: query,
+                              })
+                            : undefined,
+                        newCases
+                            ? axiosClient.get("/cases", {
+                                  params: query,
+                              })
+                            : undefined,
+                        vaccinations
+                            ? axiosClient.get("/vaccinations", {
+                                  params: query,
+                              })
+                            : undefined,
+                    ]);
+
+                if (ignore) return;
+
+                if (responseDeaths) {
                     const deathsData = responseDeaths.data;
                     const deaths = [];
                     for (const [x, y] of Object.entries(deathsData)) {
@@ -99,10 +119,7 @@ export default function ChartContainer({
                     });
                 }
 
-                if (newCases) {
-                    const responseNewCases = await axiosClient.get("/cases", {
-                        params: query,
-                    });
+                if (responseNewCases) {
                     const newCasesData = responseNewCases.data;
                     const newCases = [];
                     for (const [x, y] of Object.entries(newCasesData)) {
@@ -116,14 +133,7 @@ export default function ChartContainer({
                     });
                 }
 
-                if (vaccinations) {
-                    const responseVaccinations = await axiosClient.get(
-                        "/vaccinations",
-                        {
-                            params: query,
-                        }
-                    );
-
+                if (responseVaccinations) {
                     const vaccinationsData: object = responseVaccinations.data;
 
                     const vaccinations = [];
@@ -143,7 +153,7 @@ export default function ChartContainer({
                 const data = {
                     datasets: datasets,
                 };
-                console.log(data);
+
                 setChartData(data);
             } catch (error) {
                 console.error(error);
@@ -151,12 +161,14 @@ export default function ChartContainer({
             }
         };
 
-        clearTimeout(chartTimeout.current);
-
         chartTimeout.current = setTimeout(() => {
             handleGenerateData();
-            console.log("hej");
         }, 500);
+
+        return () => {
+            clearTimeout(chartTimeout.current);
+            ignore = true;
+        };
     }, [query, selectedOptions]);
 
     return (
