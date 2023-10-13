@@ -19,6 +19,6 @@ public class CountryService {
     }
 
     public List<CasesPerDay> test(){
-        return countryRepository.findById(Long.valueOf(1)).get().getCasesPerDays();
+        return countryRepository.findById(1L).get().getCasesPerDays();
     }
 }

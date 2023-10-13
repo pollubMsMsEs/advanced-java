@@ -13,23 +13,26 @@ import java.time.LocalDate;
 @AllArgsConstructor
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
 @Table(indexes = {
-        @Index(columnList = "day, country_id",unique = true)
+        @Index(columnList = "day, country_id, vaccine_manufacturer_id",unique = true)
 })
-public class CasesPerDay {
 
+public class Vaccination {
     @Id
     @GeneratedValue(strategy = GenerationType.AUTO)
     private Long id;
     private LocalDate day;
 
-    private Long newCases;
-    private Long newDeaths;
+    private Long total;
 
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "country_id", nullable = false)
     private Country country;
 
-    public static CasesPerDay of(Long newCases, Long newDeaths,Country country){
-        return new CasesPerDay(null,LocalDate.now(), newCases,newDeaths,country);
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "vaccine_manufacturer_id", nullable = false)
+    private VaccineManufacturer vaccineManufacturer;
+
+    public static Vaccination of(Long total, Country country, VaccineManufacturer vaccineManufacturer){
+        return new Vaccination(null,LocalDate.now(), total,country,vaccineManufacturer);
     }
 }

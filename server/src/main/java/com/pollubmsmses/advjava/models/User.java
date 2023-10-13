@@ -23,7 +23,7 @@ public class User implements UserDetails {
     @Column(nullable = false)
     private String name;
 
-    // To chyba będzie odpowiednik email'a z Laravela w sensie tą wartością użytkownik będzie się logował
+    // To chyba będzie odpowiednik email'a z Laravela w sensie tą wartością użytkownik będzie się logował (Spring narzuca)
     @Column(nullable = false)
     private String username;
 
@@ -32,6 +32,10 @@ public class User implements UserDetails {
 
     @Column(nullable = false)
     private String role;
+
+    public static User of(String name, String username, String password, String role){
+        return new User(null,name,username,password,role);
+    }
 
     @Override
     public Collection<? extends GrantedAuthority> getAuthorities() {
