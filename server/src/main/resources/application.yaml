@@ -1,0 +1,20 @@
+spring:
+  datasource:
+    url: ${MYSQL_URL}
+    username: ${MYSQL_USER}
+    password: ${MYSQL_PASSWORD}
+    driver-class-name: com.mysql.cj.jdbc.Driver
+  jpa:
+    show-sql: true
+    hibernate:
+      ddl-auto: create
+    properties:
+      hibernate:
+        dialect: org.hibernate.dialect.MySQLDialect
+  servlet:
+    multipart:
+      max-file-size: -1
+# logging:
+#   level:
+#     org.zalando.logbook: TRACE
+#     com.pseudoorganization.pseudosystemsintegration: TRACE
