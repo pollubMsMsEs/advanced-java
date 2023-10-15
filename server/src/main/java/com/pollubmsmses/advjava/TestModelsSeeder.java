@@ -1,5 +1,5 @@
 package com.pollubmsmses.advjava;
-
+/*
 import com.pollubmsmses.advjava.models.CasesPerDay;
 import com.pollubmsmses.advjava.models.Country;
 import com.pollubmsmses.advjava.repositories.CasesPerDayRepository;
@@ -32,3 +32,5 @@ public class TestModelsSeeder {
         };
     }
 }
+
+ */
