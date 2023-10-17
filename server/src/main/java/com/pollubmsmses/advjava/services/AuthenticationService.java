@@ -1,8 +1,6 @@
 package com.pollubmsmses.advjava.services;
 
-import com.pollubmsmses.advjava.controllers.AuthenticationRequest;
-import com.pollubmsmses.advjava.controllers.AuthenticationResponse;
-import com.pollubmsmses.advjava.controllers.RegisterRequest;
+import com.pollubmsmses.advjava.controllers.*;
 import com.pollubmsmses.advjava.models.User;
 import com.pollubmsmses.advjava.repositories.UserRepository;
 import lombok.RequiredArgsConstructor;
@@ -11,7 +9,6 @@ import org.springframework.security.authentication.UsernamePasswordAuthenticatio
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
-import java.util.Optional;
 
 @Service
 @RequiredArgsConstructor
@@ -47,5 +44,19 @@ public class AuthenticationService {
         return AuthenticationResponse.builder()
                 .token(jwtToken)
                 .build();
+    }
+    public LoginResponse login(LoginRequest request) {
+        User user = userRepository.findByEmail(request.getEmail())
+                .orElseThrow();
+
+        if (passwordEncoder.matches(request.getPassword(), user.getPassword())) {
+            var jwtToken = jwtService.generateToken(user);
+            return LoginResponse.builder()
+                    .status("Success")
+                    .message("Login successful")
+                    .token(jwtToken)
+                    .build();
+        }
+        return null;
     }
 }

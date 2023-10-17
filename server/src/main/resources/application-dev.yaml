@@ -24,3 +24,4 @@ logging:
   level:
     org.zalando.logbook: TRACE
     com.pseudoorganization.pseudosystemsintegration: TRACE
+jwt.secretKey: "sN9M/k8wu4t/Eahhy1kNy7InYn1WuCKMULusWiT3NQU="
