@@ -1,20 +1,28 @@
 spring:
-  datasource:
-    url: ${MYSQL_URL}
-    username: ${MYSQL_USER}
-    password: ${MYSQL_PASSWORD}
-    driver-class-name: com.mysql.cj.jdbc.Driver
-  jpa:
-    show-sql: true
-    hibernate:
-      ddl-auto: create
-    properties:
-      hibernate:
-        dialect: org.hibernate.dialect.MySQLDialect
-  servlet:
-    multipart:
-      max-file-size: -1
-# logging:
-#   level:
-#     org.zalando.logbook: TRACE
-#     com.pseudoorganization.pseudosystemsintegration: TRACE
+    datasource:
+        url: jdbc:mysql://db:3306/advJava?useSSL=false
+        username: root
+        password:
+        driver-class-name: com.mysql.cj.jdbc.Driver
+    jpa:
+        show-sql: true
+        hibernate:
+            ddl-auto: create
+        properties:
+            hibernate:
+                dialect: org.hibernate.dialect.MySQLDialect
+            # format_sql: true
+    autoconfigure:
+        exclude:
+            - org.springframework.boot.autoconfigure.mongo.MongoAutoConfiguration
+            - org.springframework.boot.autoconfigure.security.servlet.SecurityAutoConfiguration
+management:
+    health:
+        mongo:
+            enabled: false
+server:
+    port: 80
+#logging:
+#    level:
+#        org.zalando.logbook: TRACE
+#        com.pseudoorganization.pseudosystemsintegration: TRACE
