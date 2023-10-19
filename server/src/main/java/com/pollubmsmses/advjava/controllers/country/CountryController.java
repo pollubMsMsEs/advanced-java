@@ -18,12 +18,20 @@ public class CountryController {
     private final CountryService countryService;
 
     @GetMapping("country/all")
-    public List<Country> getAll(){
-        return countryService.getAll();
-    }
-
-    @GetMapping("allFromCSV")
     public Map<String, String> getAllFromCSV(){
         return countryService.getCountriesCSV();
+    }
+
+    @GetMapping("countries")
+    public ResponseEntity<?> getAll() {
+        Map<String, Long> countries = countryService.getAllAsMap();
+
+        if(countries != null){
+            return ResponseEntity.ok(CountriesResponse.builder().data(countries).build());
+        } else {
+            CountriesErrorResponse error = CountriesErrorResponse.builder().error(true).msg("Couldn't get countries").build();
+            return ResponseEntity.internalServerError().body(error);
+        }
+
     }
 }
