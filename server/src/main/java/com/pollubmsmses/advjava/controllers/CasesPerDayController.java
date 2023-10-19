@@ -14,10 +14,5 @@ import java.util.List;
 @RequestMapping("/casesPerDay")
 @RequiredArgsConstructor
 public class CasesPerDayController {
-    private final CountryService countryService;
 
-    @GetMapping("test")
-    public List<CasesPerDay> getFromCountry(){
-        return countryService.test();
-    }
 }

@@ -24,3 +24,5 @@ logging:
   level:
     org.zalando.logbook: TRACE
     com.pseudoorganization.pseudosystemsintegration: TRACE
+server:
+  port: 8080
