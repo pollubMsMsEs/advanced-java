@@ -6,6 +6,7 @@ import com.pollubmsmses.advjava.repositories.UserRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
+import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
@@ -27,10 +28,10 @@ public class AuthenticationService {
         userRepository.save(user);
         var jwtToken = jwtService.generateToken(user);
         return AuthenticationResponse.builder()
+                .message("Register successful")
                 .token(jwtToken)
                 .build();
     }
-
     public AuthenticationResponse authenticate(AuthenticationRequest request) {
         authenticationManager.authenticate(
                 new UsernamePasswordAuthenticationToken(
@@ -45,18 +46,33 @@ public class AuthenticationService {
                 .token(jwtToken)
                 .build();
     }
-    public LoginResponse login(LoginRequest request) {
+    public AuthenticationResponse login(LoginRequest request) {
         User user = userRepository.findByEmail(request.getEmail())
                 .orElseThrow();
 
         if (passwordEncoder.matches(request.getPassword(), user.getPassword())) {
             var jwtToken = jwtService.generateToken(user);
-            return LoginResponse.builder()
-                    .status("Success")
+            return AuthenticationResponse.builder()
                     .message("Login successful")
                     .token(jwtToken)
                     .build();
         }
         return null;
+    }
+
+    public boolean doesUserExistByEmail(String email) {
+        User existingUser = userRepository.findByEmail(email).orElse(null);
+        return existingUser != null;
+    }
+
+    public boolean isPasswordCorrect(String email, String password) {
+        User user = userRepository.findByEmail(email).orElse(null);
+
+        if (user != null) {
+            BCryptPasswordEncoder passwordEncoder = new BCryptPasswordEncoder();
+            return passwordEncoder.matches(password, user.getPassword());
+        }
+
+        return false;
     }
 }
