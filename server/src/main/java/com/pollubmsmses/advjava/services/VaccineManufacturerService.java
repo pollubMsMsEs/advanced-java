@@ -16,25 +16,15 @@ import java.util.stream.Collectors;
 @Service
 public class VaccineManufacturerService {
     private final VaccineManufacturerRepository vaccineManufacturerRepository;
-    Map<String, Long> unsortedMap = new HashMap<>();
 
     public Map<String, Long> getSortedManufacturers(){
         try {
-            for (VaccineManufacturer manufacturer : vaccineManufacturerRepository.findAll()) {
-                unsortedMap.put(manufacturer.getName(), manufacturer.getId());
-            }
-
-            Map<String, Long> sortedMap = unsortedMap.entrySet()
-                .stream()
-                .sorted(Map.Entry.comparingByValue())
-                .collect(Collectors.toMap(
-                    Map.Entry::getKey, 
-                    Map.Entry::getValue, 
-                    (e1, e2) -> e1, 
+            return vaccineManufacturerRepository.findAll().stream().collect(Collectors.toMap(
+                    VaccineManufacturer::getName,
+                    VaccineManufacturer::getId,
+                    (e1, e2) -> e1,
                     LinkedHashMap::new
-                ));
-            
-            return sortedMap;
+            ));
         } catch (Exception e) {
             return null;
         }
