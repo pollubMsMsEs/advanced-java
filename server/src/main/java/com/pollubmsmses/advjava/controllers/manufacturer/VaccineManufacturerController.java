@@ -12,7 +12,7 @@ import org.springframework.web.bind.annotation.RestController;
 import java.util.Map;
 
 @RestController
-@RequestMapping("/")
+@RequestMapping("/api")
 @RequiredArgsConstructor
 public class VaccineManufacturerController {
     private final VaccineManufacturerService manufacturerService;
