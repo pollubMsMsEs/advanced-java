@@ -15,13 +15,12 @@ import java.time.LocalDate;
 @Table(indexes = {
         @Index(columnList = "day, country_id, vaccine_manufacturer_id",unique = true)
 })
-
 public class Vaccination {
     @Id
     @GeneratedValue(strategy = GenerationType.AUTO)
     private Long id;
     private LocalDate day;
-
+    
     private Long total;
 
     @ManyToOne(fetch = FetchType.LAZY)
@@ -32,7 +31,7 @@ public class Vaccination {
     @JoinColumn(name = "vaccine_manufacturer_id", nullable = false)
     private VaccineManufacturer vaccineManufacturer;
 
-    public static Vaccination of(Long total, Country country, VaccineManufacturer vaccineManufacturer){
-        return new Vaccination(null,LocalDate.now(), total,country,vaccineManufacturer);
+    public static Vaccination of(LocalDate day, Long total, Country country, VaccineManufacturer vaccineManufacturer) {
+        return new Vaccination(null, day, total, country, vaccineManufacturer);
     }
 }
