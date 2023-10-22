@@ -31,8 +31,8 @@ public ResponseEntity<?> getVaccinations(@RequestBody VaccinationRequest request
         VaccinationsResponse response = vaccinationService.getVaccinations(
             request.getBegin_date(), 
             request.getEnd_date(), 
-            request.getCountry(), 
-            request.getVaccineManufacturer()
+            request.getCountries(), 
+            request.getManufacturers()
         );
         
         if (response != null) {
