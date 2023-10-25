@@ -123,6 +123,13 @@ public class VaccinationService {
 
     @Transactional
     public VaccinationsResponse getVaccinations(LocalDate begin_date, LocalDate end_date, List<Long> country, List<Long> vaccineManufacturer) {
+        if (vaccineManufacturer == null || vaccineManufacturer.isEmpty()) {
+            vaccineManufacturer = new ArrayList<>();
+            for (long i = 1; i <= 15; i++) {
+                vaccineManufacturer.add(i);
+            }
+        }
+
         List<Vaccination> vaccinations = vaccinationRepository.filter(begin_date, end_date, country, vaccineManufacturer);
         
         // Mapa dla wyników
