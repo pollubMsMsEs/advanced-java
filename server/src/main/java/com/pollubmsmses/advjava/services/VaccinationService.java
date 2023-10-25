@@ -21,12 +21,14 @@ import java.util.List;
 import java.util.Map;
 import java.util.TreeMap;
 
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.core.io.ClassPathResource;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
 
 @RequiredArgsConstructor
 @Service
+@Slf4j
 public class VaccinationService {
     private final String VACCINATIONS_PATH = "importData/vaccinations-by-manufacturer.csv";
 
@@ -35,7 +37,7 @@ public class VaccinationService {
     private final VaccineManufacturerRepository vaccineManufacturerRepository;
     private final CountryService countryService;
 
-    @Transactional
+
     public ResponseEntity<Map<String, Object>> importVaccinationsCSV() {
         try {
             Map<String, String> countries = countryService.getCountriesCSV();
@@ -47,11 +49,12 @@ public class VaccinationService {
             BufferedReader br = new BufferedReader(new InputStreamReader(resource.getInputStream()));
 
             String currentCountryName = null;
-            Long currentCountryId = null;
-            Map<String, Long> manufacturerIds = new HashMap<>();
+            Country currentCountry = null;
+            Map<String, VaccineManufacturer> manufacturers = new HashMap<>();
             List<Vaccination> insertData = new ArrayList<>();
 
             vaccinationRepository.deleteAll();
+            vaccinationRepository.flush();
 
             String line;
             while ((line = br.readLine()) != null) {
@@ -70,41 +73,41 @@ public class VaccinationService {
                 if (!countryName.equals(currentCountryName)) {
                     currentCountryName = countryName;
                     Country country = countryRepository.findFirstByName(countryName);
-                    if (country == null) {
-                        country = countryRepository.findFirstByAlpha3code(countryCode);
+
                         if(country == null) {
                             country = Country.of(countryName, countryCode);
                             countryRepository.save(country);
                         }
-                    }
-                    currentCountryId = country.getId();
+
+                    currentCountry = country;
                 }
 
                 String manufacturerName = data[2];
-                if (!manufacturerIds.containsKey(manufacturerName)) {
+                if (!manufacturers.containsKey(manufacturerName)) {
                     VaccineManufacturer manufacturer = vaccineManufacturerRepository.findFirstByName(manufacturerName);
                     if (manufacturer == null) {
                         manufacturer = VaccineManufacturer.of(manufacturerName);
                         vaccineManufacturerRepository.save(manufacturer);
                     }
-                    manufacturerIds.put(manufacturerName, manufacturer.getId());
+                    manufacturers.put(manufacturerName, manufacturer);
                 }
 
                 LocalDate day = LocalDate.parse(data[1]);
-                Country currentCountry = countryRepository.findById(currentCountryId).orElse(null);
-                VaccineManufacturer manufacturer = vaccineManufacturerRepository.findById(manufacturerIds.get(manufacturerName)).orElse(null);
+
                 Long total = Long.parseLong(data[3]);
-                Vaccination vaccination = Vaccination.of(day, total, currentCountry, manufacturer);
+                Vaccination vaccination = Vaccination.of(day, total, currentCountry, manufacturers.get(manufacturerName));
                 insertData.add(vaccination);
             }
 
-            final int CHUNK_SIZE = 1000;
+            vaccinationRepository.saveAll(insertData);
+
+            /*final int CHUNK_SIZE = 1000;
             int i = 0;
             while (i < insertData.size()) {
                 List<Vaccination> chunk = insertData.subList(i, Math.min(i + CHUNK_SIZE, insertData.size()));
                 vaccinationRepository.saveAll(chunk);
                 i += CHUNK_SIZE;
-            }
+            }*/
 
             br.close();
 

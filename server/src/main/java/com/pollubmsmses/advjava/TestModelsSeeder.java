@@ -21,13 +21,13 @@ public class TestModelsSeeder {
         return args -> {
             // Create 10 countries with fake data
             for (int i = 1; i <= 10; i++) {
-                Country country = Country.of("Country"+i,"C" + i);
+                /*Country da country = Country.of("Country"+i,"C" + i);
 
                 var casesPerDay = CasesPerDay.of(120L,35L,country);
 
                 // Save the country to the database
                 countryRepository.save(country);
-                casesPerDayRepository.save(casesPerDay);
+                casesPerDayRepository.save(casesPerDay);*/
             }
         };
     }
