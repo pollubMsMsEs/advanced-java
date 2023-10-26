@@ -1,19 +1,18 @@
-package com.pollubmsmses.advjava.controllers;
+package com.pollubmsmses.advjava.models.auth;
 
+import jakarta.validation.constraints.NotBlank;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
-import com.pollubmsmses.advjava.models.Role;
-
 @Data
 @Builder
 @AllArgsConstructor
 @NoArgsConstructor
-public class RegisterRequest {
-    private String name;
+public class LoginRequest {
+    @NotBlank(message = "Email is mandatory")
     private String email;
+    @NotBlank(message = "Password is mandatory")
     private String password;
-    private Role role;
 }

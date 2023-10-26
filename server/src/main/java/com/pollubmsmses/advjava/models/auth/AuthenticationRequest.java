@@ -1,4 +1,4 @@
-package com.pollubmsmses.advjava.controllers;
+package com.pollubmsmses.advjava.models.auth;
 
 import lombok.AllArgsConstructor;
 import lombok.Builder;
@@ -9,7 +9,7 @@ import lombok.NoArgsConstructor;
 @Builder
 @AllArgsConstructor
 @NoArgsConstructor
-public class AuthenticationResponse {
-    private  String token;
-    private  String message;
+public class AuthenticationRequest {
+    private String email;
+    String password;
 }

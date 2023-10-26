@@ -1,16 +1,21 @@
 package com.pollubmsmses.advjava.services;
 
-import com.pollubmsmses.advjava.controllers.*;
+import com.pollubmsmses.advjava.exceptions.InvalidPasswordException;
+import com.pollubmsmses.advjava.exceptions.UserAlreadyExistsException;
+import com.pollubmsmses.advjava.exceptions.UserNotFoundException;
 import com.pollubmsmses.advjava.models.User;
+import com.pollubmsmses.advjava.models.auth.AuthenticationRequest;
+import com.pollubmsmses.advjava.models.auth.AuthenticationResponse;
+import com.pollubmsmses.advjava.models.auth.LoginRequest;
+import com.pollubmsmses.advjava.models.auth.RegisterRequest;
 import com.pollubmsmses.advjava.repositories.UserRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
-import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
-
+import java.util.Optional;
 @Service
 @RequiredArgsConstructor
 public class AuthenticationService {
@@ -19,6 +24,9 @@ public class AuthenticationService {
     private final  JwtService jwtService;
     private final AuthenticationManager authenticationManager;
     public AuthenticationResponse register(RegisterRequest request) {
+        if (userRepository.existsByEmail(request.getEmail())) {
+            throw new UserAlreadyExistsException("User with this email already exists");
+        }
         var user = User.builder()
                 .name(request.getName())
                 .email(request.getEmail())
@@ -28,7 +36,6 @@ public class AuthenticationService {
         userRepository.save(user);
         var jwtToken = jwtService.generateToken(user);
         return AuthenticationResponse.builder()
-                .message("Register successful")
                 .token(jwtToken)
                 .build();
     }
@@ -47,32 +54,23 @@ public class AuthenticationService {
                 .build();
     }
     public AuthenticationResponse login(LoginRequest request) {
+        Optional<User> existingUser = userRepository.findByEmail(request.getEmail());
+        if (existingUser.isEmpty()) {
+            throw new UserNotFoundException("User with this email does not exist");
+        }
+
+
         User user = userRepository.findByEmail(request.getEmail())
                 .orElseThrow();
 
         if (passwordEncoder.matches(request.getPassword(), user.getPassword())) {
             var jwtToken = jwtService.generateToken(user);
             return AuthenticationResponse.builder()
-                    .message("Login successful")
                     .token(jwtToken)
                     .build();
         }
-        return null;
-    }
-
-    public boolean doesUserExistByEmail(String email) {
-        User existingUser = userRepository.findByEmail(email).orElse(null);
-        return existingUser != null;
-    }
-
-    public boolean isPasswordCorrect(String email, String password) {
-        User user = userRepository.findByEmail(email).orElse(null);
-
-        if (user != null) {
-            BCryptPasswordEncoder passwordEncoder = new BCryptPasswordEncoder();
-            return passwordEncoder.matches(password, user.getPassword());
+        else {
+            throw new InvalidPasswordException("Invalid password");
         }
-
-        return false;
     }
 }
