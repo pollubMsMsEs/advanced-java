@@ -37,7 +37,7 @@ public class VaccinationService {
     private final VaccineManufacturerRepository vaccineManufacturerRepository;
     private final CountryService countryService;
 
-    public void importVaccinationCSV() throws Exception{
+    public void importVaccinationsCSV() throws Exception{
 
         if (!countryService.importCountriesCSV()) throw new Exception("Couldn't open countries CSV");
 
@@ -147,6 +147,7 @@ public class VaccinationService {
                     VaccineManufacturer manufacturer = vaccineManufacturerRepository.findFirstByName(manufacturerName);
                     if (manufacturer == null) {
                         manufacturer = VaccineManufacturer.of(manufacturerName);
+                        vaccineManufacturerRepository.save(manufacturer);
                     }
                     manufacturers.put(manufacturerName, manufacturer);
                 }

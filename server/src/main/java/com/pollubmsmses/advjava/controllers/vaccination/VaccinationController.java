@@ -1,5 +1,6 @@
 package com.pollubmsmses.advjava.controllers.vaccination;
 
+import com.pollubmsmses.advjava.services.HeavyImportService;
 import com.pollubmsmses.advjava.services.VaccinationService;
 
 import lombok.RequiredArgsConstructor;
@@ -19,6 +20,7 @@ import org.springframework.web.bind.annotation.RestController;
 @RequiredArgsConstructor
 public class VaccinationController {
     private final VaccinationService vaccinationService;
+    private final HeavyImportService heavyImportService;
 
     @PutMapping("/import/vaccinations")
     public ResponseEntity<Map<String, Object>> LEGACTimportVaccinationsCSV() {
@@ -31,7 +33,7 @@ public class VaccinationController {
         Map<String,Object> body = new HashMap<>();
 
         try {
-            vaccinationService.importVaccinationCSV();
+            heavyImportService.importVaccinationsCSV();
 
             body.put("acknowledged", true);
             response = ResponseEntity.ok(body);

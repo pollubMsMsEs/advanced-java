@@ -17,18 +17,18 @@ import java.time.LocalDate;
 })
 public class Vaccination {
     @Id
-    @GeneratedValue(strategy = GenerationType.AUTO)
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
     private LocalDate day;
     
     private Long total;
 
-    @ManyToOne(cascade = CascadeType.ALL)
-    @JoinColumn(name = "country_id")
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "country_id", nullable = false)
     private Country country;
 
-    @ManyToOne(cascade = CascadeType.ALL)
-    @JoinColumn(name = "vaccine_manufacturer_id")
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "vaccine_manufacturer_id", nullable = false)
     private VaccineManufacturer vaccineManufacturer;
 
     public static Vaccination of(LocalDate day, Long total, Country country, VaccineManufacturer vaccineManufacturer) {

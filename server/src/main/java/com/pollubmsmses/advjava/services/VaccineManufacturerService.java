@@ -28,4 +28,18 @@ public class VaccineManufacturerService {
             return null;
         }
     }
+
+    public VaccineManufacturer getManufacturerAndAddIfMissing(String manufacturerName, Map<String, VaccineManufacturer> manufacturers){
+        if (!manufacturers.containsKey(manufacturerName)) {
+            VaccineManufacturer manufacturer = vaccineManufacturerRepository.findFirstByName(manufacturerName);
+            if (manufacturer == null) {
+                manufacturer = VaccineManufacturer.of(manufacturerName);
+                vaccineManufacturerRepository.saveAndFlush(manufacturer);
+            }
+            manufacturers.put(manufacturerName, manufacturer);
+            return manufacturer;
+        } else {
+            return manufacturers.get(manufacturerName);
+        }
+    }
 }
