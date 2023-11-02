@@ -23,12 +23,12 @@ public class Vaccination {
     
     private Long total;
 
-    @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "country_id", nullable = false)
+    @ManyToOne(cascade = CascadeType.ALL)
+    @JoinColumn(name = "country_id")
     private Country country;
 
-    @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "vaccine_manufacturer_id", nullable = false)
+    @ManyToOne(cascade = CascadeType.ALL)
+    @JoinColumn(name = "vaccine_manufacturer_id")
     private VaccineManufacturer vaccineManufacturer;
 
     public static Vaccination of(LocalDate day, Long total, Country country, VaccineManufacturer vaccineManufacturer) {

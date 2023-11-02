@@ -37,10 +37,70 @@ public class VaccinationService {
     private final VaccineManufacturerRepository vaccineManufacturerRepository;
     private final CountryService countryService;
 
+    public void importVaccinationCSV() throws Exception{
 
-    public ResponseEntity<Map<String, Object>> importVaccinationsCSV() {
+        if (!countryService.importCountriesCSV()) throw new Exception("Couldn't open countries CSV");
+
+        ClassPathResource resource = new ClassPathResource(VACCINATIONS_PATH);
+        BufferedReader br = new BufferedReader(new InputStreamReader(resource.getInputStream()));
+
+        vaccinationRepository.deleteAll();
+        vaccinationRepository.flush();
+
+        String line;
+        Country currentCountry = null;
+        List<Country> countries = new ArrayList<>();
+        Map<String,Boolean> countriesBlackList = new HashMap<>();
+        Map<String, VaccineManufacturer> manufacturers = new HashMap<>();
+
+        while ((line = br.readLine()) != null) {
+            String[] data = line.split(",");
+            if (data[0].equals("location")) {
+                continue;
+            }
+
+            String countryName = data[0];
+            if(countriesBlackList.getOrDefault(countryName,false)) continue;
+
+            if(currentCountry == null || !currentCountry.getName().equals(countryName)) {
+                Country foundCountry = countryRepository.findFirstByName(countryName);
+                if(foundCountry == null){
+                    countriesBlackList.put(countryName,true);
+                    continue;
+                }
+
+                countries.add(foundCountry);
+                currentCountry = foundCountry;
+            }
+
+            VaccineManufacturer manufacturer = getManufacturerAndAddIfMissing(data[2],manufacturers);
+            LocalDate day = LocalDate.parse(data[1]);
+            Long total = Long.parseLong(data[3]);
+
+            Vaccination vaccination = Vaccination.of(day, total, currentCountry, manufacturer);
+            manufacturer.getVaccinations().add(vaccination);
+            currentCountry.getVaccinations().add(vaccination);
+        }
+
+        countryRepository.saveAll(countries);
+    }
+
+    private VaccineManufacturer getManufacturerAndAddIfMissing(String manufacturerName, Map<String, VaccineManufacturer> manufacturers){
+        if (!manufacturers.containsKey(manufacturerName)) {
+            VaccineManufacturer manufacturer = vaccineManufacturerRepository.findFirstByName(manufacturerName);
+            if (manufacturer == null) {
+                manufacturer = VaccineManufacturer.of(manufacturerName);
+            }
+            manufacturers.put(manufacturerName, manufacturer);
+            return manufacturer;
+        } else {
+            return manufacturers.get(manufacturerName);
+        }
+    }
+
+    public ResponseEntity<Map<String, Object>> LEGACYimportVaccinationsCSV() {
         try {
-            Map<String, String> countries = countryService.getCountriesCSV();
+            Map<String, String> countries = countryService.LEGACYgetCountriesCSV();
             if (countries == null) {
                 throw new Exception("Couldn't open countries CSV");
             }
@@ -87,7 +147,6 @@ public class VaccinationService {
                     VaccineManufacturer manufacturer = vaccineManufacturerRepository.findFirstByName(manufacturerName);
                     if (manufacturer == null) {
                         manufacturer = VaccineManufacturer.of(manufacturerName);
-                        vaccineManufacturerRepository.save(manufacturer);
                     }
                     manufacturers.put(manufacturerName, manufacturer);
                 }
@@ -99,15 +158,14 @@ public class VaccinationService {
                 insertData.add(vaccination);
             }
 
-            vaccinationRepository.saveAll(insertData);
-
-            /*final int CHUNK_SIZE = 1000;
+            final int CHUNK_SIZE = 1000;
             int i = 0;
             while (i < insertData.size()) {
                 List<Vaccination> chunk = insertData.subList(i, Math.min(i + CHUNK_SIZE, insertData.size()));
                 vaccinationRepository.saveAll(chunk);
+                vaccinationRepository.flush();
                 i += CHUNK_SIZE;
-            }*/
+            }
 
             br.close();
 
@@ -164,15 +222,15 @@ public class VaccinationService {
         }
 
         LocalDate previousDay = begin_date;
-    currentDay = begin_date.plusDays(1);
-    while (currentDay != null && !currentDay.isAfter(end_date)) {
-        if (resultMap.get(currentDay) < resultMap.get(previousDay)) {
-            resultMap.put(currentDay, resultMap.get(previousDay));
+        currentDay = begin_date.plusDays(1);
+        while (currentDay != null && !currentDay.isAfter(end_date)) {
+            if (resultMap.get(currentDay) < resultMap.get(previousDay)) {
+                resultMap.put(currentDay, resultMap.get(previousDay));
+            }
+            previousDay = currentDay;
+            currentDay = currentDay.plusDays(1);
         }
-        previousDay = currentDay;
-        currentDay = currentDay.plusDays(1);
-    }
 
-        return new VaccinationsResponse(resultMap);
-    }
+            return new VaccinationsResponse(resultMap);
+        }
 }

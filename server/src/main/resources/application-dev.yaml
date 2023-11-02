@@ -11,6 +11,10 @@ spring:
     properties:
       hibernate:
         dialect: org.hibernate.dialect.MySQLDialect
+        jdbc:
+          batch_size: 1000
+        generate_statistics: true
+        order_inserts: true
       # format_sql: true
   autoconfigure:
     exclude:

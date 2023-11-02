@@ -17,11 +17,6 @@ import java.util.Map;
 public class CountryController {
     private final CountryService countryService;
 
-    @GetMapping("country/all")
-    public Map<String, String> getAllFromCSV(){
-        return countryService.getCountriesCSV();
-    }
-
     @GetMapping("countries")
     public ResponseEntity<?> getAll() {
         Map<String, Long> countries = countryService.getAllAsMap();

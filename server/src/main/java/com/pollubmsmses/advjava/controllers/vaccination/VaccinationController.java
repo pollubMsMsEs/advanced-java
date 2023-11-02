@@ -4,6 +4,7 @@ import com.pollubmsmses.advjava.services.VaccinationService;
 
 import lombok.RequiredArgsConstructor;
 
+import java.util.HashMap;
 import java.util.Map;
 
 import org.springframework.http.ResponseEntity;
@@ -20,8 +21,27 @@ public class VaccinationController {
     private final VaccinationService vaccinationService;
 
     @PutMapping("/import/vaccinations")
-    public ResponseEntity<Map<String, Object>> importVaccinationsCSV() {
-        return vaccinationService.importVaccinationsCSV();
+    public ResponseEntity<Map<String, Object>> LEGACTimportVaccinationsCSV() {
+        return vaccinationService.LEGACYimportVaccinationsCSV();
+    }
+
+    @PutMapping("test")
+    public ResponseEntity<Map<String,Object>> importVaccinationsCSV(){
+        ResponseEntity<Map<String,Object>> response;
+        Map<String,Object> body = new HashMap<>();
+
+        try {
+            vaccinationService.importVaccinationCSV();
+
+            body.put("acknowledged", true);
+            response = ResponseEntity.ok(body);
+        } catch (Exception e){
+            body.put("error", true);
+            body.put("msg", e.getMessage());
+            response = ResponseEntity.badRequest().body(body);
+        }
+
+        return response;
     }
     
     @GetMapping("/vaccinations")
