@@ -22,14 +22,14 @@ public class CasesPerDay {
     private Long id;
     private LocalDate day;
 
-    private Long newCases;
-    private Long newDeaths;
+    private Double newCases;
+    private Double newDeaths;
 
-    @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "country_id", nullable = false)
+    @ManyToOne(cascade = CascadeType.ALL)
+    @JoinColumn(name = "country_id")
     private Country country;
 
-    public static CasesPerDay of(Long newCases, Long newDeaths,Country country){
-        return new CasesPerDay(null,LocalDate.now(), newCases,newDeaths,country);
+    public static CasesPerDay of(LocalDate day,Double newCases, Double newDeaths,Country country) {
+        return new CasesPerDay(null, day, newCases, newDeaths, country);
     }
 }
