@@ -2,7 +2,6 @@ package com.pollubmsmses.advjava.services;
 
 import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.ObjectMapper;
-import com.pollubmsmses.advjava.models.CasesPerDay;
 import com.pollubmsmses.advjava.models.Country;
 import com.pollubmsmses.advjava.repositories.CountryRepository;
 import jakarta.annotation.PostConstruct;
@@ -11,10 +10,10 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 
 import java.io.*;
-import java.util.HashMap;
+import java.util.ArrayList;
+import java.util.List;
 import java.util.Map;
 
-import java.util.List;
 import java.util.TreeMap;
 import java.util.stream.Collectors;
 
@@ -42,7 +41,38 @@ public class CountryService {
 
     }
 
-    public Map<String, String> getCountriesCSV() {
+    public boolean importCountriesCSV(){
+        List<Country> countries = new ArrayList<>();
+
+        String line;
+        String csvSplitBy = ",";
+
+        try (
+                InputStream is = CountryService.class.getResourceAsStream(LOCATIONS_PATH);
+                BufferedReader br = new BufferedReader(new InputStreamReader(is))
+        ) {
+            while ((line = br.readLine()) != null) {
+                String[] country = line.split(csvSplitBy);
+                if (
+                        country[1].length() != 3
+                                || country[0].equals("location")
+                                || countryRepository.findFirstByName(country[0]) != null
+                ) {
+                    continue;
+                }
+
+                countries.add(Country.of(country[0],country[1]));
+            }
+        } catch (IOException e) {
+            e.printStackTrace();
+            return false;
+        }
+
+        countryRepository.saveAll(countries);
+        return true;
+    }
+
+    public Map<String, String> LEGACYgetCountriesCSV() {
         Map<String, String> countries = new TreeMap<>();
 
         String line;
@@ -71,7 +101,17 @@ public class CountryService {
     }
     public Map<String, Long> getAllAsMap(){
         try {
-            return countryRepository.findAll().stream().collect(Collectors.toMap(Country::getName,Country::getId,(oldValue,newValue) -> oldValue,TreeMap::new));
+            return countryRepository
+                    .findAll()
+                    .stream()
+                    .collect(
+                            Collectors.toMap(
+                                    Country::getName,
+                                    Country::getId,
+                                    (oldValue,newValue) -> oldValue,
+                                    TreeMap::new
+                            )
+                    );
         } catch (Exception e) {
             return null;
         }

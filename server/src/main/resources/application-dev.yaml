@@ -5,12 +5,15 @@ spring:
     password: radio
     driver-class-name: com.mysql.cj.jdbc.Driver
   jpa:
-    show-sql: true
+    show-sql: false
     hibernate:
       ddl-auto: create
     properties:
       hibernate:
         dialect: org.hibernate.dialect.MySQLDialect
+        jdbc:
+          batch_size: 1000
+        order_inserts: true
       # format_sql: true
   autoconfigure:
     exclude:
