@@ -18,15 +18,15 @@ import java.time.LocalDate;
 public class CasesPerDay {
 
     @Id
-    @GeneratedValue(strategy = GenerationType.AUTO)
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
     private LocalDate day;
 
     private Double newCases;
     private Double newDeaths;
 
-    @ManyToOne(cascade = CascadeType.ALL)
-    @JoinColumn(name = "country_id")
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "country_id", nullable = false)
     private Country country;
 
     public static CasesPerDay of(LocalDate day,Double newCases, Double newDeaths,Country country) {
