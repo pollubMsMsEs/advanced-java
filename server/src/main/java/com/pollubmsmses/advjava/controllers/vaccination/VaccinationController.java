@@ -23,11 +23,6 @@ public class VaccinationController {
     private final HeavyImportService heavyImportService;
 
     @PutMapping("/import/vaccinations")
-    public ResponseEntity<Map<String, Object>> LEGACTimportVaccinationsCSV() {
-        return vaccinationService.LEGACYimportVaccinationsCSV();
-    }
-
-    @PutMapping("test")
     public ResponseEntity<Map<String,Object>> importVaccinationsCSV(){
         ResponseEntity<Map<String,Object>> response;
         Map<String,Object> body = new HashMap<>();

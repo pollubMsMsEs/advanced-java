@@ -34,9 +34,7 @@ public class HeavyImportService {
     private final String VACCINATIONS_PATH = "importData/vaccinations-by-manufacturer.csv";
     private final String VACCINATIONS_TABLE = "vaccination";
 
-    private final VaccinationRepository vaccinationRepository;
     private final CountryRepository countryRepository;
-    private final VaccineManufacturerRepository vaccineManufacturerRepository;
     private final CountryService countryService;
     private final VaccineManufacturerService vaccineManufacturerService;
     private final JdbcTemplate jdbcTemplate;
@@ -61,7 +59,6 @@ public class HeavyImportService {
         br.readLine();
         int rows = 0;
         while ((line = br.readLine()) != null) {
-            //if(rows >= 5000) break;
             String[] data = line.split(",");
 
             String countryName = data[0];
@@ -97,6 +94,6 @@ public class HeavyImportService {
                     ps.setLong(4,vaccination.getVaccineManufacturer().getId());
                 });
 
-        log.info("Inserted: " + rows);
+        log.info("Inserted: " + rows + " vaccinations");
     }
 }
