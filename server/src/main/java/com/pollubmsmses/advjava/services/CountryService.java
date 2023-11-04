@@ -8,6 +8,10 @@ import jakarta.annotation.PostConstruct;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
+import org.springframework.web.client.RestTemplate;
+import org.w3c.dom.Node;
+import org.w3c.dom.NodeList;
+import org.xml.sax.InputSource;
 
 import java.io.*;
 import java.util.ArrayList;
@@ -16,6 +20,13 @@ import java.util.Map;
 
 import java.util.TreeMap;
 import java.util.stream.Collectors;
+
+import javax.xml.parsers.DocumentBuilder;
+import javax.xml.parsers.DocumentBuilderFactory;
+import org.springframework.http.HttpEntity;
+import org.springframework.http.HttpHeaders;
+import org.springframework.http.MediaType;
+import org.springframework.http.ResponseEntity;
 
 @RequiredArgsConstructor
 @Service
@@ -114,6 +125,54 @@ public class CountryService {
                     );
         } catch (Exception e) {
             return null;
+        }
+    }
+
+    public String getCountryFlag(Long countryId) throws Exception {
+        Country country = countryRepository.getCountryById(countryId);
+        String countryCode = country.getAlpha3code();
+        String code2 = code3to2.get(countryCode);
+
+        String body = createSoapRequest(code2);
+        
+        HttpHeaders headers = new HttpHeaders();
+        headers.setContentType(MediaType.TEXT_XML);
+
+        HttpEntity<String> request = new HttpEntity<>(body, headers);
+
+        String url = "http://webservices.oorsprong.org/websamples.countryinfo/CountryInfoService.wso";
+        
+        RestTemplate restTemplate = new RestTemplate();
+        
+        ResponseEntity<String> response = restTemplate.postForEntity(url, request, String.class);
+        
+        return extractFlagUrlFromResponse(response.getBody());
+    }
+
+    private String createSoapRequest(String code2) {
+        return "<?xml version='1.0' encoding='utf-8'?>" +
+                "<soap:Envelope xmlns:soap='http://schemas.xmlsoap.org/soap/envelope/'>" +
+                "<soap:Body>" +
+                "<CountryFlag xmlns='http://www.oorsprong.org/websamples.countryinfo'>" +
+                "<sCountryISOCode>" + code2 + "</sCountryISOCode>" +
+                "</CountryFlag>" +
+                "</soap:Body>" +
+                "</soap:Envelope>";
+    }
+
+    private String extractFlagUrlFromResponse(String response) throws Exception {
+        DocumentBuilderFactory factory = DocumentBuilderFactory.newInstance();
+        DocumentBuilder builder = factory.newDocumentBuilder();
+        org.w3c.dom.Document document = builder.parse(new InputSource(new StringReader(response)));
+
+        document.getDocumentElement().normalize();
+
+        NodeList nodeList = document.getElementsByTagName("m:CountryFlagResult");
+        if (nodeList.getLength() > 0) {
+            Node node = nodeList.item(0);
+            return node.getTextContent();
+        } else {
+            throw new Exception("Cannot find the CountryFlagResult in the SOAP response.");
         }
     }
 }
