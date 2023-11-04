@@ -10,23 +10,16 @@ import com.pollubmsmses.advjava.repositories.VaccineManufacturerRepository;
 import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.beans.factory.annotation.Value;
 import org.springframework.core.io.ClassPathResource;
 import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.stereotype.Service;
 
 import java.io.BufferedReader;
-import java.io.FileReader;
 import java.io.InputStreamReader;
-import java.sql.Connection;
 import java.sql.Date;
-import java.sql.DriverManager;
 import java.sql.PreparedStatement;
 import java.time.LocalDate;
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 
 @RequiredArgsConstructor
 @Service
@@ -64,20 +57,14 @@ public class HeavyImportService {
         br.readLine();
         int rows = 0;
         while ((line = br.readLine()) != null) {
-            //if(rows >= 5000) break;
             String[] data = line.split(",");
 
             String countryName = data[0];
-            if(countriesBlackList.getOrDefault(countryName,false)) continue;
-
-            if(currentCountry == null || !currentCountry.getName().equals(countryName)) {
-                Country foundCountry = countryRepository.findFirstByName(countryName);
-                if(foundCountry == null){
-                    countriesBlackList.put(countryName,true);
-                    continue;
-                }
-
-                currentCountry = foundCountry;
+            Optional<Country> result = getCurrentCountry(countriesBlackList,countryName,currentCountry);
+            if(result.isPresent()){
+                currentCountry = result.get();
+            } else {
+                continue;
             }
 
             VaccineManufacturer manufacturer = vaccineManufacturerService.getManufacturerAndAddIfMissing(data[2],manufacturers);
@@ -123,20 +110,14 @@ public class HeavyImportService {
         br.readLine();
         int rows = 0;
         while ((line = br.readLine()) != null) {
-            //if(rows >= 5000) break;
             String[] data = line.split(",");
 
             String countryName = data[1];
-            if(countriesBlackList.getOrDefault(countryName,false)) continue;
-
-            if(currentCountry == null || !currentCountry.getName().equals(countryName)) {
-                Country foundCountry = countryRepository.findFirstByName(countryName);
-                if(foundCountry == null){
-                    countriesBlackList.put(countryName,true);
-                    continue;
-                }
-
-                currentCountry = foundCountry;
+            Optional<Country> result = getCurrentCountry(countriesBlackList,countryName,currentCountry);
+            if(result.isPresent()){
+                currentCountry = result.get();
+            } else {
+                continue;
             }
 
             LocalDate day = LocalDate.parse(data[0]);
@@ -157,5 +138,21 @@ public class HeavyImportService {
                 });
 
         log.info("Inserted: " + rows);
+    }
+
+    private Optional<Country> getCurrentCountry(Map<String,Boolean> countriesBlackList, String countryName, Country previousCountry){
+        if(countriesBlackList.getOrDefault(countryName,false)) return Optional.empty();
+
+        if(previousCountry == null || !previousCountry.getName().equals(countryName)) {
+            Country foundCountry = countryRepository.findFirstByName(countryName);
+            if(foundCountry == null){
+                countriesBlackList.put(countryName,true);
+                return Optional.empty();
+            }
+
+            return Optional.of(foundCountry);
+        }
+
+        return Optional.of(previousCountry);
     }
 }

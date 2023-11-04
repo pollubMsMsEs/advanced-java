@@ -1,5 +1,6 @@
 package com.pollubmsmses.advjava.controllers.vaccination;
 
+import com.pollubmsmses.advjava.controllers.responses.ErrorResponse;
 import com.pollubmsmses.advjava.services.HeavyImportService;
 import com.pollubmsmses.advjava.services.VaccinationService;
 

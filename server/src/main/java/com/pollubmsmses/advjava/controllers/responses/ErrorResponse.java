@@ -1,4 +1,4 @@
-package com.pollubmsmses.advjava.controllers.vaccination;
+package com.pollubmsmses.advjava.controllers.responses;
 
 import lombok.AllArgsConstructor;
 import lombok.Builder;

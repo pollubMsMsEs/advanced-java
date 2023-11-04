@@ -1,6 +1,6 @@
 package com.pollubmsmses.advjava.controllers.casesPerDay;
 
-import com.pollubmsmses.advjava.controllers.vaccination.ErrorResponse;
+import com.pollubmsmses.advjava.controllers.responses.ErrorResponse;
 import com.pollubmsmses.advjava.services.CasesPerDayService;
 import com.pollubmsmses.advjava.services.HeavyImportService;
 import lombok.RequiredArgsConstructor;
