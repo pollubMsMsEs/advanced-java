@@ -18,7 +18,7 @@ import java.time.LocalDate;
 public class CasesPerDay {
 
     @Id
-    @GeneratedValue(strategy = GenerationType.AUTO)
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
     private LocalDate day;
 
@@ -29,7 +29,7 @@ public class CasesPerDay {
     @JoinColumn(name = "country_id", nullable = false)
     private Country country;
 
-    public static CasesPerDay of(Long newCases, Long newDeaths,Country country){
-        return new CasesPerDay(null,LocalDate.now(), newCases,newDeaths,country);
+    public static CasesPerDay of(LocalDate day,Long newCases, Long newDeaths,Country country) {
+        return new CasesPerDay(null, day, newCases, newDeaths, country);
     }
 }

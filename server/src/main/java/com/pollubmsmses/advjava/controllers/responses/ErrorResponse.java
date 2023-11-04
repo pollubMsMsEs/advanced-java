@@ -1,4 +1,4 @@
-package com.pollubmsmses.advjava.controllers.vaccination;
+package com.pollubmsmses.advjava.controllers.responses;
 
 import lombok.AllArgsConstructor;
 import lombok.Builder;
@@ -9,7 +9,7 @@ import lombok.NoArgsConstructor;
 @Builder
 @AllArgsConstructor
 @NoArgsConstructor
-public class VaccinationsErrorResponse {
+public class ErrorResponse {
     private Boolean error;
     private String msg;
 }
