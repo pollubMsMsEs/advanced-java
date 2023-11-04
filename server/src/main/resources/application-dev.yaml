@@ -5,12 +5,15 @@ spring:
     password: radio
     driver-class-name: com.mysql.cj.jdbc.Driver
   jpa:
-    show-sql: true
+    show-sql: false
     hibernate:
       ddl-auto: none
     properties:
       hibernate:
         dialect: org.hibernate.dialect.MySQLDialect
+        jdbc:
+          batch_size: 1000
+        order_inserts: true
       # format_sql: true
   autoconfigure:
     exclude:
@@ -24,4 +27,8 @@ logging:
   level:
     org.zalando.logbook: TRACE
     com.pseudoorganization.pseudosystemsintegration: TRACE
-jwt.secretKey: "sN9M/k8wu4t/Eahhy1kNy7InYn1WuCKMULusWiT3NQU="
+jwt:
+  secretKey: "sN9M/k8wu4t/Eahhy1kNy7InYn1WuCKMULusWiT3NQU="
+server:
+  port: 8080
+

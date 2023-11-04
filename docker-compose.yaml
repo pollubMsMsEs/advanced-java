@@ -4,7 +4,13 @@ services:
         image: "mysql:latest"
         volumes:
             - data:/var/lib/mysql
-        command: --default-authentication-plugin=mysql_native_password
+            - ./init.sql:/docker-entrypoint-initdb.d/init.sql
+        command:
+            [
+                --default-authentication-plugin=mysql_native_password,
+                "--init-file",
+                "/docker-entrypoint-initdb.d/init.sql",
+            ]
         restart: always
         environment:
             - MYSQL_ALLOW_EMPTY_PASSWORD=true
@@ -19,14 +25,13 @@ services:
         volumes: # volumes used during development
             - ./server/app:/var/www/html/app
             - ./server/routes:/var/www/html/routes
+        environment:
+            - JAVA_TOOL_OPTIONS=-agentlib:jdwp=transport=dt_socket,server=y,suspend=n,address=*:5005
         ports:
             - "80:80"
-        environment:
-            - APP_ENV=local
-            - APP_DEBUG=true
+            - "5005:5005"
         networks:
             - backend
-        command: sh -c "php artisan migrate --force && apache2-foreground"
         depends_on:
             db:
                 condition: service_healthy

@@ -20,10 +20,10 @@ public class Country {
     @Column(length = 3, unique = true)
     private String alpha3code;
 
-    @OneToMany(fetch = FetchType.LAZY,cascade = CascadeType.ALL,mappedBy = "country")
+    @OneToMany(fetch = FetchType.LAZY,cascade = CascadeType.ALL)
     private List<CasesPerDay> casesPerDays = new ArrayList<>();
 
-    @OneToMany(fetch = FetchType.LAZY,cascade = CascadeType.ALL,mappedBy = "country")
+    @OneToMany(fetch = FetchType.LAZY,cascade = CascadeType.ALL)
     private List<Vaccination> vaccinations = new ArrayList<>();
 
     public static Country of(String name, String alpha3code){
