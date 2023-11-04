@@ -9,7 +9,7 @@ import lombok.NoArgsConstructor;
 @Builder
 @AllArgsConstructor
 @NoArgsConstructor
-public class VaccinationsErrorResponse {
+public class ErrorResponse {
     private Boolean error;
     private String msg;
 }

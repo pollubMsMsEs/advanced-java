@@ -140,8 +140,8 @@ public class HeavyImportService {
             }
 
             LocalDate day = LocalDate.parse(data[0]);
-            Double newCases = data[2].isEmpty() ?  0.0 : Double.parseDouble(data[2]);
-            Double newDeaths = data[3].isEmpty() ? 0.0 : Double.parseDouble(data[3]);
+            Long newCases = data[2].isEmpty() ?  0L : Math.round(Double.parseDouble(data[2]));
+            Long newDeaths = data[3].isEmpty() ? 0L : Math.round(Double.parseDouble(data[3]));
 
             rows++;
             casesPerDays.add( CasesPerDay.of(day,newCases,newDeaths,currentCountry));

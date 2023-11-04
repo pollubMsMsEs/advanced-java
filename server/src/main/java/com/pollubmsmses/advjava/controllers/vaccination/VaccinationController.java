@@ -60,11 +60,11 @@ public ResponseEntity<?> getVaccinations(@RequestBody VaccinationRequest request
         if (response != null) {
             return ResponseEntity.ok(response.getData());
         } else {
-            VaccinationsErrorResponse error = new VaccinationsErrorResponse(true, "Couldn't get vaccinations data");
+            ErrorResponse error = new ErrorResponse(true, "Couldn't get vaccinations data");
             return ResponseEntity.internalServerError().body(error);
         }
     } catch (Exception e) {
-        VaccinationsErrorResponse error = new VaccinationsErrorResponse(true, "An unexpected error occurred: " + e.getMessage());
+        ErrorResponse error = new ErrorResponse(true, "An unexpected error occurred: " + e.getMessage());
         return ResponseEntity.internalServerError().body(error);
     }
 }
