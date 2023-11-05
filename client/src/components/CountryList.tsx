@@ -26,10 +26,12 @@ export default function CountryList({
         async function getCountriesList() {
             try {
                 const countriesResponse = await axiosClient.get("/countries");
+                console.log(countriesResponse);
                 const countriesObj: { [name: string]: number } =
                     countriesResponse.data.data;
 
-                const countries: CountryData[] = [];
+                const countries: CountryData[] | undefined = [];
+
                 for (const [name, id] of Object.entries(countriesObj)) {
                     countries.push({ id: id, name });
 
@@ -38,6 +40,8 @@ export default function CountryList({
                         handleSelectedCountries([id]);
                     }
                 }
+
+                if (countries?.length === 0) throw Error("Empty countries");
                 setCountryList(countries);
             } catch (error) {
                 console.error(error);

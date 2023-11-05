@@ -79,6 +79,9 @@ export default function ChartContainer({
 
         const handleGenerateData = async () => {
             try {
+                if (!query?.countries || query.countries.length === 0)
+                    throw Error("Empty countries");
+
                 const { vaccinations, newCases, deaths } = selectedOptions;
 
                 const datasets: any[] = [];
