@@ -7,7 +7,9 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
+import java.time.LocalDate;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 
 @RestController
@@ -36,13 +38,13 @@ public class CasesPerDayController {
     }
 
     @GetMapping("/cases")
-    public ResponseEntity<?> getCases(@RequestBody CasesRequest request) {
+    public ResponseEntity<?> getCases(@RequestParam() LocalDate begin_date, @RequestParam() LocalDate end_date, @RequestParam() List<Long> countries) {
 
         try {
             CasesResponse response = casesPerDayService.getCases(
-                    request.getBegin_date(),
-                    request.getEnd_date(),
-                    request.getCountries()
+                    begin_date,
+                    end_date,
+                    countries
             );
 
             if (response != null) {
@@ -57,13 +59,13 @@ public class CasesPerDayController {
         }
     }
     @GetMapping("/deaths")
-    public ResponseEntity<?> getDeaths(@RequestBody CasesRequest request) {
+    public ResponseEntity<?> getDeaths(@RequestParam() LocalDate begin_date, @RequestParam() LocalDate end_date, @RequestParam() List<Long> countries) {
 
         try {
             CasesResponse response = casesPerDayService.getDeaths(
-                    request.getBegin_date(),
-                    request.getEnd_date(),
-                    request.getCountries()
+                    begin_date,
+                    end_date,
+                    countries
             );
 
             if (response != null) {
