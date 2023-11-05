@@ -118,7 +118,7 @@ function App() {
                     }}
                 >
                     <Logo />
-                    {context.user?.role && context.user.role === "admin" && (
+                    {context.user?.role && context.user.role === "ADMIN" && (
                         <div
                             style={{
                                 position: "relative",
@@ -162,7 +162,7 @@ function App() {
                                 justifySelf: "end",
                             }}
                             onClick={async () => {
-                                await axiosClient.post("/logout");
+                                //await axiosClient.post("/logout");
                                 context.setToken(null);
                                 context.setUser({});
                             }}

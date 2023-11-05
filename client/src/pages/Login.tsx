@@ -9,7 +9,7 @@ export default function Login() {
         password: "",
     });
 
-    const [errors, setErrors] = useState<{ [key: string]: string[] }>({});
+    const [errors, setErrors] = useState<{ [key: string]: string }>({});
 
     useEffect(() => {
         document.title = "Login | Covid Visualizer";
@@ -21,20 +21,18 @@ export default function Login() {
         try {
             const result = await axiosClient.post("/login", user);
             console.log(result);
+
             const returnedUser = {
-                name: result.data.user.name,
-                email: result.data.user.email,
-                role: result.data.user.role,
+                name: result.data.name,
+                email: result.data.email,
+                role: result.data.role,
             };
 
-            context.setToken(result.data.authorisation.token);
+            context.setToken(result.data.token);
             context.setUser(returnedUser);
         } catch (error: any) {
-            if (error.response.status === 422) {
-                setErrors(error.response.data.errors);
-            } else if (error.response.status === 401) {
-                setErrors({ login: ["Bad credentials"] });
-            }
+            setErrors(error.response.data);
+
             console.error(error.response);
         }
     }
@@ -94,11 +92,9 @@ export default function Login() {
                             color: "#e63946",
                         }}
                     >
-                        {Object.entries(errors).map(([field, values]: any) =>
-                            values.map((v: any) => (
-                                <div key={`${field}${v}`}>{v}</div>
-                            ))
-                        )}
+                        {Object.entries(errors).map(([field, value]) => (
+                            <div key={`${field}${value}`}>{value}</div>
+                        ))}
                     </div>
                     <input
                         type="email"
