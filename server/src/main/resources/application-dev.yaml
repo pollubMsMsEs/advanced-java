@@ -25,10 +25,11 @@ management:
       enabled: false
 logging:
   level:
+    org.springframework.web: DEBUG
+    org.springframework.http: DEBUG
     org.zalando.logbook: TRACE
     com.pseudoorganization.pseudosystemsintegration: TRACE
 jwt:
   secretKey: "sN9M/k8wu4t/Eahhy1kNy7InYn1WuCKMULusWiT3NQU="
 server:
-  port: 8080
-
+  port: 8081

@@ -2,9 +2,11 @@ import { useState } from "react";
 import { AuthenticationContext } from "../StateContext.js";
 
 export function AuthenticationContextProvider({ children }: any) {
-    const [user, _setUser] = useState(
-        JSON.parse(localStorage.getItem("USER") ?? "{}")
-    );
+    const [user, _setUser] = useState<{
+        name: string;
+        email: string;
+        role: "ADMIN" | "USER";
+    }>(JSON.parse(localStorage.getItem("USER") ?? "{}"));
     const [token, _setToken] = useState(localStorage.getItem("JWT_TOKEN"));
 
     const setToken = (token: string | null) => {
@@ -16,7 +18,11 @@ export function AuthenticationContextProvider({ children }: any) {
         }
     };
 
-    const setUser = (user: { name: string; email: string; role: string }) => {
+    const setUser = (user: {
+        name: string;
+        email: string;
+        role: "ADMIN" | "USER";
+    }) => {
         _setUser(user);
         localStorage.setItem("USER", JSON.stringify(user));
     };

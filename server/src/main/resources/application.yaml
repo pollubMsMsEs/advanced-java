@@ -7,7 +7,7 @@ spring:
     jpa:
         show-sql: true
         hibernate:
-            ddl-auto: create
+            ddl-auto: validate
         properties:
             hibernate:
                 dialect: org.hibernate.dialect.MySQLDialect
@@ -22,8 +22,10 @@ management:
     health:
         mongo:
             enabled: false
+jwt:
+    secretKey: "sN9M/k8wu4t/Eahhy1kNy7InYn1WuCKMULusWiT3NQU="
 server:
-    port: 80
+    port: 8081
 #logging:
 #    level:
 #        org.zalando.logbook: TRACE

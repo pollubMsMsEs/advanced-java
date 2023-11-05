@@ -1,7 +1,7 @@
 import axios from "axios";
 
 const axiosClient = axios.create({
-    baseURL: `http://localhost:80/api`,
+    baseURL: `http://localhost:8081/api`,
 });
 
 axiosClient.interceptors.request.use((config) => {
@@ -17,7 +17,7 @@ axiosClient.interceptors.response.use(
     (error) => {
         const { response, request } = error;
         if (
-            response.status === 401 &&
+            response.status === 403 &&
             !request.responseURL.includes("login") &&
             !request.responseURL.includes("register")
         ) {

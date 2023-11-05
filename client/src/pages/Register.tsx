@@ -5,16 +5,21 @@ import { useAuthenticationContext } from "../StateContext.js";
 import Logo from "../components/Logo";
 
 export function Register() {
-    const [user, setUser] = useState({
+    const [user, setUser] = useState<{
+        name: string;
+        email: string;
+        password: string;
+        role: "ADMIN" | "USER";
+    }>({
         name: "",
         email: "",
         password: "",
-        role: "user", //DEVTEMP, dodaj checkbox
+        role: "USER",
     });
 
     const context = useAuthenticationContext();
 
-    const [errors, setErrors] = useState<{ [key: string]: string[] }>({});
+    const [errors, setErrors] = useState<{ [key: string]: string }>({});
 
     useEffect(() => {
         document.title = "Register | Covid Visualizer";
@@ -24,19 +29,16 @@ export function Register() {
         try {
             const result = await axiosClient.post("/register", user);
             const returnedUser = {
-                name: result.data.user.name,
-                email: result.data.user.email,
-                role: result.data.user.role,
+                name: result.data.name,
+                email: result.data.email,
+                role: result.data.role,
             };
 
-            context.setToken(result.data.authorisation.token);
+            context.setToken(result.data.token);
             context.setUser(returnedUser);
         } catch (error: any) {
-            if (error.response.status === 422) {
-                setErrors(error.response.data.errors);
-            } else if (error.response.status === 401) {
-                setErrors({ login: ["Bad credentials"] });
-            }
+            setErrors(error.response.data);
+
             console.error(error.response);
         }
     }
@@ -96,11 +98,9 @@ export function Register() {
                             color: "#e63946",
                         }}
                     >
-                        {Object.entries(errors).map(([field, values]: any) =>
-                            values.map((v: any) => (
-                                <div key={`${field}${v}`}>{v}</div>
-                            ))
-                        )}
+                        {Object.entries(errors).map(([field, value]) => (
+                            <div key={`${field}${value}`}>{value}</div>
+                        ))}
                     </div>
                     <input
                         type="text"
@@ -146,12 +146,12 @@ export function Register() {
                             type="checkbox"
                             name="role"
                             id="role"
-                            checked={user.role === "admin"}
+                            checked={user.role === "ADMIN"}
                             onChange={(e) => {
                                 const { checked } = e.target;
                                 setUser({
                                     ...user,
-                                    role: checked ? "admin" : "user",
+                                    role: checked ? "ADMIN" : "USER",
                                 });
                             }}
                         />

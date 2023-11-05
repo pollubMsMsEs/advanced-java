@@ -6,15 +6,14 @@ import com.pollubmsmses.advjava.services.VaccinationService;
 
 import lombok.RequiredArgsConstructor;
 
+import java.time.LocalDate;
+import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 
 import org.springframework.http.ResponseEntity;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.PutMapping;
-import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 
 @RestController
 @RequestMapping("/api")
@@ -43,14 +42,14 @@ public class VaccinationController {
     }
     
     @GetMapping("/vaccinations")
-public ResponseEntity<?> getVaccinations(@RequestBody VaccinationRequest request) {
+public ResponseEntity<?> getVaccinations(@RequestParam() LocalDate begin_date, @RequestParam() LocalDate end_date, @RequestParam() List<Long> countries) {
     
     try {
         VaccinationsResponse response = vaccinationService.getVaccinations(
-            request.getBegin_date(), 
-            request.getEnd_date(), 
-            request.getCountries(), 
-            request.getManufacturers()
+            begin_date,
+            end_date,
+            countries,
+            new ArrayList<>()
         );
         
         if (response != null) {

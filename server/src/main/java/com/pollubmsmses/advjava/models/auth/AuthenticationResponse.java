@@ -12,5 +12,8 @@ import java.util.Map;
 @AllArgsConstructor
 @NoArgsConstructor
 public class AuthenticationResponse {
+    private String name;
     private String token;
+    private String email;
+    private String role;
 }

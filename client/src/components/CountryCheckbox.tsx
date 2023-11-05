@@ -17,7 +17,7 @@ export default function CountryCheckbox({
     async function getFlag() {
         try {
             const response = await axiosClient.get(
-                `http://localhost:80/api/country/flag/${country.id}`
+                `/country/flag/${country.id}`
             );
             return response.data.data;
         } catch (e: any) {

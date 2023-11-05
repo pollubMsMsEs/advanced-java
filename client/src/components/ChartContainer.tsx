@@ -88,16 +88,19 @@ export default function ChartContainer({
                         deaths
                             ? axiosClient.get("/deaths", {
                                   params: query,
+                                  paramsSerializer: { indexes: null },
                               })
                             : undefined,
                         newCases
                             ? axiosClient.get("/cases", {
                                   params: query,
+                                  paramsSerializer: { indexes: null },
                               })
                             : undefined,
                         vaccinations
                             ? axiosClient.get("/vaccinations", {
                                   params: query,
+                                  paramsSerializer: { indexes: null },
                               })
                             : undefined,
                     ]);
