@@ -83,33 +83,6 @@ public class CountryService {
         return true;
     }
 
-    public Map<String, String> LEGACYgetCountriesCSV() {
-        Map<String, String> countries = new TreeMap<>();
-
-        String line;
-        String csvSplitBy = ",";
-
-        try (InputStream is = CountryService.class.getResourceAsStream(LOCATIONS_PATH);
-
-                BufferedReader br = new BufferedReader(new InputStreamReader(is))) {
-            while ((line = br.readLine()) != null) {
-                String[] country = line.split(csvSplitBy);
-                if (country[1].length() != 3) {
-                    continue;
-                }
-                countries.put(country[0], country[1]);
-            }
-        } catch (IOException e) {
-            e.printStackTrace();
-            countries = null;
-        }
-
-        if (countries != null) {
-            countries.remove("location");
-        }
-
-        return countries;
-    }
     public Map<String, Long> getAllAsMap(){
         try {
             return countryRepository

@@ -25,7 +25,9 @@ import java.util.*;
 
 @Service
 public class JsonService {
-    private final String EXPORTED_PATH = "server/src/main/resources/exported/data.json";
+    private final String EXPORTED_PATH = "exported/data.json";
+
+    private final String CASESPERDAY_TABLE = "cases_per_day";
     private final CasesPerDayRepository casesPerDayRepository;
     private final VaccinationRepository vaccinationRepository;
     private final CountryRepository countryRepository;
@@ -46,8 +48,7 @@ public class JsonService {
         .registerModule(new JavaTimeModule())
         .disable(SerializationFeature.WRITE_DATES_AS_TIMESTAMPS);
 
-    public Path exportData() {
-        Path path = Paths.get(EXPORTED_PATH).toAbsolutePath();
+    public String exportData() {
 
         Map<String, List<Map<String, Object>>> data = new HashMap<>();
         data.put("cases", new ArrayList<>());
@@ -74,15 +75,11 @@ public class JsonService {
         });
 
         try {
-            Files.deleteIfExists(path);
-            String jsonData = objectMapper.writeValueAsString(data);
-            Files.writeString(path, jsonData, StandardOpenOption.CREATE, StandardOpenOption.WRITE);
+            return objectMapper.writeValueAsString(data);
         } catch (IOException e) {
             e.printStackTrace();
             throw new RuntimeException("Failed to write data to file", e);
         }
-
-        return path;
     }
 
     @Transactional
@@ -91,27 +88,15 @@ public class JsonService {
         ObjectMapper objectMapper = new ObjectMapper();
         Map<String, List<Map<String, Object>>> content = objectMapper.readValue(jsonData, new TypeReference<>() {});
 
-        Map<String, String> countryMap = countryService.LEGACYgetCountriesCSV();
-        if (countryMap == null) {
-            throw new RuntimeException("Failed to retrieve countries.");
-        }
+        countryService.importCountriesCSV();
 
         casesPerDayRepository.deleteAllInBatch();
 
         List<Map<String, Object>> cases = content.get("cases");
         for (Map<String, Object> caseData : cases) {
             String countryName = (String) caseData.get("country");
-
-            String alphaCode = countryMap.get(countryName);
-            if (alphaCode == null) {
-                continue;
-            }
             
-            Country country = countryRepository.findByName(countryName)
-            .orElseGet(() -> {
-                Country newCountry = Country.of(countryName, alphaCode);
-                return countryRepository.save(newCountry);
-            });
+            Country country = countryRepository.findByName(countryName).orElseThrow();
 
             CasesPerDay newCase = CasesPerDay.of(
                 LocalDate.parse((String) caseData.get("day")),

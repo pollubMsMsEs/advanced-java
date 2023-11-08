@@ -1,8 +1,8 @@
 package com.pollubmsmses.advjava.controllers.json;
 
+import org.springframework.core.io.ByteArrayResource;
 import org.springframework.core.io.FileSystemResource;
-import org.springframework.http.HttpStatus;
-import org.springframework.http.ResponseEntity;
+import org.springframework.http.*;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
 
@@ -12,6 +12,7 @@ import lombok.RequiredArgsConstructor;
 
 import org.springframework.core.io.Resource;
 
+import java.io.ByteArrayInputStream;
 import java.io.IOException;
 import java.nio.charset.StandardCharsets;
 import java.nio.file.Path;
@@ -26,11 +27,19 @@ public class JsonController {
     
     @GetMapping("/export/json")
     public ResponseEntity<Resource> exportData() throws IOException {
-        Path file = jsonService.exportData();
-        Resource fileResource = new FileSystemResource(file.toFile());
+        String file = jsonService.exportData();
+        ByteArrayInputStream inputStream = new ByteArrayInputStream(file.getBytes(StandardCharsets.UTF_8));
+
         return ResponseEntity.ok()
-                .header("Content-Disposition", "attachment; filename=data.json")
-                .body(fileResource);
+                .contentType(MediaType.APPLICATION_OCTET_STREAM)
+                .contentLength(inputStream.available())
+                .header(HttpHeaders.CONTENT_DISPOSITION,
+                        ContentDisposition.attachment()
+                                .filename("data.json")
+                                .build()
+                                .toString())
+                .body(new ByteArrayResource(inputStream.readAllBytes()));
+
     }
 
     @PostMapping("/import/json")
