@@ -89,6 +89,14 @@ public class CountryService {
         return true;
     }
 
+    public Country getCountryByNameOrCreateCustom(String countryName, String alpha3code){
+        return countryRepository.findByName(countryName).orElseGet(() -> {
+            Country customCountry = Country.of(countryName,alpha3code);
+            countryRepository.saveAndFlush(customCountry);
+            return customCountry;
+        });
+    }
+
     public Map<String, Long> getAllAsMap(){
         try {
             return countryRepository

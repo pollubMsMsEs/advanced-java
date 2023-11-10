@@ -1,5 +1,9 @@
 package com.pollubmsmses.advjava.services;
 
+import com.pollubmsmses.advjava.models.Vaccination;
+import com.pollubmsmses.advjava.models.VaccineManufacturer;
+import com.pollubmsmses.advjava.repositories.VaccineManufacturerRepository;
+import lombok.AllArgsConstructor;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.stereotype.Service;
@@ -20,25 +24,16 @@ import java.time.LocalDate;
 import java.util.*;
 
 @Service
+@AllArgsConstructor
 public class JsonService {
     private final String EXPORTED_PATH = "exported/data.json";
 
     private final String CASESPERDAY_TABLE = "cases_per_day";
     private final CasesPerDayRepository casesPerDayRepository;
+    private final VaccineManufacturerRepository vaccineManufacturerRepository;
     private final VaccinationRepository vaccinationRepository;
     private final CountryRepository countryRepository;
     private final CountryService countryService;
-
-    @Autowired
-    public JsonService(CasesPerDayRepository casesPerDayRepository,
-                         VaccinationRepository vaccinationRepository,
-                         CountryRepository countryRepository,
-                         CountryService countryService) {
-        this.casesPerDayRepository = casesPerDayRepository;
-        this.vaccinationRepository = vaccinationRepository;
-        this.countryRepository = countryRepository;
-        this.countryService = countryService;
-    }
     
     private final ObjectMapper objectMapper = new ObjectMapper()
         .registerModule(new JavaTimeModule())
@@ -81,29 +76,52 @@ public class JsonService {
     @Transactional
     public void importData(String jsonData) throws IOException {
         List<CasesPerDay> casesToSave = new ArrayList<>();
+        List<Vaccination> vaccinationsToSave = new ArrayList<>();
         ObjectMapper objectMapper = new ObjectMapper();
         Map<String, List<Map<String, Object>>> content = objectMapper.readValue(jsonData, new TypeReference<>() {});
 
         countryService.importCountriesCSV();
 
-        List<Map<String, Object>> cases = content.get("cases");
-        for (Map<String, Object> caseData : cases) {
+        Country currentCountry = null;
+
+        for(Map<String, Object> caseData : content.getOrDefault("cases", new ArrayList<>())){
             String countryName = (String) caseData.get("country");
             LocalDate day = LocalDate.parse((String) caseData.get("day"));
-            
-            Country country = countryRepository.findByName(countryName).orElseGet(() -> {
-                String alpha3code = (String) caseData.getOrDefault("alpha3code",CountryService.getCustomAlpha3Code());
-                Country customCountry = Country.of(countryName,alpha3code);
-                countryRepository.save(customCountry);
-                return customCountry;
-            });
 
-            CasesPerDay updatedCase = casesPerDayRepository.findTopByDayAndCountryId(day,country.getId()).orElse(CasesPerDay.of(day,0L,0L,country));
+            if(currentCountry == null || !currentCountry.getName().equals(countryName)) {
+                currentCountry = countryService.getCountryByNameOrCreateCustom(countryName,(String) caseData.getOrDefault("alpha3code",CountryService.getCustomAlpha3Code()));
+            }
+
+            CasesPerDay updatedCase = casesPerDayRepository.findTopByDayAndCountryId(day,currentCountry.getId()).orElse(CasesPerDay.of(day,0L,0L,currentCountry));
             updatedCase.setNewCases(Long.parseLong(String.valueOf(caseData.get("new_cases"))));
             updatedCase.setNewDeaths(Long.parseLong(String.valueOf(caseData.get("new_deaths"))));
 
             casesToSave.add(updatedCase);
         }
+
+        for(Map<String, Object> vaccination : content.getOrDefault("vaccinations", new ArrayList<>())){
+            String countryName = (String) vaccination.get("country");
+            String vaccineManufacturerName = (String) vaccination.get("vaccine_manufacturer");
+            LocalDate day = LocalDate.parse((String) vaccination.get("day"));
+
+
+            if(currentCountry == null || !currentCountry.getName().equals(countryName)) {
+                currentCountry = countryService.getCountryByNameOrCreateCustom(countryName,(String) vaccination.getOrDefault("alpha3code",CountryService.getCustomAlpha3Code()));
+            }
+
+            VaccineManufacturer manufacturer = vaccineManufacturerRepository.findFirstByName(vaccineManufacturerName).orElseGet(() -> {
+                VaccineManufacturer created = VaccineManufacturer.of(vaccineManufacturerName);
+                vaccineManufacturerRepository.saveAndFlush(created);
+                return created;
+            });
+
+            Vaccination updatedVaccination = vaccinationRepository.findTopByDayAndCountryIdAndVaccineManufacturerId(day,currentCountry.getId(),manufacturer.getId()).orElse(Vaccination.of(day,0L,currentCountry,manufacturer));
+            updatedVaccination.setTotal(Long.parseLong(String.valueOf(vaccination.get("total"))));
+
+            vaccinationsToSave.add(updatedVaccination);
+        }
+
         casesPerDayRepository.saveAll(casesToSave);
+        vaccinationRepository.saveAll(vaccinationsToSave);
     }
 }
