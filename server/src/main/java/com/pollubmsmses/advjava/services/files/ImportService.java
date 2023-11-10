@@ -1,12 +1,15 @@
-package com.pollubmsmses.advjava.services;
+package com.pollubmsmses.advjava.services.files;
 
 import com.pollubmsmses.advjava.models.CasesPerDay;
 import com.pollubmsmses.advjava.models.Country;
 import com.pollubmsmses.advjava.models.Vaccination;
 import com.pollubmsmses.advjava.models.VaccineManufacturer;
+import com.pollubmsmses.advjava.repositories.CasesPerDayRepository;
 import com.pollubmsmses.advjava.repositories.CountryRepository;
 import com.pollubmsmses.advjava.repositories.VaccinationRepository;
 import com.pollubmsmses.advjava.repositories.VaccineManufacturerRepository;
+import com.pollubmsmses.advjava.services.CountryService;
+import com.pollubmsmses.advjava.services.VaccineManufacturerService;
 import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -24,7 +27,7 @@ import java.util.*;
 @RequiredArgsConstructor
 @Service
 @Slf4j
-public class HeavyImportService {
+public class ImportService {
     private final String VACCINATIONS_PATH = "importData/vaccinations-by-manufacturer.csv";
     private final String CASESPERDAY_PATH = "importData/casesAndDeaths.csv";
     private final String VACCINATIONS_TABLE = "vaccination";
@@ -34,6 +37,9 @@ public class HeavyImportService {
     private final CountryService countryService;
     private final VaccineManufacturerService vaccineManufacturerService;
     private final JdbcTemplate jdbcTemplate;
+    private final CasesPerDayRepository casesPerDayRepository;
+    private final VaccineManufacturerRepository vaccineManufacturerRepository;
+    private final VaccinationRepository vaccinationRepository;
 
     @Transactional
     public void importVaccinationsCSV() throws Exception{
@@ -136,6 +142,57 @@ public class HeavyImportService {
                 });
 
         log.info("Inserted: " + rows);
+    }
+
+    public void importCasesPerDay(List<Map<String, Object>> cases){
+        List<CasesPerDay> casesToSave = new ArrayList<>();
+        Country currentCountry = null;
+
+        for(Map<String, Object> caseData : cases){
+            String countryName = (String) caseData.get("country");
+            LocalDate day = LocalDate.parse((String) caseData.get("day"));
+
+            if(currentCountry == null || !currentCountry.getName().equals(countryName)) {
+                currentCountry = countryService.getCountryByNameOrCreateCustom(countryName,(String) caseData.getOrDefault("alpha3code",CountryService.getCustomAlpha3Code()));
+            }
+
+            CasesPerDay updatedCase = casesPerDayRepository.findTopByDayAndCountryId(day,currentCountry.getId()).orElse(CasesPerDay.of(day,0L,0L,currentCountry));
+            updatedCase.setNewCases(Long.parseLong(String.valueOf(caseData.get("new_cases"))));
+            updatedCase.setNewDeaths(Long.parseLong(String.valueOf(caseData.get("new_deaths"))));
+
+            casesToSave.add(updatedCase);
+        }
+
+        casesPerDayRepository.saveAll(casesToSave);
+    }
+
+    public void importVaccinations(List<Map<String, Object>> vaccinations){
+        List<Vaccination> vaccinationsToSave = new ArrayList<>();
+        Country currentCountry = null;
+
+        for(Map<String, Object> vaccination : vaccinations){
+            String countryName = (String) vaccination.get("country");
+            String vaccineManufacturerName = (String) vaccination.get("vaccine_manufacturer");
+            LocalDate day = LocalDate.parse((String) vaccination.get("day"));
+
+
+            if(currentCountry == null || !currentCountry.getName().equals(countryName)) {
+                currentCountry = countryService.getCountryByNameOrCreateCustom(countryName,(String) vaccination.getOrDefault("alpha3code",CountryService.getCustomAlpha3Code()));
+            }
+
+            VaccineManufacturer manufacturer = vaccineManufacturerRepository.findFirstByName(vaccineManufacturerName).orElseGet(() -> {
+                VaccineManufacturer created = VaccineManufacturer.of(vaccineManufacturerName);
+                vaccineManufacturerRepository.saveAndFlush(created);
+                return created;
+            });
+
+            Vaccination updatedVaccination = vaccinationRepository.findTopByDayAndCountryIdAndVaccineManufacturerId(day,currentCountry.getId(),manufacturer.getId()).orElse(Vaccination.of(day,0L,currentCountry,manufacturer));
+            updatedVaccination.setTotal(Long.parseLong(String.valueOf(vaccination.get("total"))));
+
+            vaccinationsToSave.add(updatedVaccination);
+        }
+
+        vaccinationRepository.saveAll(vaccinationsToSave);
     }
 
     private Optional<Country> getCurrentCountry(Map<String,Boolean> countriesBlackList, String countryName, Country previousCountry){

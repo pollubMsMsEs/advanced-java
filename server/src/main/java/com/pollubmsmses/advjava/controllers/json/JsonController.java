@@ -1,12 +1,12 @@
 package com.pollubmsmses.advjava.controllers.json;
 
+import com.pollubmsmses.advjava.services.files.ExportService;
 import org.springframework.core.io.ByteArrayResource;
-import org.springframework.core.io.FileSystemResource;
 import org.springframework.http.*;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
 
-import com.pollubmsmses.advjava.services.JsonService;
+import com.pollubmsmses.advjava.services.files.JsonService;
 
 import lombok.RequiredArgsConstructor;
 
@@ -15,8 +15,9 @@ import org.springframework.core.io.Resource;
 import java.io.ByteArrayInputStream;
 import java.io.IOException;
 import java.nio.charset.StandardCharsets;
-import java.nio.file.Path;
+import java.time.LocalDate;
 import java.util.Map;
+import java.util.Objects;
 
 @RestController
 @RequestMapping("/api")
@@ -24,10 +25,10 @@ import java.util.Map;
 public class JsonController {
 
     private final JsonService jsonService;
-    
+    private final ExportService exportService;
     @GetMapping("/export/json")
-    public ResponseEntity<Resource> exportData() throws IOException {
-        String file = jsonService.exportData();
+    public ResponseEntity<Resource> exportData(){
+        String file = jsonService.exportData(exportService.collectData(null,null,null,null));
         ByteArrayInputStream inputStream = new ByteArrayInputStream(file.getBytes(StandardCharsets.UTF_8));
 
         return ResponseEntity.ok()
@@ -44,7 +45,7 @@ public class JsonController {
 
     @PostMapping("/import/json")
     public ResponseEntity<?> importData(@RequestParam("data") MultipartFile file) {
-        if (file.isEmpty() || !file.getContentType().equals("application/json")) {
+        if (file.isEmpty() || !Objects.equals(file.getContentType(), "application/json")) {
             return ResponseEntity.badRequest().body(Map.of("error", true, "msg", "Incorrect file"));
         }
 
