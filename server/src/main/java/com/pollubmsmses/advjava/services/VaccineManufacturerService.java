@@ -31,11 +31,11 @@ public class VaccineManufacturerService {
 
     public VaccineManufacturer getManufacturerAndAddIfMissing(String manufacturerName, Map<String, VaccineManufacturer> manufacturers){
         if (!manufacturers.containsKey(manufacturerName)) {
-            VaccineManufacturer manufacturer = vaccineManufacturerRepository.findFirstByName(manufacturerName);
-            if (manufacturer == null) {
-                manufacturer = VaccineManufacturer.of(manufacturerName);
-                vaccineManufacturerRepository.saveAndFlush(manufacturer);
-            }
+            VaccineManufacturer manufacturer = vaccineManufacturerRepository.findFirstByName(manufacturerName).orElseGet(() -> {
+                VaccineManufacturer created = VaccineManufacturer.of(manufacturerName);
+                vaccineManufacturerRepository.saveAndFlush(created);
+                return created;
+            });
             manufacturers.put(manufacturerName, manufacturer);
             return manufacturer;
         } else {

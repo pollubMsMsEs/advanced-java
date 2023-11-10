@@ -32,12 +32,18 @@ import org.springframework.http.ResponseEntity;
 @Service
 @Slf4j
 public class CountryService {
+    private static int customCountriesCount = 0;
+
     private final CountryRepository countryRepository;
     private final String LOCATIONS_PATH = "/importData/locations.csv";
     private final String ISO_MAPPING_PATH = "/importData/countryISOMapping.json";
 
     private Map<String, String> code3to2;
 
+    public static String getCustomAlpha3Code(){
+        customCountriesCount++;
+        return String.format("%03d",customCountriesCount);
+    }
     @PostConstruct
     public void loadISOMapping() {
         ObjectMapper mapper = new ObjectMapper();
@@ -83,33 +89,14 @@ public class CountryService {
         return true;
     }
 
-    public Map<String, String> LEGACYgetCountriesCSV() {
-        Map<String, String> countries = new TreeMap<>();
-
-        String line;
-        String csvSplitBy = ",";
-
-        try (InputStream is = CountryService.class.getResourceAsStream(LOCATIONS_PATH);
-
-                BufferedReader br = new BufferedReader(new InputStreamReader(is))) {
-            while ((line = br.readLine()) != null) {
-                String[] country = line.split(csvSplitBy);
-                if (country[1].length() != 3) {
-                    continue;
-                }
-                countries.put(country[0], country[1]);
-            }
-        } catch (IOException e) {
-            e.printStackTrace();
-            countries = null;
-        }
-
-        if (countries != null) {
-            countries.remove("location");
-        }
-
-        return countries;
+    public Country getCountryByNameOrCreateCustom(String countryName, String alpha3code){
+        return countryRepository.findByName(countryName).orElseGet(() -> {
+            Country customCountry = Country.of(countryName,alpha3code);
+            countryRepository.saveAndFlush(customCountry);
+            return customCountry;
+        });
     }
+
     public Map<String, Long> getAllAsMap(){
         try {
             return countryRepository
