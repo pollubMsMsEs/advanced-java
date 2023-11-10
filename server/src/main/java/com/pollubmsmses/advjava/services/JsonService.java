@@ -16,10 +16,6 @@ import com.pollubmsmses.advjava.repositories.CountryRepository;
 import com.pollubmsmses.advjava.repositories.VaccinationRepository;
 
 import java.io.IOException;
-import java.nio.file.Files;
-import java.nio.file.Path;
-import java.nio.file.Paths;
-import java.nio.file.StandardOpenOption;
 import java.time.LocalDate;
 import java.util.*;
 
@@ -90,21 +86,23 @@ public class JsonService {
 
         countryService.importCountriesCSV();
 
-        casesPerDayRepository.deleteAllInBatch();
-
         List<Map<String, Object>> cases = content.get("cases");
         for (Map<String, Object> caseData : cases) {
             String countryName = (String) caseData.get("country");
+            LocalDate day = LocalDate.parse((String) caseData.get("day"));
             
-            Country country = countryRepository.findByName(countryName).orElseThrow();
+            Country country = countryRepository.findByName(countryName).orElseGet(() -> {
+                String alpha3code = (String) caseData.getOrDefault("alpha3code",CountryService.getCustomAlpha3Code());
+                Country customCountry = Country.of(countryName,alpha3code);
+                countryRepository.save(customCountry);
+                return customCountry;
+            });
 
-            CasesPerDay newCase = CasesPerDay.of(
-                LocalDate.parse((String) caseData.get("day")),
-                Long.parseLong(String.valueOf(caseData.get("new_cases"))),
-                Long.parseLong(String.valueOf(caseData.get("new_deaths"))),
-                country
-            );
-            casesToSave.add(newCase);
+            CasesPerDay updatedCase = casesPerDayRepository.findTopByDayAndCountryId(day,country.getId()).orElse(CasesPerDay.of(day,0L,0L,country));
+            updatedCase.setNewCases(Long.parseLong(String.valueOf(caseData.get("new_cases"))));
+            updatedCase.setNewDeaths(Long.parseLong(String.valueOf(caseData.get("new_deaths"))));
+
+            casesToSave.add(updatedCase);
         }
         casesPerDayRepository.saveAll(casesToSave);
     }

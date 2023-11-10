@@ -32,12 +32,18 @@ import org.springframework.http.ResponseEntity;
 @Service
 @Slf4j
 public class CountryService {
+    private static int customCountriesCount = 0;
+
     private final CountryRepository countryRepository;
     private final String LOCATIONS_PATH = "/importData/locations.csv";
     private final String ISO_MAPPING_PATH = "/importData/countryISOMapping.json";
 
     private Map<String, String> code3to2;
 
+    public static String getCustomAlpha3Code(){
+        customCountriesCount++;
+        return String.format("%03d",customCountriesCount);
+    }
     @PostConstruct
     public void loadISOMapping() {
         ObjectMapper mapper = new ObjectMapper();
