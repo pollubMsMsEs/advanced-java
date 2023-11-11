@@ -5,10 +5,12 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.SerializationFeature;
 import com.fasterxml.jackson.dataformat.xml.XmlMapper;
 import com.fasterxml.jackson.datatype.jsr310.JavaTimeModule;
-import com.pollubmsmses.advjava.controllers.xml.wrappers.DataWrapper;
+import com.pollubmsmses.advjava.services.files.wrappers.DataWrapper;
 import com.pollubmsmses.advjava.services.CountryService;
+import com.pollubmsmses.advjava.services.files.wrappers.Case;
 import lombok.AllArgsConstructor;
 import lombok.Data;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -18,6 +20,7 @@ import java.util.*;
 
 @Service
 @AllArgsConstructor
+@Slf4j
 public class XmlService {
     private final ImportService importService;
     private final CountryService countryService;
@@ -47,9 +50,15 @@ public class XmlService {
                 .registerModule(new JavaTimeModule());
 
         HashMap<String, List<Map<String, Object>>> content = new HashMap<>();
+        List<Map<String, Object>> cases = new ArrayList<>();
+        List<Map<String, Object>> vaccinations = new ArrayList<>();
 
-        List<Map<String, Object>> cases = objectMapper.convertValue(deserialized.getCases(),new TypeReference<>() {});
-        List<Map<String, Object>> vaccinations = objectMapper.convertValue(deserialized.getVaccinations(),new TypeReference<>() {});
+        for(Case caseData: deserialized.getCases()){
+            log.info(String.valueOf(caseData));
+            Map<String, Object> caseMap = objectMapper.convertValue(caseData, new TypeReference<Map<String, Object>>() {});
+            cases.add(caseMap);
+        }
+
 
         content.put("cases",cases);
         content.put("vaccinations",vaccinations);

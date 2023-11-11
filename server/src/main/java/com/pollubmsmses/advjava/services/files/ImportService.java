@@ -10,6 +10,8 @@ import com.pollubmsmses.advjava.repositories.VaccinationRepository;
 import com.pollubmsmses.advjava.repositories.VaccineManufacturerRepository;
 import com.pollubmsmses.advjava.services.CountryService;
 import com.pollubmsmses.advjava.services.VaccineManufacturerService;
+import com.pollubmsmses.advjava.services.files.wrappers.Case;
+import com.pollubmsmses.advjava.services.files.wrappers.VaccinationWrapper;
 import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
