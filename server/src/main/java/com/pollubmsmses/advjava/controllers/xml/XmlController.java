@@ -29,7 +29,7 @@ public class XmlController {
     private final ExportService exportService;
     @GetMapping("/export/xml")
     public ResponseEntity<Resource> exportData(@RequestParam() LocalDate begin_date, @RequestParam() LocalDate end_date, @RequestParam() List<Long> countries){
-        String file = xmlService.exportData(exportService.collectData(begin_date,end_date,countries,new ArrayList<>()));
+        String file = xmlService.exportData(exportService.collectData(begin_date,end_date,countries));
         ByteArrayInputStream inputStream = new ByteArrayInputStream(file.getBytes(StandardCharsets.UTF_8));
 
         return ResponseEntity.ok()
@@ -46,7 +46,6 @@ public class XmlController {
 
     @PostMapping("/import/xml")
     public ResponseEntity<?> importData(@RequestParam("data") MultipartFile file) {
-        //log.info(file.getContentType());
         if (file.isEmpty() || (!Objects.equals(file.getContentType(), "application/xml") && !Objects.equals(file.getContentType(), "text/xml"))) {
             return ResponseEntity.badRequest().body(Map.of("error", true, "msg", "Incorrect file"));
         }
