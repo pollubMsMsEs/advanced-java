@@ -1,7 +1,7 @@
 package com.pollubmsmses.advjava.controllers.vaccination;
 
 import com.pollubmsmses.advjava.controllers.responses.ErrorResponse;
-import com.pollubmsmses.advjava.services.HeavyImportService;
+import com.pollubmsmses.advjava.services.files.ImportService;
 import com.pollubmsmses.advjava.services.VaccinationService;
 
 import lombok.RequiredArgsConstructor;
@@ -20,7 +20,7 @@ import org.springframework.web.bind.annotation.*;
 @RequiredArgsConstructor
 public class VaccinationController {
     private final VaccinationService vaccinationService;
-    private final HeavyImportService heavyImportService;
+    private final ImportService importService;
 
     @PutMapping("/import/vaccinations")
     public ResponseEntity<Map<String,Object>> importVaccinationsCSV(){
@@ -28,7 +28,7 @@ public class VaccinationController {
         Map<String,Object> body = new HashMap<>();
 
         try {
-            heavyImportService.importVaccinationsCSV();
+            importService.importVaccinationsCSV();
 
             body.put("acknowledged", true);
             response = ResponseEntity.ok(body);
