@@ -4,6 +4,7 @@ import com.pollubmsmses.advjava.models.Vaccination;
 import com.pollubmsmses.advjava.models.VaccineManufacturer;
 import com.pollubmsmses.advjava.repositories.VaccineManufacturerRepository;
 import com.pollubmsmses.advjava.services.CountryService;
+import com.pollubmsmses.advjava.services.files.wrappers.DataWrapper;
 import lombok.AllArgsConstructor;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.PageRequest;
@@ -47,11 +48,13 @@ public class JsonService {
     @Transactional
     public void importData(String jsonData) throws IOException {
 
-        ObjectMapper objectMapper = new ObjectMapper();
+        ObjectMapper objectMapper = new ObjectMapper()
+                .registerModule(new JavaTimeModule());
         Map<String, List<Map<String, Object>>> content = objectMapper.readValue(jsonData, new TypeReference<>() {});
+        DataWrapper wrapper = objectMapper.convertValue(content,DataWrapper.class);
 
         countryService.importCountriesCSV();
-        importService.importCasesPerDay(content.getOrDefault("cases", new ArrayList<>()));
-        importService.importVaccinations(content.getOrDefault("vaccinations", new ArrayList<>()));
+        importService.importCasesPerDay(wrapper.getCases());
+        importService.importVaccinations(wrapper.getVaccinations());
     }
 }

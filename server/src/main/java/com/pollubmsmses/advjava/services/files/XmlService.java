@@ -46,26 +46,10 @@ public class XmlService {
     @Transactional
     public void importData(String xmlData) throws IOException {
         DataWrapper deserialized = xmlMapper.readValue(xmlData, DataWrapper.class);
-        ObjectMapper objectMapper = new ObjectMapper()
-                .registerModule(new JavaTimeModule());
-
-        HashMap<String, List<Map<String, Object>>> content = new HashMap<>();
-        List<Map<String, Object>> cases = new ArrayList<>();
-        List<Map<String, Object>> vaccinations = new ArrayList<>();
-
-        for(Case caseData: deserialized.getCases()){
-            log.info(String.valueOf(caseData));
-            Map<String, Object> caseMap = objectMapper.convertValue(caseData, new TypeReference<Map<String, Object>>() {});
-            cases.add(caseMap);
-        }
-
-
-        content.put("cases",cases);
-        content.put("vaccinations",vaccinations);
 
         countryService.importCountriesCSV();
-        importService.importCasesPerDay(content.getOrDefault("cases", new ArrayList<>()));
-        importService.importVaccinations(content.getOrDefault("vaccinations", new ArrayList<>()));
+        importService.importCasesPerDay(deserialized.getCases());
+        importService.importVaccinations(deserialized.getVaccinations());
     }
 
 

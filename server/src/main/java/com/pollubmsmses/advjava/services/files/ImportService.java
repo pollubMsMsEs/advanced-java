@@ -146,21 +146,21 @@ public class ImportService {
         log.info("Inserted: " + rows);
     }
 
-    public void importCasesPerDay(List<Map<String, Object>> cases){
+    public void importCasesPerDay(List<Case> cases){
         List<CasesPerDay> casesToSave = new ArrayList<>();
         Country currentCountry = null;
 
-        for(Map<String, Object> caseData : cases){
-            String countryName = (String) caseData.get("country");
-            LocalDate day = LocalDate.parse((String) caseData.get("day"));
+        for(Case caseData : cases){
+            String countryName = caseData.getCountry();
+            LocalDate day = caseData.getDay();
 
             if(currentCountry == null || !currentCountry.getName().equals(countryName)) {
-                currentCountry = countryService.getCountryByNameOrCreateCustom(countryName,(String) caseData.getOrDefault("alpha3code",CountryService.getCustomAlpha3Code()));
+                currentCountry = countryService.getCountryByNameOrCreateCustom(countryName,CountryService.getCustomAlpha3Code());
             }
 
             CasesPerDay updatedCase = casesPerDayRepository.findTopByDayAndCountryId(day,currentCountry.getId()).orElse(CasesPerDay.of(day,0L,0L,currentCountry));
-            updatedCase.setNewCases(Long.parseLong(String.valueOf(caseData.get("new_cases"))));
-            updatedCase.setNewDeaths(Long.parseLong(String.valueOf(caseData.get("new_deaths"))));
+            updatedCase.setNewCases(caseData.getNew_cases());
+            updatedCase.setNewDeaths(caseData.getNew_deaths());
 
             casesToSave.add(updatedCase);
         }
@@ -168,18 +168,17 @@ public class ImportService {
         casesPerDayRepository.saveAll(casesToSave);
     }
 
-    public void importVaccinations(List<Map<String, Object>> vaccinations){
+    public void importVaccinations(List<VaccinationWrapper> vaccinations){
         List<Vaccination> vaccinationsToSave = new ArrayList<>();
         Country currentCountry = null;
 
-        for(Map<String, Object> vaccination : vaccinations){
-            String countryName = (String) vaccination.get("country");
-            String vaccineManufacturerName = (String) vaccination.get("vaccine_manufacturer");
-            LocalDate day = LocalDate.parse((String) vaccination.get("day"));
-
+        for(VaccinationWrapper vaccination : vaccinations){
+            String countryName = vaccination.getCountry();
+            String vaccineManufacturerName = vaccination.getVaccine_manufacturer();
+            LocalDate day = vaccination.getDay();
 
             if(currentCountry == null || !currentCountry.getName().equals(countryName)) {
-                currentCountry = countryService.getCountryByNameOrCreateCustom(countryName,(String) vaccination.getOrDefault("alpha3code",CountryService.getCustomAlpha3Code()));
+                currentCountry = countryService.getCountryByNameOrCreateCustom(countryName,CountryService.getCustomAlpha3Code());
             }
 
             VaccineManufacturer manufacturer = vaccineManufacturerRepository.findFirstByName(vaccineManufacturerName).orElseGet(() -> {
@@ -189,7 +188,7 @@ public class ImportService {
             });
 
             Vaccination updatedVaccination = vaccinationRepository.findTopByDayAndCountryIdAndVaccineManufacturerId(day,currentCountry.getId(),manufacturer.getId()).orElse(Vaccination.of(day,0L,currentCountry,manufacturer));
-            updatedVaccination.setTotal(Long.parseLong(String.valueOf(vaccination.get("total"))));
+            updatedVaccination.setTotal(vaccination.getTotal());
 
             vaccinationsToSave.add(updatedVaccination);
         }
