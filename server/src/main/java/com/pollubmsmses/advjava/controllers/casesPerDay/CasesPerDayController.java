@@ -2,7 +2,7 @@ package com.pollubmsmses.advjava.controllers.casesPerDay;
 
 import com.pollubmsmses.advjava.controllers.responses.ErrorResponse;
 import com.pollubmsmses.advjava.services.CasesPerDayService;
-import com.pollubmsmses.advjava.services.HeavyImportService;
+import com.pollubmsmses.advjava.services.files.ImportService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
@@ -16,7 +16,7 @@ import java.util.Map;
 @RequestMapping("/api")
 @RequiredArgsConstructor
 public class CasesPerDayController {
-    private final HeavyImportService heavyImportService;
+    private final ImportService importService;
     private final CasesPerDayService casesPerDayService;
     @PutMapping("/import/cases")
     public ResponseEntity<Map<String, Object>> importCasesCSV() {
@@ -24,7 +24,7 @@ public class CasesPerDayController {
         Map<String,Object> body = new HashMap<>();
 
         try {
-            heavyImportService.importCasesPerDayCSV();
+            importService.importCasesPerDayCSV();
 
             body.put("acknowledged", true);
             response = ResponseEntity.ok(body);
