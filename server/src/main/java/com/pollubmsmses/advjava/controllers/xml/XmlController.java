@@ -14,6 +14,9 @@ import org.springframework.web.multipart.MultipartFile;
 import java.io.ByteArrayInputStream;
 import java.io.IOException;
 import java.nio.charset.StandardCharsets;
+import java.time.LocalDate;
+import java.util.ArrayList;
+import java.util.List;
 import java.util.Map;
 import java.util.Objects;
 
@@ -25,8 +28,8 @@ public class XmlController {
     private final XmlService xmlService;
     private final ExportService exportService;
     @GetMapping("/export/xml")
-    public ResponseEntity<Resource> exportData(){
-        String file = xmlService.exportData(exportService.collectData(null,null,null,null));
+    public ResponseEntity<Resource> exportData(@RequestParam() LocalDate begin_date, @RequestParam() LocalDate end_date, @RequestParam() List<Long> countries){
+        String file = xmlService.exportData(exportService.collectData(begin_date,end_date,countries,new ArrayList<>()));
         ByteArrayInputStream inputStream = new ByteArrayInputStream(file.getBytes(StandardCharsets.UTF_8));
 
         return ResponseEntity.ok()

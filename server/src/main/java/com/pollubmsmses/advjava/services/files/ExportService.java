@@ -27,7 +27,7 @@ public class ExportService {
         data.put("cases", new ArrayList<>());
         data.put("vaccinations", new ArrayList<>());
 
-        casesPerDayRepository.findAll(PageRequest.of(0, 1000)).forEach(caseEntity -> {
+        casesPerDayRepository.filter(beginDate,endDate,country).forEach(caseEntity -> {
             Map<String, Object> temp = new HashMap<>();
             temp.put("day", caseEntity.getDay());
             temp.put("country", caseEntity.getCountry().getName());
@@ -37,7 +37,7 @@ public class ExportService {
             data.get("cases").add(temp);
         });
 
-        vaccinationRepository.findAll(PageRequest.of(0, 1000)).forEach(vaccination -> {
+        vaccinationRepository.filter(beginDate,endDate,country,vaccineManufacturer).forEach(vaccination -> {
             Map<String, Object> temp = new HashMap<>();
             temp.put("day", vaccination.getDay());
             temp.put("country", vaccination.getCountry().getName());

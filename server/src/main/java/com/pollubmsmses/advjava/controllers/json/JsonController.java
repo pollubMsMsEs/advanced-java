@@ -16,6 +16,8 @@ import java.io.ByteArrayInputStream;
 import java.io.IOException;
 import java.nio.charset.StandardCharsets;
 import java.time.LocalDate;
+import java.util.ArrayList;
+import java.util.List;
 import java.util.Map;
 import java.util.Objects;
 
@@ -27,8 +29,8 @@ public class JsonController {
     private final JsonService jsonService;
     private final ExportService exportService;
     @GetMapping("/export/json")
-    public ResponseEntity<Resource> exportData(){
-        String file = jsonService.exportData(exportService.collectData(null,null,null,null));
+    public ResponseEntity<Resource> exportData(@RequestParam() LocalDate begin_date, @RequestParam() LocalDate end_date, @RequestParam() List<Long> countries){
+        String file = jsonService.exportData(exportService.collectData(begin_date,end_date,countries,new ArrayList<>()));
         ByteArrayInputStream inputStream = new ByteArrayInputStream(file.getBytes(StandardCharsets.UTF_8));
 
         return ResponseEntity.ok()
