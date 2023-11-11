@@ -208,7 +208,7 @@ function App() {
                                 overflow: "hidden",
                             }}
                         >
-                            <ImportBar />
+                            <ImportBar query={chartQuery} />
                         </div>
                     </div>
                     <div

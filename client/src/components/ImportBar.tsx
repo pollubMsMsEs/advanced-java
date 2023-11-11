@@ -1,7 +1,8 @@
 import { useState } from "react";
 import ImportExportButton from "./ImportExportButton";
+import { ChartQuery } from "../types";
 
-export default function ImportBar() {
+export default function ImportBar({ query }: { query: ChartQuery | null }) {
     const [isLocked, setIsLocked] = useState(false);
 
     function doLock(lock: boolean) {
@@ -52,6 +53,7 @@ export default function ImportBar() {
                     doLock={doLock}
                     type="Export"
                     target="JSON"
+                    query={query}
                     url="/export/json"
                     withFile={false}
                 />
@@ -79,6 +81,7 @@ export default function ImportBar() {
                     doLock={doLock}
                     type="Export"
                     target="XML"
+                    query={query}
                     url="/export/xml"
                     withFile={false}
                 />

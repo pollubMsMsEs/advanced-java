@@ -5,6 +5,7 @@ export async function sendImportExportRequest(
     operation: "Import" | "Export",
     url: string,
     extension: string,
+    query?: any,
     fileRef?: any
 ) {
     const toastId = toast.loading(`${operation}ing...`);
@@ -30,7 +31,11 @@ export async function sendImportExportRequest(
 
                 break;
             case "Export":
-                result = await axiosClient.get(url, { responseType: "blob" });
+                result = await axiosClient.get(url, {
+                    responseType: "blob",
+                    params: query,
+                    paramsSerializer: { indexes: null },
+                });
                 // eslint-disable-next-line no-case-declarations
                 const aElement = document.createElement("a");
                 aElement.setAttribute("download", `data.${extension}`);

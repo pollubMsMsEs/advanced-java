@@ -7,6 +7,7 @@ export default function ImportButton({
     type,
     target,
     url,
+    query,
     withFile,
 }: {
     isLocked: boolean;
@@ -14,6 +15,7 @@ export default function ImportButton({
     type: "Import" | "Export";
     target: string;
     url: string;
+    query?: any;
     withFile: boolean;
 }) {
     const fileRef = useRef(null);
@@ -27,10 +29,16 @@ export default function ImportButton({
                 type,
                 url,
                 target.toLowerCase(),
+                query,
                 fileRef
             );
         } else {
-            await sendImportExportRequest(type, url, target.toLowerCase());
+            await sendImportExportRequest(
+                type,
+                url,
+                target.toLowerCase(),
+                query
+            );
         }
 
         doLock(false);
