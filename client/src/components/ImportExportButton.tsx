@@ -4,6 +4,7 @@ import { sendImportExportRequest } from "../importExportFunction";
 export default function ImportButton({
     isLocked,
     doLock,
+    onSuccess,
     type,
     target,
     url,
@@ -12,6 +13,7 @@ export default function ImportButton({
 }: {
     isLocked: boolean;
     doLock: (lock: boolean) => void;
+    onSuccess: () => void;
     type: "Import" | "Export";
     target: string;
     url: string;
@@ -24,12 +26,12 @@ export default function ImportButton({
         doLock(true);
 
         if (withFile) {
-            console.log(fileRef);
             await sendImportExportRequest(
                 type,
                 url,
                 target.toLowerCase(),
                 query,
+                onSuccess,
                 fileRef
             );
         } else {
@@ -37,7 +39,8 @@ export default function ImportButton({
                 type,
                 url,
                 target.toLowerCase(),
-                query
+                query,
+                onSuccess
             );
         }
 

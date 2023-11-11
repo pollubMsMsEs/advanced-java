@@ -5,11 +5,11 @@ export async function sendImportExportRequest(
     operation: "Import" | "Export",
     url: string,
     extension: string,
-    query?: any,
+    query: any,
+    onSuccess: () => void,
     fileRef?: any
 ) {
     const toastId = toast.loading(`${operation}ing...`);
-    //console.log(fileRef.current.files);
 
     try {
         let result;
@@ -54,6 +54,7 @@ export async function sendImportExportRequest(
             throw new Error(result.data.msg);
         }
 
+        onSuccess();
         toast.update(toastId, {
             render: `${operation} succedded!`,
             type: "success",
