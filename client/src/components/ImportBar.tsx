@@ -71,6 +71,7 @@ export default function ImportBar({
                     doLock={doLock}
                     onSuccess={onImport}
                     type="Import"
+                    acceptedTypes="application/json"
                     target="JSON"
                     url="/import/json"
                     withFile={true}
@@ -101,6 +102,7 @@ export default function ImportBar({
                     doLock={doLock}
                     onSuccess={onImport}
                     type="Import"
+                    acceptedTypes="application/xml,text/xml"
                     target="XML"
                     url="/import/xml"
                     withFile={true}

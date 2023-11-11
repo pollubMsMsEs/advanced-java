@@ -7,6 +7,7 @@ export default function ImportButton({
     onSuccess,
     type,
     target,
+    acceptedTypes,
     url,
     query,
     withFile,
@@ -16,6 +17,7 @@ export default function ImportButton({
     onSuccess: () => void;
     type: "Import" | "Export";
     target: string;
+    acceptedTypes?: string;
     url: string;
     query?: any;
     withFile: boolean;
@@ -63,7 +65,14 @@ export default function ImportButton({
             >
                 {`${type} ${target}`}
             </button>
-            {withFile && <input ref={fileRef} type="file" name="data" />}
+            {withFile && (
+                <input
+                    ref={fileRef}
+                    type="file"
+                    name="data"
+                    accept={acceptedTypes}
+                />
+            )}
         </>
     );
 }

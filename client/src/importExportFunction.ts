@@ -19,6 +19,16 @@ export async function sendImportExportRequest(
                 if (fileRef) {
                     const formData = new FormData();
 
+                    if (fileRef.current.files[0] == null) {
+                        toast.update(toastId, {
+                            render: `Pick file first!`,
+                            type: "warning",
+                            isLoading: false,
+                            autoClose: 3000,
+                        });
+                        return;
+                    }
+
                     formData.append("data", fileRef.current.files[0]);
                     result = await axiosClient.post(url, formData, {
                         headers: {
