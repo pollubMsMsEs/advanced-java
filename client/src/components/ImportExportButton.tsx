@@ -4,16 +4,22 @@ import { sendImportExportRequest } from "../importExportFunction";
 export default function ImportButton({
     isLocked,
     doLock,
+    onSuccess,
     type,
     target,
+    acceptedTypes,
     url,
+    query,
     withFile,
 }: {
     isLocked: boolean;
     doLock: (lock: boolean) => void;
+    onSuccess: () => void;
     type: "Import" | "Export";
     target: string;
+    acceptedTypes?: string;
     url: string;
+    query?: any;
     withFile: boolean;
 }) {
     const fileRef = useRef(null);
@@ -22,15 +28,22 @@ export default function ImportButton({
         doLock(true);
 
         if (withFile) {
-            console.log(fileRef);
             await sendImportExportRequest(
                 type,
                 url,
                 target.toLowerCase(),
+                query,
+                onSuccess,
                 fileRef
             );
         } else {
-            await sendImportExportRequest(type, url, target.toLowerCase());
+            await sendImportExportRequest(
+                type,
+                url,
+                target.toLowerCase(),
+                query,
+                onSuccess
+            );
         }
 
         doLock(false);
@@ -52,7 +65,14 @@ export default function ImportButton({
             >
                 {`${type} ${target}`}
             </button>
-            {withFile && <input ref={fileRef} type="file" name="data" />}
+            {withFile && (
+                <input
+                    ref={fileRef}
+                    type="file"
+                    name="data"
+                    accept={acceptedTypes}
+                />
+            )}
         </>
     );
 }

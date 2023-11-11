@@ -30,7 +30,7 @@ public class JsonController {
     private final ExportService exportService;
     @GetMapping("/export/json")
     public ResponseEntity<Resource> exportData(@RequestParam() LocalDate begin_date, @RequestParam() LocalDate end_date, @RequestParam() List<Long> countries){
-        String file = jsonService.exportData(exportService.collectData(begin_date,end_date,countries,new ArrayList<>()));
+        String file = jsonService.exportData(exportService.collectData(begin_date,end_date,countries));
         ByteArrayInputStream inputStream = new ByteArrayInputStream(file.getBytes(StandardCharsets.UTF_8));
 
         return ResponseEntity.ok()

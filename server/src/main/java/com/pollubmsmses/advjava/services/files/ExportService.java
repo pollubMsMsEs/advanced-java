@@ -22,7 +22,12 @@ public class ExportService {
     private final CasesPerDayRepository casesPerDayRepository;
     private final VaccinationRepository vaccinationRepository;
 
-    public Map<String, List<Map<String, Object>>> collectData(LocalDate beginDate, LocalDate endDate, List<Long> country,List<Long> vaccineManufacturer){
+    public Map<String, List<Map<String, Object>>> collectData(LocalDate beginDate, LocalDate endDate, List<Long> country){
+        List<Long> vaccineManufacturer = new ArrayList<>();
+        for (long i = 1; i <= 15; i++) {
+            vaccineManufacturer.add(i);
+        }
+
         Map<String, List<Map<String, Object>>> data = new HashMap<>();
         data.put("cases", new ArrayList<>());
         data.put("vaccinations", new ArrayList<>());

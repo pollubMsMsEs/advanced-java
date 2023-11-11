@@ -5,10 +5,11 @@ export async function sendImportExportRequest(
     operation: "Import" | "Export",
     url: string,
     extension: string,
+    query: any,
+    onSuccess: () => void,
     fileRef?: any
 ) {
     const toastId = toast.loading(`${operation}ing...`);
-    //console.log(fileRef.current.files);
 
     try {
         let result;
@@ -17,6 +18,16 @@ export async function sendImportExportRequest(
             case "Import":
                 if (fileRef) {
                     const formData = new FormData();
+
+                    if (fileRef.current.files[0] == null) {
+                        toast.update(toastId, {
+                            render: `Pick file first!`,
+                            type: "warning",
+                            isLoading: false,
+                            autoClose: 3000,
+                        });
+                        return;
+                    }
 
                     formData.append("data", fileRef.current.files[0]);
                     result = await axiosClient.post(url, formData, {
@@ -30,7 +41,11 @@ export async function sendImportExportRequest(
 
                 break;
             case "Export":
-                result = await axiosClient.get(url, { responseType: "blob" });
+                result = await axiosClient.get(url, {
+                    responseType: "blob",
+                    params: query,
+                    paramsSerializer: { indexes: null },
+                });
                 // eslint-disable-next-line no-case-declarations
                 const aElement = document.createElement("a");
                 aElement.setAttribute("download", `data.${extension}`);
@@ -49,6 +64,7 @@ export async function sendImportExportRequest(
             throw new Error(result.data.msg);
         }
 
+        onSuccess();
         toast.update(toastId, {
             render: `${operation} succedded!`,
             type: "success",

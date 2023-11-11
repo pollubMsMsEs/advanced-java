@@ -25,7 +25,6 @@ import {
 } from "../types";
 import SelectableOptions from "../components/SelectableOptions";
 import { useAuthenticationContext } from "../StateContext.js";
-import axiosClient from "../axiosClient";
 import Logo from "../components/Logo";
 ChartJS.register(
     CategoryScale,
@@ -89,6 +88,10 @@ function App() {
             });
         };
     }, []);
+
+    function onImport() {
+        setChartQuery({ ...chartQuery });
+    }
 
     useEffect(() => {
         document.title = "Covid Visualizer";
@@ -208,7 +211,7 @@ function App() {
                                 overflow: "hidden",
                             }}
                         >
-                            <ImportBar />
+                            <ImportBar query={chartQuery} onImport={onImport} />
                         </div>
                     </div>
                     <div
