@@ -30,12 +30,8 @@ import org.springframework.stereotype.Service;
 @Service
 @Slf4j
 public class VaccinationService {
-    private final String VACCINATIONS_PATH = "importData/vaccinations-by-manufacturer.csv";
 
     private final VaccinationRepository vaccinationRepository;
-    private final CountryRepository countryRepository;
-    private final VaccineManufacturerRepository vaccineManufacturerRepository;
-    private final CountryService countryService;
 
     @Transactional
     public VaccinationsResponse getVaccinations(LocalDate begin_date, LocalDate end_date, List<Long> country, List<Long> vaccineManufacturer) {
@@ -78,7 +74,7 @@ public class VaccinationService {
 
         LocalDate previousDay = begin_date;
         currentDay = begin_date.plusDays(1);
-        while (currentDay != null && !currentDay.isAfter(end_date)) {
+        while (!currentDay.isAfter(end_date)) {
             if (resultMap.get(currentDay) < resultMap.get(previousDay)) {
                 resultMap.put(currentDay, resultMap.get(previousDay));
             }
@@ -86,6 +82,6 @@ public class VaccinationService {
             currentDay = currentDay.plusDays(1);
         }
 
-            return new VaccinationsResponse(resultMap);
-        }
+        return new VaccinationsResponse(resultMap);
+    }
 }
