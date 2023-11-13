@@ -18,7 +18,7 @@ import static org.mockito.Mockito.when;
 public class CasesPerDayTests {
     @Test
     public void test_getCases_validInput() {
-        // Arrange
+        // Given
         CasesPerDayRepository casesPerDayRepository = mock(CasesPerDayRepository.class);
         CasesPerDayService casesPerDayService = new CasesPerDayService(casesPerDayRepository);
         LocalDate beginDate = LocalDate.of(2021, 1, 1);
@@ -30,10 +30,10 @@ public class CasesPerDayTests {
         cases.add(CasesPerDay.of(LocalDate.of(2021, 1, 3), 300L, 30L, Country.of("Name1","003")));
         when(casesPerDayRepository.filter(beginDate, endDate, country)).thenReturn(cases);
 
-        // Act
+        // When
         CasesResponse result = casesPerDayService.getCases(beginDate, endDate, country);
 
-        // Assert
+        // Then
         assertNotNull(result);
         assertEquals(3, result.getData().size());
         assertEquals(100L, result.getData().get(LocalDate.of(2021, 1, 1)).longValue());
@@ -43,7 +43,7 @@ public class CasesPerDayTests {
 
     @Test
     public void test_getDeaths_validInput() {
-        // Arrange
+        // Given
         CasesPerDayRepository casesPerDayRepository = mock(CasesPerDayRepository.class);
         CasesPerDayService casesPerDayService = new CasesPerDayService(casesPerDayRepository);
         LocalDate beginDate = LocalDate.of(2021, 1, 1);
@@ -54,10 +54,10 @@ public class CasesPerDayTests {
         cases.add(new CasesPerDay(2L, LocalDate.of(2021, 1, 2), 200L, 20L, Country.of("Name1","002")));
         when(casesPerDayRepository.filter(beginDate, endDate, country)).thenReturn(cases);
 
-        // Act
+        // When
         CasesResponse result = casesPerDayService.getDeaths(beginDate, endDate, country);
 
-        // Assert
+        // Then
         assertNotNull(result);
         assertEquals(2, result.getData().size());
         assertEquals(10L, result.getData().get(LocalDate.of(2021, 1, 1)).longValue());
@@ -66,7 +66,7 @@ public class CasesPerDayTests {
 
     @Test
     public void test_getCases_emptyResult() {
-        // Arrange
+        // Given
         CasesPerDayRepository casesPerDayRepository = mock(CasesPerDayRepository.class);
         CasesPerDayService casesPerDayService = new CasesPerDayService(casesPerDayRepository);
         LocalDate beginDate = LocalDate.of(2021, 1, 1);
@@ -75,58 +75,58 @@ public class CasesPerDayTests {
         List<CasesPerDay> cases = new ArrayList<>();
         when(casesPerDayRepository.filter(beginDate, endDate, country)).thenReturn(cases);
 
-        // Act
+        // When
         CasesResponse result = casesPerDayService.getCases(beginDate, endDate, country);
 
-        // Assert
+        // Then
         assertNotNull(result);
         assertTrue(result.getData().isEmpty());
     }
 
     @Test
     public void test_getCases_nullBeginDate() {
-        // Arrange
+        // Given
         CasesPerDayRepository casesPerDayRepository = mock(CasesPerDayRepository.class);
         CasesPerDayService casesPerDayService = new CasesPerDayService(casesPerDayRepository);
         LocalDate endDate = LocalDate.of(2021, 1, 31);
         List<Long> country = Arrays.asList(1L, 2L, 3L);
 
-        // Act
+        // When
         CasesResponse result = casesPerDayService.getCases(null, endDate, country);
 
-        // Assert
+        // Then
         assertNotNull(result);
         assertTrue(result.getData().isEmpty());
     }
 
     @Test
     public void test_getDeaths_nullBeginDate() {
-        // Arrange
+        // Given
         CasesPerDayRepository casesPerDayRepository = mock(CasesPerDayRepository.class);
         CasesPerDayService casesPerDayService = new CasesPerDayService(casesPerDayRepository);
         LocalDate endDate = LocalDate.of(2021, 1, 31);
         List<Long> country = Arrays.asList(1L, 2L, 3L);
 
-        // Act
+        // When
         CasesResponse result = casesPerDayService.getDeaths(null, endDate, country);
 
-        // Assert
+        // Then
         assertNotNull(result);
         assertTrue(result.getData().isEmpty());
     }
 
     @Test
     public void test_getCases_nullEndDate() {
-        // Arrange
+        // Given
         CasesPerDayRepository casesPerDayRepository = mock(CasesPerDayRepository.class);
         CasesPerDayService casesPerDayService = new CasesPerDayService(casesPerDayRepository);
         LocalDate beginDate = LocalDate.of(2021, 1, 1);
         List<Long> country = Arrays.asList(1L, 2L, 3L);
 
-        // Act
+        // When
         CasesResponse result = casesPerDayService.getCases(beginDate, null, country);
 
-        // Assert
+        // Then
         assertNotNull(result);
         assertTrue(result.getData().isEmpty());
     }

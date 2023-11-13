@@ -32,7 +32,7 @@ import org.springframework.http.ResponseEntity;
 @Service
 @Slf4j
 public class CountryService {
-    private static int customCountriesCount = 0;
+    private int customCountriesCount = 0;
 
     private final CountryRepository countryRepository;
     private final String LOCATIONS_PATH = "/importData/locations.csv";
@@ -40,7 +40,7 @@ public class CountryService {
 
     private Map<String, String> code3to2;
 
-    public static String getCustomAlpha3Code(){
+    public String getCustomAlpha3Code(){
         customCountriesCount++;
         return String.format("%03d",customCountriesCount);
     }
@@ -51,7 +51,6 @@ public class CountryService {
 
         try (InputStream inputStream = CountryService.class.getResourceAsStream(ISO_MAPPING_PATH)) {
             code3to2 = mapper.readValue(inputStream,typeReference);
-            log.info("Country codes read succesfuly, example: POL=" + code3to2.get("POL"));
         }catch (IOException e) {
             e.printStackTrace();
         }
