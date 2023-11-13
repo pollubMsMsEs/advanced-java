@@ -155,7 +155,7 @@ public class ImportService {
             LocalDate day = caseData.getDay();
 
             if(currentCountry == null || !currentCountry.getName().equals(countryName)) {
-                currentCountry = countryService.getCountryByNameOrCreateCustom(countryName,CountryService.getCustomAlpha3Code());
+                currentCountry = countryService.getCountryByNameOrCreateCustom(countryName,countryService.getCustomAlpha3Code());
             }
 
             CasesPerDay updatedCase = casesPerDayRepository.findTopByDayAndCountryId(day,currentCountry.getId()).orElse(CasesPerDay.of(day,0L,0L,currentCountry));
@@ -178,7 +178,7 @@ public class ImportService {
             LocalDate day = vaccination.getDay();
 
             if(currentCountry == null || !currentCountry.getName().equals(countryName)) {
-                currentCountry = countryService.getCountryByNameOrCreateCustom(countryName,CountryService.getCustomAlpha3Code());
+                currentCountry = countryService.getCountryByNameOrCreateCustom(countryName,countryService.getCustomAlpha3Code());
             }
 
             VaccineManufacturer manufacturer = vaccineManufacturerRepository.findFirstByName(vaccineManufacturerName).orElseGet(() -> {
