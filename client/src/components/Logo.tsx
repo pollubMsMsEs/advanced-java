@@ -7,6 +7,7 @@ export default function Logo() {
                 display: "flex",
                 gap: "20px",
                 alignItems: "center",
+                minWidth: "300px",
             }}
         >
             <span>Covid visualizer</span>

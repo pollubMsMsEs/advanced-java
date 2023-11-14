@@ -121,9 +121,8 @@ function App() {
                         gridRow: "1 / 2",
                         display: "grid",
                         gridAutoFlow: "column",
-                        gridAutoColumns: "minmax(0,1fr)",
+                        gridAutoColumns: "minmax(min-content,1fr)",
                         alignItems: "center",
-                        gap: "100px",
                         padding: "0 20px",
                         borderBottom: "1px solid black",
                     }}

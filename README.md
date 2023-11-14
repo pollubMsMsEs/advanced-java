@@ -51,10 +51,12 @@
 
 ## Wykorzystywane dane
 
+Dane na dzień 2023-05-25
+
 -   [Przypadki i śmiertelność (według kraju i daty)](https://github.com/owid/covid-19-data/blob/master/public/data/cases_deaths/full_data.csv)
 -   [Całkowite szczepienia (według kraju, daty i producenta)](https://github.com/owid/covid-19-data/blob/master/public/data/vaccinations/vaccinations-by-manufacturer.csv)
 -   [Szczegóły dotyczące szczepień (według kraju i daty)](https://github.com/owid/covid-19-data/blob/master/public/data/vaccinations/vaccinations.csv)
 
-## Dokumentacja
+## Schemat bazy
 
 ![Diagram](./diagram.png)
