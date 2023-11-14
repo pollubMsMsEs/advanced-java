@@ -4,15 +4,29 @@
 
 ## Jak uruchomić?
 
-### Serwer
+-   Zpulluj projekt
 
-?
+### Docker
 
-### Klient
+-   Uruchom `docker compose up`
 
-1. Zpullować projekt
-2. Uruchomić `npm i`
-3. Uruchomić `npm run dev`
+### lub lokalnie
+
+#### Serwer
+
+-   Zaczekaj na zainstalowanie maven dependencies
+-   Uruchom `docker compose -f "db-compose.yml" up`
+-   Uruchom z profilem `dev`
+
+#### Klient
+
+-   Uruchom `npm i`
+-   Uruchom `npm run dev`
+
+### Po uruchomieniu
+
+-   Zarejestruj się jako admin
+-   Zaimportuj Cases i/lub Vaccinations z CSV
 
 ## Wymagania
 
@@ -27,7 +41,7 @@
 ### Opcjonalne
 
 -   Lombok ✔️
--   Gson/Xmappr/JAXB ❓
+-   Gson/Xmappr/JAXB ❓ (Jackson)
 -   Spring Boot ✔️
 -   SQL ✔️
 -   Docker ✔️
