@@ -93,6 +93,14 @@ function App() {
         setChartQuery({ ...chartQuery });
     }
 
+    function onCSVImport() {
+        if (chartQuery.countries.length === 0) {
+            location.reload();
+        } else {
+            onImport();
+        }
+    }
+
     useEffect(() => {
         document.title = "Covid Visualizer";
     }, []);
@@ -211,7 +219,11 @@ function App() {
                                 overflow: "hidden",
                             }}
                         >
-                            <ImportBar query={chartQuery} onImport={onImport} />
+                            <ImportBar
+                                query={chartQuery}
+                                onImport={onImport}
+                                onCSVImport={onCSVImport}
+                            />
                         </div>
                     </div>
                     <div

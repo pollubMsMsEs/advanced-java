@@ -5,9 +5,11 @@ import { ChartQuery } from "../types";
 export default function ImportBar({
     query,
     onImport,
+    onCSVImport,
 }: {
     query: ChartQuery | null;
     onImport: () => void;
+    onCSVImport: () => void;
 }) {
     const [isLocked, setIsLocked] = useState(false);
 
@@ -30,7 +32,7 @@ export default function ImportBar({
                 <ImportExportButton
                     isLocked={isLocked}
                     doLock={doLock}
-                    onSuccess={onImport}
+                    onSuccess={onCSVImport}
                     type="Import"
                     target="Cases"
                     url="/import/cases"
@@ -39,7 +41,7 @@ export default function ImportBar({
                 <ImportExportButton
                     isLocked={isLocked}
                     doLock={doLock}
-                    onSuccess={onImport}
+                    onSuccess={onCSVImport}
                     type="Import"
                     target="Vaccinations"
                     url="/import/vaccinations"
