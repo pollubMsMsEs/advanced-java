@@ -8,6 +8,7 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.core.io.ByteArrayResource;
 import org.springframework.core.io.Resource;
 import org.springframework.http.*;
+import org.springframework.security.access.annotation.Secured;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
 
@@ -27,6 +28,8 @@ import java.util.Objects;
 public class XmlController {
     private final XmlService xmlService;
     private final ExportService exportService;
+
+    @Secured("ADMIN")
     @GetMapping("/export/xml")
     public ResponseEntity<Resource> exportData(@RequestParam() LocalDate begin_date, @RequestParam() LocalDate end_date, @RequestParam() List<Long> countries){
         String file = xmlService.exportData(exportService.collectData(begin_date,end_date,countries));
@@ -44,6 +47,7 @@ public class XmlController {
 
     }
 
+    @Secured("ADMIN")
     @PostMapping("/import/xml")
     public ResponseEntity<?> importData(@RequestParam("data") MultipartFile file) {
         if (file.isEmpty() || (!Objects.equals(file.getContentType(), "application/xml") && !Objects.equals(file.getContentType(), "text/xml"))) {

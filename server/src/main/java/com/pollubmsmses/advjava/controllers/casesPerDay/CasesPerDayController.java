@@ -5,6 +5,7 @@ import com.pollubmsmses.advjava.services.CasesPerDayService;
 import com.pollubmsmses.advjava.services.files.ImportService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.annotation.Secured;
 import org.springframework.web.bind.annotation.*;
 
 import java.time.LocalDate;
@@ -18,6 +19,8 @@ import java.util.Map;
 public class CasesPerDayController {
     private final ImportService importService;
     private final CasesPerDayService casesPerDayService;
+
+    @Secured("ADMIN")
     @PutMapping("/import/cases")
     public ResponseEntity<Map<String, Object>> importCasesCSV() {
         ResponseEntity<Map<String,Object>> response;

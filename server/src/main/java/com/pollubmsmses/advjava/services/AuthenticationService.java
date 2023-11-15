@@ -15,7 +15,6 @@ import org.springframework.security.authentication.UsernamePasswordAuthenticatio
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
-import java.util.Optional;
 @Service
 @RequiredArgsConstructor
 public class AuthenticationService {
@@ -57,26 +56,19 @@ public class AuthenticationService {
                 .build();
     }
     public AuthenticationResponse login(LoginRequest request) {
-        Optional<User> existingUser = userRepository.findByEmail(request.getEmail());
-        if (existingUser.isEmpty()) {
-            throw new UserNotFoundException("User with this email does not exist");
-        }
-
-
         User user = userRepository.findByEmail(request.getEmail())
-                .orElseThrow();
+                .orElseThrow(() -> new UserNotFoundException("User with this email does not exist"));
 
-        if (passwordEncoder.matches(request.getPassword(), user.getPassword())) {
-            var jwtToken = jwtService.generateToken(user);
-            return AuthenticationResponse.builder()
-                    .token(jwtToken)
-                    .email(user.getEmail())
-                    .name(user.getName())
-                    .role(String.valueOf(user.getRole()))
-                    .build();
-        }
-        else {
+        if (!passwordEncoder.matches(request.getPassword(), user.getPassword())) {
             throw new InvalidPasswordException("Invalid password");
         }
+
+        var jwtToken = jwtService.generateToken(user);
+        return AuthenticationResponse.builder()
+                .token(jwtToken)
+                .email(user.getEmail())
+                .name(user.getName())
+                .role(String.valueOf(user.getRole()))
+                .build();
     }
 }
