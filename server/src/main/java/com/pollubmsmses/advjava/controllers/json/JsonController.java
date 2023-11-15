@@ -3,6 +3,7 @@ package com.pollubmsmses.advjava.controllers.json;
 import com.pollubmsmses.advjava.services.files.ExportService;
 import org.springframework.core.io.ByteArrayResource;
 import org.springframework.http.*;
+import org.springframework.security.access.annotation.Secured;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
 
@@ -28,6 +29,8 @@ public class JsonController {
 
     private final JsonService jsonService;
     private final ExportService exportService;
+
+    @Secured("ADMIN")
     @GetMapping("/export/json")
     public ResponseEntity<Resource> exportData(@RequestParam() LocalDate begin_date, @RequestParam() LocalDate end_date, @RequestParam() List<Long> countries){
         String file = jsonService.exportData(exportService.collectData(begin_date,end_date,countries));
@@ -45,6 +48,7 @@ public class JsonController {
 
     }
 
+    @Secured("ADMIN")
     @PostMapping("/import/json")
     public ResponseEntity<?> importData(@RequestParam("data") MultipartFile file) {
         if (file.isEmpty() || !Objects.equals(file.getContentType(), "application/json")) {
