@@ -9,6 +9,7 @@ import java.time.LocalDate;
 import java.util.List;
 import java.util.Optional;
 
+//Interfeace Segregation - Interfejsy podzielone według tabeli w bazie danych
 public interface CasesPerDayRepository extends JpaRepository<CasesPerDay, Long> {
     @Query("SELECT v FROM CasesPerDay v WHERE (v.day BETWEEN :begin_date AND :end_date) AND v.country.id IN :country")
     List<CasesPerDay> filter(

@@ -31,6 +31,7 @@ import org.springframework.http.ResponseEntity;
 @RequiredArgsConstructor
 @Service
 @Slf4j
+//Single Responsibility - Zajmuje się tylko krajami, tylko logiką biznesową, warstwa web jest w controlerze
 public class CountryService {
     private int customCountriesCount = 0;
 
@@ -114,6 +115,7 @@ public class CountryService {
         }
     }
 
+    //Single Responsibility - ta funkcja nie zajmuje się XML, tylko funkcje pomocnicze przetwarzają go za nią
     public String getCountryFlag(Long countryId) throws Exception {
         Country country = countryRepository.getCountryById(countryId);
         String countryCode = country.getAlpha3code();

@@ -17,8 +17,11 @@ import java.io.IOException;
 import org.springframework.lang.NonNull;
 @Component
 @RequiredArgsConstructor
+// Substytucja Liskov - Używamy naszej klasy dziedziczącej i framework działa w prawidłowy sposób
 public class JwtAuthenticationFilter extends OncePerRequestFilter {
 
+    // Dependency Injection - Klasa nie tworzy sama obiektów tylko komunikuje jakie będą jej potrzebne, natomiast spring
+    // zajmuje się przypisaniem zależności
     private final JwtService jwtService;
     private final UserDetailsService userDetailsService;
     @Override
