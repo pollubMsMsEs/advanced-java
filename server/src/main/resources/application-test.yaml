@@ -1,0 +1,35 @@
+spring:
+  datasource:
+    url: jdbc:h2:mem:db;DB_CLOSE_DELAY=-1
+    username: root
+    password: radio
+    driver-class-name: org.h2.Driver
+  jpa:
+    show-sql: true
+    hibernate:
+      ddl-auto: create-drop
+    properties:
+      hibernate:
+        dialect: org.hibernate.dialect.H2Dialect
+        jdbc:
+          batch_size: 1000
+        order_inserts: true
+        hbm2ddl:
+          auto: create-drop
+      # format_sql: true
+  autoconfigure:
+    exclude:
+      - org.springframework.boot.autoconfigure.mongo.MongoAutoConfiguration
+      - org.springframework.boot.autoconfigure.security.servlet.SecurityAutoConfiguration
+management:
+  health:
+    mongo:
+      enabled: false
+logging:
+  level:
+    org.springframework.web: DEBUG
+    org.springframework.http: DEBUG
+    org.zalando.logbook: TRACE
+    com.pseudoorganization.pseudosystemsintegration: TRACE
+jwt:
+  secretKey: "sN9M/k8wu4t/Eahhy1kNy7InYn1WuCKMULusWiT3NQU="
