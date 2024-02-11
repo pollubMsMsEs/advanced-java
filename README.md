@@ -1,6 +1,16 @@
+<div align="center">
+
 # Covid Visualizer
 
+[Launching](#launching-with-docker) • [Requirements](#requirements) • [Database shcema](#database-schema)
+
+</div>
+
 **Project subject**: Compilation of global statistical data regarding the pandemic
+
+## Showcase
+
+![Showcase](./assets/showcase.gif)
 
 ## Launching with Docker
 
@@ -68,7 +78,7 @@ Data as of 2023-05-25
 
 ## Database schema
 
-![Diagram](./diagram.png)
+![Diagram](./assets/diagram.png)
 
 ---
 
