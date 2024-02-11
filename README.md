@@ -7,7 +7,7 @@
 
 ---
 
-[Launching](#launching-with-docker) • [Requirements](#requirements) • [Database shcema](#database-schema)
+[Launching](#launching-with-docker) • [Requirements](#requirements) • [Database schema](#database-schema)
 
 </div>
 
