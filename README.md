@@ -1,62 +1,82 @@
-# Advanced Java: Project
+# Covid Visualizer
 
-**Temat**: Zestawienie globalnych danych statystycznych dotyczących pandemii
+**Project subject**: Compilation of global statistical data regarding the pandemic
 
-## Jak uruchomić?
+## Launching with Docker
 
--   Zpulluj projekt
+-   Run:
 
-### Docker
+```
+docker compose up
+```
 
--   Uruchom `docker compose up`
+## Launching without Docker
 
-### lub lokalnie
+### server
 
-#### Serwer
+-   Install maven dependencies
+-   Run:
 
--   Zaczekaj na zainstalowanie maven dependencies
--   Uruchom `docker compose -f "db-compose.yml" up`
--   Uruchom z profilem `dev`
+```
+docker compose -f "db-compose.yml" up
+```
 
-#### Klient
+-   Launch spring app with `dev` profile
 
--   Uruchom `npm i`
--   Uruchom `npm run dev`
+### client
 
-### Po uruchomieniu
+-   Run:
 
--   Zarejestruj się jako admin
--   Zaimportuj Cases i/lub Vaccinations z CSV
+```
+npm i
+npm run dev
+```
 
-## Wymagania
+## After launching
 
-### Obowiązkowe
+-   Register as admin
+-   Import Cases and/or Vaccinations from CSV
 
--   Baza danych ✔️
--   Komunikacja sieciowa ✔️
--   Obsługa plików XML & JSON ✔️
--   Rejestracja, logowanie, autoryzacja JWT ✔️
--   Testy jednostkowe/integracyjne ✔️
+## Requirements
 
-### Opcjonalne
+### Mandatory
+
+-   Database ✔️
+-   Network communication ✔️
+-   Handling of XML & JSON files ✔️
+-   Sign up, sign in & authorization of JWT ✔️
+-   Unit/Integration tests ✔️
+
+### Optional
 
 -   Lombok ✔️
--   Gson/Xmappr/JAXB ❓ (Jackson)
+-   Gson/Xmappr/JAXB ❌(used Jackson)
 -   Spring Boot ✔️
 -   SQL ✔️
 -   Docker ✔️
--   Android ❌
+-   Android app ❌
 -   Postman ✔️
 -   Git ✔️
 
-## Wykorzystywane dane
+## Used data
 
-Dane na dzień 2023-05-25
+Data as of 2023-05-25
 
--   [Przypadki i śmiertelność (według kraju i daty)](https://github.com/owid/covid-19-data/blob/master/public/data/cases_deaths/full_data.csv)
--   [Całkowite szczepienia (według kraju, daty i producenta)](https://github.com/owid/covid-19-data/blob/master/public/data/vaccinations/vaccinations-by-manufacturer.csv)
--   [Szczegóły dotyczące szczepień (według kraju i daty)](https://github.com/owid/covid-19-data/blob/master/public/data/vaccinations/vaccinations.csv)
+-   [Cases and deaths (by country and date)](https://github.com/owid/covid-19-data/blob/master/public/data/cases_deaths/full_data.csv)
+-   [Total vaccinations (by country, date and manufacturer)](https://github.com/owid/covid-19-data/blob/master/public/data/vaccinations/vaccinations-by-manufacturer.csv)
+-   [Details about vaccinations (by country and date)](https://github.com/owid/covid-19-data/blob/master/public/data/vaccinations/vaccinations.csv)
 
-## Schemat bazy
+## Database schema
 
 ![Diagram](./diagram.png)
+
+---
+
+### Used technologies
+
+[<img align="left" width="26" height="26" alt="Spring" src="https://api.iconify.design/logos:spring-icon.svg" style="padding: 0 20px 16px 0">](https://spring.io)
+[<img align="left" width="26" height="26" alt="Java" src="https://api.iconify.design/logos:java.svg" style="padding: 0 20px 16px 0">](https://www.java.com)
+[<img align="left" width="26" height="26" alt="React" src="https://api.iconify.design/devicon:react.svg" style="padding: 0 20px 16px 0">](https://react.dev)
+[<img align="left" width="26" height="26" alt="Vite" src="https://api.iconify.design/devicon:vitejs.svg" style="padding: 0 20px 16px 0">](https://vitejs.dev/)
+[<img align="left" width="26" height="26" alt="MySQL" src="https://api.iconify.design/devicon:mysql.svg" style="padding: 0 20px 16px 0">](https://www.mysql.com)
+[<img align="left" width="26" height="26" alt="Docker" src="https://api.iconify.design/logos:docker-icon.svg" style="padding: 0 20px 16px 0">](https://www.docker.com)
