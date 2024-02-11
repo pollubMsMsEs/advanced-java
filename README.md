@@ -1,6 +1,11 @@
 <div align="center">
 
-# Covid Visualizer
+<picture>
+    <source  media="(prefers-color-scheme: light)" srcset="./assets/logo-dark.svg">
+    <img width="500px" src="./assets/logo-light.svg" alt="app logo">
+</picture>
+
+---
 
 [Launching](#launching-with-docker) • [Requirements](#requirements) • [Database shcema](#database-schema)
 
